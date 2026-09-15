@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install shellcheck
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+
+      - name: shellcheck install.sh
+        run: shellcheck -S warning install.sh
+
+      - name: bash syntax check
+        run: bash -n install.sh
+
+      - name: gitleaks detect
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Brewfile parse check (ruby syntax)
+        run: ruby -c Brewfile
+
+      - name: Dry-run succeeds
+        run: ./install.sh --dry-run
+
+      - name: Symlink-integrity check (temp HOME)
+        run: |
+          set -euo pipefail
+          TMP_HOME="$(mktemp -d)"
+          echo "temp HOME: ${TMP_HOME}"
+          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" bash ./install.sh
+          fail=0
+          while IFS= read -r -d '' src; do
+            # Only package files participate in linking.
+            case "${src}" in
+              ./zsh/*|./git/*|./tmux/*|./opencode/*|./agents/*) ;;
+              *) continue ;;
+            esac
+            # Strip leading ./<pkg>/ -> $HOME-relative path.
+            rel="$(printf '%s' "${src}" | cut -d/ -f3-)"
+            pkg="$(printf '%s' "${src}" | cut -d/ -f2)"
+            # Reconstruct: ./<pkg>/<rel> -> $TMP_HOME/<rel>
+            dst="${TMP_HOME}/${rel}"
+            if [ ! -L "${dst}" ]; then
+              echo "MISSING symlink: ${dst} (from ${src})"
+              fail=1
+              continue
+            fi
+            target="$(readlink "${dst}")"
+            expected="${PWD}/${pkg}/${rel}"
+            if [ "${target}" != "${expected}" ]; then
+              echo "WRONG target: ${dst} -> ${target} (expected ${expected})"
+              fail=1
+            fi
+          done < <(find ./zsh ./git ./tmux ./opencode ./agents -type f -print0)
+          if [ "${fail}" -ne 0 ]; then
+            echo "symlink-integrity check FAILED"
+            exit 1
+          fi
+          echo "symlink-integrity check passed"
+
+  brew-macos:
+    runs-on: macos-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Brewfile parse check
+        run: ruby -c Brewfile
+
+      - name: brew bundle check
+        run: brew bundle check --file=Brewfile --no-upgrade
