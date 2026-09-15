@@ -1,0 +1,7 @@
+[user]
+	name = vityasyyy
+	email = argyavityasy1208@gmail.com
+[credential]
+	helper = osxkeychain
+[http]
+	version = HTTP/1.1
