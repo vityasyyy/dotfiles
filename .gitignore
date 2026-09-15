@@ -1,0 +1,46 @@
+# Secrets — never commit these (see task constraints).
+# Repo-relative patterns covering Stow paths that would map to secret locations.
+
+# git credentials
+.git-credentials
+**/.git-credentials
+
+# gh auth
+**/gh/hosts.yml
+
+# opencode secrets
+antigravity-accounts.json
+**/antigravity-accounts.json
+.figma-token
+**/.figma-token
+
+# sops age keys
+**/sops/age/keys.txt
+
+# ssh / kube / docker state (never vendor)
+**/.ssh/
+.ssh/
+**/.kube/
+.kube/
+**/.docker/
+.docker/
+
+# dependencies / OS noise
+node_modules/
+**/node_modules/
+.DS_Store
+**/.DS_Store
+
+# local installer backups (created under $HOME, but guard against accidental adds)
+.dotfiles.backup.*/
+**/.dotfiles.backup.*/
+
+# env / keys / certs (defense in depth)
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.p12
+*.pfx
