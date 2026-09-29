@@ -26,14 +26,26 @@ Explicitly OUT: `~/.claude`, `~/.codex`, `~/.vimrc`, `~/.vim_runtime`,
 ## Install
 
 ```sh
-git clone <this-repo> ~/dotfiles
+git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh --dry-run   # preview
-./install.sh             # link + brew bundle (macOS) + nvim clone if missing
+./install.sh             # link + brew bundle (macOS) + oh-my-zsh/p10k/nvim if missing
 ```
 
-Idempotent: re-running skips already-correct symlinks. Pre-existing files are
-moved to `~/.dotfiles.backup.<timestamp>/` before linking.
+Idempotent: re-running skips already-correct symlinks and existing clones.
+Pre-existing files are moved to `~/.dotfiles.backup.<timestamp>/` before linking.
+
+What `install.sh` sets up (so a fresh macOS profile just works):
+- symlinks for shell (`~/.zshrc`, `~/.p10k.zsh`), git, tmux, opencode, agents
+- `brew bundle` on macOS (`zsh-autosuggestions` lives here)
+- `~/.oh-my-zsh` + `powerlevel10k` theme (expected by `.zshrc`, shallow-cloned)
+- `~/.config/nvim` (cloned only when missing; existing installs never touched)
+
+Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
+`DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`.
+
+Not carried over (re-auth per profile): `~/.ssh/`, `gh auth login`,
+`gcloud auth login`, opencode/Antigravity login, sops age key, `~/.kube/`.
 
 `DOTFILES_DIR` and `HOME` env overrides are respected (CI uses a temp `HOME`).
 

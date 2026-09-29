@@ -10,6 +10,8 @@
 #   - Backs up pre-existing non-symlink targets to ~/.dotfiles.backup.<timestamp>/.
 #   - Skips symlinks that already point at the correct source.
 #   - Runs `brew bundle` on macOS only.
+#   - Clones oh-my-zsh + powerlevel10k theme only when missing
+#     (the .zshrc expects both; zsh-autosuggestions comes via Brewfile).
 #   - Clones vityasyyy/nvim-config into ~/.config/nvim only when missing.
 #   - Respects DOTFILES_DIR and HOME env overrides (used by CI).
 
@@ -22,6 +24,10 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${TARGET_HOME}/.dotfiles.backup.${TIMESTAMP}"
 
 PACKAGES=(zsh git tmux opencode agents)
+OHMYZSH_REPO="https://github.com/ohmyzsh/ohmyzsh.git"
+OHMYZSH_DIR="${TARGET_HOME}/.oh-my-zsh"
+P10K_REPO="https://github.com/romkatv/powerlevel10k.git"
+P10K_DIR="${OHMYZSH_DIR}/custom/themes/powerlevel10k"
 NVIM_REPO="https://github.com/vityasyyy/nvim-config.git"
 NVIM_DIR="${TARGET_HOME}/.config/nvim"
 
@@ -122,6 +128,41 @@ maybe_brew_bundle() {
   brew bundle --file="${DOTFILES_DIR}/Brewfile"
 }
 
+maybe_install_ohmyzsh() {
+  if [ "${DOTFILES_SKIP_OHMYZSH:-0}" = "1" ]; then
+    log "skip: oh-my-zsh clone (DOTFILES_SKIP_OHMYZSH=1)"
+    return 0
+  fi
+  if [ -d "${OHMYZSH_DIR}" ]; then
+    log "skip: ${OHMYZSH_DIR} already exists"
+    return 0
+  fi
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log "[dry-run] run: git clone --depth=1 ${OHMYZSH_REPO} ${OHMYZSH_DIR}"
+    return 0
+  fi
+  log "run: git clone --depth=1 ${OHMYZSH_REPO} ${OHMYZSH_DIR}"
+  git clone --depth=1 "${OHMYZSH_REPO}" "${OHMYZSH_DIR}"
+}
+
+maybe_install_p10k() {
+  if [ "${DOTFILES_SKIP_P10K:-0}" = "1" ]; then
+    log "skip: powerlevel10k clone (DOTFILES_SKIP_P10K=1)"
+    return 0
+  fi
+  if [ -d "${P10K_DIR}" ]; then
+    log "skip: ${P10K_DIR} already exists"
+    return 0
+  fi
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log "[dry-run] run: git clone --depth=1 ${P10K_REPO} ${P10K_DIR}"
+    return 0
+  fi
+  log "run: git clone --depth=1 ${P10K_REPO} ${P10K_DIR}"
+  mkdir -p "$(dirname "${P10K_DIR}")"
+  git clone --depth=1 "${P10K_REPO}" "${P10K_DIR}"
+}
+
 maybe_clone_nvim() {
   if [ "${DOTFILES_SKIP_NVIM:-0}" = "1" ]; then
     log "skip: nvim clone (DOTFILES_SKIP_NVIM=1)"
@@ -167,6 +208,8 @@ main() {
 
   link_packages
   maybe_brew_bundle
+  maybe_install_ohmyzsh
+  maybe_install_p10k
   maybe_clone_nvim
   log "done."
 }
