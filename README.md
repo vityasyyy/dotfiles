@@ -16,6 +16,7 @@ mirrors `$HOME`, so `zsh/.zshrc` installs to `~/.zshrc`.
 | `opencode/.config/opencode/agents/**` | `~/.config/opencode/agents/**` |
 | `opencode/.config/opencode/plugins/**` | `~/.config/opencode/plugins/**` |
 | `agents/.agents/skills/**` | `~/.agents/skills/**` |
+| `ghostty/Library/Application Support/com.mitchellh.ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
 Meta files (not linked): `README.md`, `Brewfile`, `install.sh`, `docs/`,
 `.github/`, `.gitignore`.
@@ -36,7 +37,7 @@ Idempotent: re-running skips already-correct symlinks and existing clones.
 Pre-existing files are moved to `~/.dotfiles.backup.<timestamp>/` before linking.
 
 What `install.sh` sets up (so a fresh macOS profile just works):
-- symlinks for shell (`~/.zshrc`, `~/.p10k.zsh`), git, tmux, opencode, agents
+- symlinks for shell (`~/.zshrc`, `~/.p10k.zsh`), git, tmux, opencode, agents, ghostty
 - `brew bundle` on macOS (`zsh-autosuggestions` lives here)
 - `~/.oh-my-zsh` + `powerlevel10k` theme (expected by `.zshrc`, shallow-cloned)
 - `~/.config/nvim` (cloned only when missing; existing installs never touched)
