@@ -163,3 +163,17 @@ esac
 
 # SOPS: point sops at the age key (sops 3.13 does not auto-discover ~/.config/sops/age/keys.txt)
 export SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
+
+# Cross-profile sharing (macOS pasteboards don't cross users).
+# Files: drop into /Users/Shared/ from one profile, pick up from the other.
+# Clipboard: `share-push` here, switch profile, `share-pull` there.
+# Plain text only — /Users/Shared is readable by every user, never secrets.
+share-push() {
+  pbpaste > /Users/Shared/clipboard.txt
+  echo "shared $(wc -c < /Users/Shared/clipboard.txt) bytes — switch profile and run share-pull"
+}
+share-pull() {
+  [ -f /Users/Shared/clipboard.txt ] || { echo "nothing shared yet"; return 1; }
+  pbcopy < /Users/Shared/clipboard.txt
+  echo "clipboard loaded — paste away (rm /Users/Shared/clipboard.txt when done)"
+}
