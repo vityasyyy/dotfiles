@@ -1,6 +1,9 @@
 [user]
 	name = vityasyyy
 	email = argyavityasy1208@gmail.com
+[includeIf "gitdir:~/work/"]
+	# Work repos live under ~/work/ -> Xendit identity (see .config/git/config-work).
+	path = ~/.config/git/config-work
 [credential]
 	helper = osxkeychain
 [http]

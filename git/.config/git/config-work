@@ -1,0 +1,5 @@
+# Work identity: applied automatically to any repo under ~/work/
+# via [includeIf "gitdir:~/work/"] in ~/.gitconfig.
+[user]
+	name = Muhammad Vityasy
+	email = muhammad.vityasy@xendit.co
