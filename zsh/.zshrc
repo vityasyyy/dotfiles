@@ -129,14 +129,14 @@ export PATH=$PATH:$JENA_HOME/bin
 export ENV=dev
 
 # Created by `pipx` on 2025-12-03 08:50:43
-export PATH="$PATH:/Users/miapalovaara/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 export PATH="/Library/TeX/texbin:$PATH"
 # Added by Antigravity
-export PATH="/Users/miapalovaara/.antigravity/antigravity/bin:$PATH"
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 alias lzd=lazydocker
 
 # bun completions
-[ -s "/Users/miapalovaara/.bun/_bun" ] && source "/Users/miapalovaara/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
@@ -154,7 +154,7 @@ alias cld='claude'
 alias tx='tmux'
 
 # pnpm
-export PNPM_HOME="/Users/miapalovaara/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
