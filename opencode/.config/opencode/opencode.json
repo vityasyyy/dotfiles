@@ -6,8 +6,37 @@
     "superpowers@git+https://github.com/obra/superpowers.git",
     "opencode-pencil-sync"
   ],
-  "mcp": {},
+  "mcp": {
+    "atlassian": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v2/mcp"
+    },
+    "gdrive": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "workspace-mcp",
+        "--single-user",
+        "--tools",
+        "drive",
+        "docs",
+        "--tool-tier",
+        "core"
+      ],
+      "environment": {
+        "GOOGLE_OAUTH_CLIENT_ID": "{file:/Users/muhammad.vityasy/.config/opencode/.google-client-id}",
+        "GOOGLE_OAUTH_CLIENT_SECRET": "{file:/Users/muhammad.vityasy/.config/opencode/.google-client-secret}",
+        "PATH": "{env:PATH}"
+      },
+      "enabled": true
+    }
+  },
+  "tools": {
+    "gdrive_*": false
+  },
+  "lsp": true,
   "provider": {
-    "google-antigravity": {}
+    "google-antigravity": {},
+    "opencode-go": {}
   }
 }
