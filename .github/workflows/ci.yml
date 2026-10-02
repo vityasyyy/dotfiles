@@ -43,7 +43,7 @@ jobs:
           while IFS= read -r -d '' src; do
             # Only package files participate in linking.
             case "${src}" in
-              ./zsh/*|./git/*|./tmux/*|./opencode/*|./agents/*) ;;
+              ./zsh/*|./git/*|./tmux/*|./opencode/*|./agents/*|./ghostty/*) ;;
               *) continue ;;
             esac
             # Strip leading ./<pkg>/ -> $HOME-relative path.
@@ -62,7 +62,7 @@ jobs:
               echo "WRONG target: ${dst} -> ${target} (expected ${expected})"
               fail=1
             fi
-          done < <(find ./zsh ./git ./tmux ./opencode ./agents -type f -print0)
+          done < <(find ./zsh ./git ./tmux ./opencode ./agents ./ghostty -type f -print0)
           if [ "${fail}" -ne 0 ]; then
             echo "symlink-integrity check FAILED"
             exit 1

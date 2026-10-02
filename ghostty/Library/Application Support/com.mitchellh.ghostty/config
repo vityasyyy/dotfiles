@@ -1,0 +1,26 @@
+theme = Gruvbox Dark
+selection-background = #3c3836
+selection-foreground = #ebdbb2
+
+cursor-color = #fabd2f
+
+# -------- Font --------
+font-family = DepartureMono Nerd Font Mono
+font-size = 14
+# Optionally disable ligatures for a truer bitmap look
+# -------- Cursor --------
+cursor-style = block
+cursor-style-blink = false
+
+# -------- Window --------
+window-padding-x = 10
+window-padding-y = 10
+background-opacity = 1
+
+confirm-close-surface = false
+
+# -------- Behavior --------
+copy-on-select = true
+shell-integration = zsh
+macos-option-as-alt = true
+
