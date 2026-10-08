@@ -123,8 +123,9 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export JENA_HOME=$HOME/jena
-export PATH=$PATH:$JENA_HOME/bin
+# Apache Jena (not currently installed — re-enable if added back)
+# export JENA_HOME=$HOME/jena
+# export PATH=$PATH:$JENA_HOME/bin
 
 export ENV=dev
 
@@ -177,3 +178,9 @@ share-pull() {
   pbcopy < /Users/Shared/clipboard.txt
   echo "clipboard loaded — paste away (rm /Users/Shared/clipboard.txt when done)"
 }
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
