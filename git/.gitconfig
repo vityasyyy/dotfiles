@@ -4,6 +4,9 @@
 [includeIf "gitdir:~/work/"]
 	# Work repos live under ~/work/ -> Xendit identity (see .config/git/config-work).
 	path = ~/.config/git/config-work
+[includeIf "gitdir:~/xendit/"]
+	# Xendit repos live under ~/xendit/ -> same Xendit identity.
+	path = ~/.config/git/config-work
 [credential]
 	helper = osxkeychain
 [http]
