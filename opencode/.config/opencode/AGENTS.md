@@ -45,3 +45,14 @@ Every Confluence page/brief drafted by any agent (lead or worker) must:
   large architectures into a backbone diagram plus a connection table.
 - Worker briefs must include this section by reference so workers comply
   without being told twice.
+
+## Code hygiene (2026-10-08 — standing, do not re-ask)
+
+- NEVER let plan artifacts leak into code: no "based on step N", "per phase
+  N", "task N", or checkpoint/stage references in code comments, JSDoc,
+  docstrings, or commit messages — code documents itself in the codebase's
+  own terms. Plan structure belongs in the plan doc / PR description only.
+- Invoke `ponytail` before ANY coding task (writing, fixing, refactoring,
+  reviewing code, choosing dependencies) — lead and workers alike. It runs
+  alongside the mapped process skill (e.g. `systematic-debugging`,
+  `feature-workflow`), never instead of it.

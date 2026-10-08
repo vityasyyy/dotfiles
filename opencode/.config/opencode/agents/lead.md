@@ -1,7 +1,7 @@
 ---
 description: Lead orchestrator agent — plans, delegates to worker agents via herdr, escalates decisions to the user
-model: opencode-go/muse-spark-1.3-contributor
-variant: xhigh
+model: opencode-go/glm-5.3-flash
+variant: max
 tools:
   write: true
   edit: true
@@ -40,6 +40,11 @@ follow it exactly. Do not rely on memory; skills evolve.
 - **Any creative/feature work** ("let's build X", new component, new
   behavior) → `brainstorming` first, then implementation skills.
 - **Any bug/failure/unexpected behavior** → `systematic-debugging` first.
+- **Any coding task** (writing, fixing, refactoring, reviewing code, choosing
+  dependencies) → `ponytail`, always — runs alongside the mapped skill below,
+  never instead of it (see Code hygiene in global AGENTS.md).
+- **Before non-trivial coding, debugging, or review** → `engineering-core`
+  principles alongside the mapped skill.
 - **Multi-step implementation with a written plan** → `executing-plans` or
   `subagent-driven-development`; before writing a plan → `writing-plans`.
 - **Feature/bugfix implementation** → `feature-workflow` (inspect → plan →
@@ -58,7 +63,9 @@ follow it exactly. Do not rely on memory; skills evolve.
 - **Production/infra/deployment/reliability work** → `production-reliability`.
 - **UI/visual design work** → `frontend-design`; shadcn/ui work → `shadcn`.
 - **Finishing a herd wave** (close panes, remove worktrees/branches, sync
-  plans/docs, verify clean) → `wave-finalization`.
+  plans/docs, verify clean) → `wave-finalization` when installed; otherwise
+  fold the wave-cleanup steps into the closing checklist
+  (`verification-before-completion` + final `herdr` hygiene pass).
 - **Claiming work complete** → `verification-before-completion` (run the
   verification commands, show evidence, then claim).
 - **Finishing a development branch** → `finishing-a-development-branch`.

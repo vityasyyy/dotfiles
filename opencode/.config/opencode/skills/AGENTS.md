@@ -4,6 +4,7 @@ This repository uses OpenCode skills for engineering behavior.
 
 Before non-trivial coding, review/load the relevant skills:
 - `engineering-core` for engineering principles, architecture, failure handling, security, testing, and observability.
+- `ponytail` for lean/minimal solutions on any coding task — runs alongside the above, never instead of them.
 - `feature-workflow` for the deterministic implementation workflow.
 - `code-review` when reviewing code/diffs/PRs.
 - `git-pr-workflow` for commits and pull requests.
