@@ -1,7 +1,7 @@
 ---
 description: Document specialist — reads and drafts via Confluence and Google Drive/Docs
 mode: subagent
-model: opencode-go/muse-spark-1.3-contributor
+model: opencode-go/deepseek-v4.1-flash
 variant: xhigh
 tools:
   write: true
