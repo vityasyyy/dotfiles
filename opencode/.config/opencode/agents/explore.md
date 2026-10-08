@@ -1,7 +1,7 @@
 ---
 description: Explore subagent
 mode: subagent
-model: opencode-go/muse-spark-1.3-contributor
+model: opencode-go/deepseek-v4.1-flash
 variant: xhigh
 tools:
   write: false

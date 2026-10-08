@@ -1,8 +1,8 @@
 ---
 description: General-purpose agent
 mode: subagent
-model: opencode-go/muse-spark-1.3-contributor
-variant: xhigh
+model: opencode-go/deepseek-v4.1-flash
+variant: max
 tools:
   write: true
   edit: true
