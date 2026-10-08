@@ -39,10 +39,26 @@ Every Confluence page/brief drafted by any agent (lead or worker) must:
 - NEVER reference local machine paths (~/Downloads, /tmp, .docx/.png
   filenames). If a source has no URL, write the source name with "(link TBD —
   confirm)" and ask the user for the URL instead of citing the local file.
+- Page skeleton (mirror Channel Activation: Tech Architecture): metadata
+  table (spec writer, reviewer, epic link) → Overview → Goals → decisions
+  (dated, marked "supersedes" when they override earlier text) → Scope →
+  Stakeholders (with Slack channels) → Acceptance criteria (testable bullets)
+  → Risks and mitigations (table) → Flows (numbered steps) → Components and
+  effort (table) → schemas and interfaces (tables) → Deploy → Open questions
+  WITH owners → References (named page links). On long pages keep TOC and
+  changelog in expand macros.
 - Diagrams: Confluence does NOT render Mermaid fences (they show as code
-  text). Use plain code-block ASCII diagrams (box-and-arrow, renders as
-  monospace everywhere) and/or flow tables. Keep each diagram small; split
-  large architectures into a backbone diagram plus a connection table.
+  text). Build embedded SVG figures with consistent styling and vertical
+  layout, each captioned "Figure N — <name>." followed by a one-line reading
+  note, numbered in page order so cross-references stay addressable. Small
+  code-block ASCII diagrams (box-and-arrow) with flow tables are the FALLBACK
+  when image embedding is not available. Split large architectures into a
+  backbone figure plus a connection table.
+- Tables before prose for comparisons, mappings, and per-instance rules;
+  status enums as short lozenge-like values; use expands to hide deep detail
+  a reader opens on demand. For significant page updates: update the changelog
+  and announce in the owning team's Slack channel (Remittance "How to
+  Document" update checklist).
 - Worker briefs must include this section by reference so workers comply
   without being told twice.
 

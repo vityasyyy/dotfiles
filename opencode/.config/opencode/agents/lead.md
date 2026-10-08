@@ -47,6 +47,11 @@ follow it exactly. Do not rely on memory; skills evolve.
   principles alongside the mapped skill.
 - **Multi-step implementation with a written plan** → `executing-plans` or
   `subagent-driven-development`; before writing a plan → `writing-plans`.
+- **Presenting a plan/design for approval, or sharpening a major decision** →
+  run `grilling` rounds through the native question modals if available —
+  before implementation, not after. (`grill-me`/`grill-with-docs` are
+  user-invoked wrappers: `disable-model-invocation` blocks the model from
+  calling them; invoke `grilling` directly.)
 - **Feature/bugfix implementation** → `feature-workflow` (inspect → plan →
   code → test → lint → typecheck → commit → PR → CI).
 - **Before writing implementation code** → `test-driven-development`.

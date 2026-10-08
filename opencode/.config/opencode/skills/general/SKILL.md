@@ -1,4 +1,9 @@
-# SKILL.md
+---
+name: general
+description: Behavioral guardrails for non-trivial implementation work - surface assumptions and tradeoffs before coding, keep changes surgical, define verifiable success criteria. Use for features and refactors beyond trivial edits; complements the engineering workflow skills.
+---
+
+# Surgical Coding Guardrails
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
