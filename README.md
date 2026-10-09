@@ -14,18 +14,23 @@ writes across profiles.
 
 ```
              ┌────────────── SOURCE OF TRUTH ───────────────┐
-             │  github.com/vityasyyy/dotfiles               │
+             │  github.com/<you>/dotfiles                   │
              │  shell · git · tmux · ghostty · opencode ·   │
              │  agents · install.sh · Brewfile · CI         │
              └───────┬──────────────────────────────┬───────┘
        git pull/push │                              │ git pull/push
                      ▼                              ▼
-      /Users/miapalovaara/dotfiles      /Users/muhammad.vityasy/dotfiles
-        (profile A, brew owner)           (profile B, daily ops)
+      /Users/<profile-a>/dotfiles       /Users/<profile-b>/dotfiles
+        (Profile A, brew owner)           (Profile B, daily ops)
              │ symlinks                       │ symlinks
              ▼                                ▼
       its $HOME dotfiles                its $HOME dotfiles
       (~/.zshrc → clone copy)           (~/.zshrc → clone copy)
+```
+
+*Roles, not identities:* Profile A = the macOS account that installed
+Homebrew first; Profile B = the second account. Swap in your own
+usernames — that is the only personalization the sharing model needs.
 ```
 
 One clone per profile, symlinks pointing **inward** to it. Sync ritual:
@@ -60,7 +65,7 @@ A, so everything under it is owned by A. Sharing it with profile B is an
 explicit model, not a default:
 
 ```
-/opt/homebrew                       owner: miapalovaara   group: admin
+/opt/homebrew                       owner: Profile A      group: admin
 ├── Cellar/… · bin/… (kegs)         chgrp admin + chmod g+rwX  ← both profiles install
 ├── var/homebrew/locks/…            write-gate per install/upgrade
 ├── Library/Taps/<x>/<tap>  × 3     git repos ← git needs safe.directory opt-in
@@ -111,7 +116,7 @@ Optional one-time copies for "exact" reproduction (not synced by design,
 fine on the same physical Mac):
 
 ```sh
-cp -Rp /Users/miapalovaara/.ssh ~/.ssh   # then own it: chown -R (in B)
+cp -Rp /Users/<profile-a>/.ssh ~/.ssh   # then take ownership: chown -R "$USER" ~/.ssh
 # same for ~/.kube, sops age key — move via /Users/Shared
 ```
 
@@ -158,7 +163,7 @@ is called `config`, not `config.ghostty` — Ghostty only reads `config`).
 ### New profile (blank macOS account)
 
 ```sh
-git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
+git clone https://github.com/<you>/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./install.sh          # links + brew bundle + oh-my-zsh/p10k/nvim
 gh auth login -w && gcloud auth login --no-launch-browser   # per-profile, once
 brew trust hashicorp/tap && brew trust anomalyco/tap        # per-profile, once
@@ -183,6 +188,17 @@ ls -la ~/.zshrc ~/.tmux.conf ~/.gitconfig    # → symlinks into ~/dotfiles
 Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 `DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`.
 
+### Make it yours (fork checklist)
+
+| File | Personalize |
+| --- | --- |
+| `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
+| `opencode/.config/opencode/AGENTS.md` | `Owner:` header + standing rules you want agents to follow |
+| `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
+| `Brewfile` | prune to your own `brew list --installed-on-request` |
+| references to `<profile-a>` / `<profile-b>` | your macOS usernames (this README + any scripts where you copy them) |
+| git remote | `fork` first, then `git remote set-url origin <your-fork-url>` in each profile's clone |
+
 ---
 
 ## 7. Incident log (what bit us, and the exact fix)
@@ -205,7 +221,7 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | Repo path | Installs to |
 | --- | --- |
 | `zsh/.zshrc`, `.p10k.zsh`, `.bashrc`, `.profile` | `~/…` |
-| `git/.gitconfig`, `git/.config/git/config-work` | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for `~/work/`, `~/xendit/`) |
+| `git/.gitconfig`, `git/.config/git/config-work` | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for the `[includeIf]` paths you define — e.g. an org subfolder under `$HOME`) |
 | `tmux/.tmux.conf` | `~/.tmux.conf` |
 | `opencode/.config/opencode/**` | `~/.config/opencode/**` (config, agents, skills, plugins) |
 | `agents/.agents/skills/**` | `~/.agents/skills/**` |
@@ -225,8 +241,11 @@ missing; respects `DOTFILES_DIR` and `HOME` overrides (CI uses a temp
 ### Neovim (not vendored)
 
 ```sh
-git clone https://github.com/vityasyyy/nvim-config.git ~/.config/nvim
+git clone https://github.com/<you>/nvim-config.git ~/.config/nvim
 ```
+
+(`install.sh` clones whatever `NVIM_REPO` points at, only when
+`~/.config/nvim` is missing — existing installs are never touched.)
 
 ### Brew
 
