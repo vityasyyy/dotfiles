@@ -21,6 +21,7 @@ confirm-close-surface = false
 
 # -------- Behavior --------
 copy-on-select = true
+clipboard-write = allow
 shell-integration = zsh
 macos-option-as-alt = true
 
