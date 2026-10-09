@@ -9,5 +9,14 @@
 	path = ~/.config/git/config-work
 [credential]
 	helper = osxkeychain
+[safe]
+	# Shared Homebrew: /opt/homebrew and its taps belong to the other macOS
+	# profile and are group-writable (multi-user brew). git's automatic
+	# same-group rule rejects group-writable repos, so opt in explicitly.
+	# These entries are no-ops for a profile that owns the paths itself.
+	directory = /opt/homebrew
+	directory = /opt/homebrew/Library/Taps/anomalyco/homebrew-tap
+	directory = /opt/homebrew/Library/Taps/cloudflare/homebrew-cloudflare
+	directory = /opt/homebrew/Library/Taps/hashicorp/homebrew-tap
 [http]
 	version = HTTP/1.1
