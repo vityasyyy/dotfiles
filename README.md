@@ -31,7 +31,6 @@ writes across profiles.
 *Roles, not identities:* Profile A = the macOS account that installed
 Homebrew first; Profile B = the second account. Swap in your own
 usernames — that is the only personalization the sharing model needs.
-```
 
 One clone per profile, symlinks pointing **inward** to it. Sync ritual:
 
@@ -109,7 +108,7 @@ gcloud auth login --no-launch-browser     # prints URL → paste auth code back
 BROWSER=echo <other-tool> login           # forces URL-print for tools that insist on a browser
 ```
 
-Copy a URL out of ssh: select it, `C-Space`, `v`, `y` (see §6) — it lands
+Copy a URL out of ssh: select it, `C-Space`, `v`, `y` (see §5) — it lands
 on the local pasteboard.
 
 Optional one-time copies for "exact" reproduction (not synced by design,
