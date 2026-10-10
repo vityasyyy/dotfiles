@@ -44,3 +44,7 @@ id_rsa*
 id_ed25519*
 *.p12
 *.pfx
+
+# figma mcp oauth client credentials (opencode)
+.figma-mcp-oauth
+**/.figma-mcp-oauth

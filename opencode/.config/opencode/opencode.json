@@ -13,7 +13,11 @@
     },
     "figma": {
       "type": "remote",
-      "url": "https://mcp.figma.com/mcp"
+      "url": "https://mcp.figma.com/mcp",
+      "oauth": {
+        "clientId": "WIOaMeIVh0QpJStFlrBWyS",
+        "clientSecret": "{env:FIGMA_MCP_CLIENT_SECRET}"
+      }
     }
   },
   "lsp": true,

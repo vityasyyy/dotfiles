@@ -165,6 +165,9 @@ esac
 # SOPS: point sops at the age key (sops 3.13 does not auto-discover ~/.config/sops/age/keys.txt)
 export SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
 
+# Figma MCP OAuth client credentials (real file at ~/.config/opencode/.figma-mcp-oauth, gitignored — never commit).
+[ -f "$HOME/.config/opencode/.figma-mcp-oauth" ] && source "$HOME/.config/opencode/.figma-mcp-oauth"
+
 # Cross-profile sharing (macOS pasteboards don't cross users).
 # Files: drop into /Users/Shared/ from one profile, pick up from the other.
 # Clipboard: `share-push` here, switch profile, `share-pull` there.
