@@ -47,13 +47,29 @@ Every Confluence page/brief drafted by any agent (lead or worker) must:
   effort (table) → schemas and interfaces (tables) → Deploy → Open questions
   WITH owners → References (named page links). On long pages keep TOC and
   changelog in expand macros.
-- Diagrams: Confluence does NOT render Mermaid fences (they show as code
-  text). Build embedded SVG figures with consistent styling and vertical
-  layout, each captioned "Figure N — <name>." followed by a one-line reading
-  note, numbered in page order so cross-references stay addressable. Small
-  code-block ASCII diagrams (box-and-arrow) with flow tables are the FALLBACK
-  when image embedding is not available. Split large architectures into a
-  backbone figure plus a connection table.
+- Diagrams: use Mermaid code fences by default everywhere (Argya Vityasy
+  preference, 2026-10-09 — supersedes the earlier SVG/ASCII rule from
+  2026-10-01). In chat, plans, PRs and editor tooling Mermaid renders natively;
+  use `flowchart` (TD/LR) for architecture and `sequenceDiagram` for request
+  flows. Split large architectures into a backbone diagram plus a connection
+  table. ASCII box-and-arrow is only a last resort if Mermaid syntax cannot
+  express it.
+- RENDERED DIAGRAMS IN DOCS (2026-10-09 — Argya Vityasy standing rule): what
+  lands in documents is the RENDERED diagram, not the Mermaid source. Pipeline,
+  proven on 2026-10-09: (1) write `<name>.mmd` source files; (2) render to SVG
+  via mermaid.ink (`$ B64=$(base64 -i f.mmd | tr -d '=' | tr '+' '-' | tr '/'
+  '_'); curl -s "https://mermaid.ink/svg/$B64" -o f.svg`) or kroki.io
+  (`curl --data-binary @f.mmd -H "Content-Type: text/plain" -o f.svg
+  https://kroki.io/mermaid/svg`) or mermaid-cli (`npx -y
+  @mermaid-js/mermaid-cli -i f.mmd -o f.svg`) — mermaid.ink/kroki need no
+  browser download; (3) attach the SVG to the target Confluence page via
+  createConfluenceAttachment (returns a short-lived curl uploadCommand — run
+  it from bash, keep tokens out of logs); (4) embed with the media-single
+  figure pattern using the attachment's `fileId` UUID + collection
+  `contentId-<pageId>`, with `<figcaption>` "Figure N — <name>." plus a
+  one-line reading note; (5) keep the .mmd sources on disk under the project
+  docs dir. Never embed raw Mermaid code fences into a published Confluence
+  page again — the render-first rule replaces that interim behavior.
 - Tables before prose for comparisons, mappings, and per-instance rules;
   status enums as short lozenge-like values; use expands to hide deep detail
   a reader opens on demand. For significant page updates: update the changelog
