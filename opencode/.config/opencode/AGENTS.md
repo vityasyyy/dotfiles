@@ -3,6 +3,13 @@
 Owner: vityasyyy. Standing instructions from 2026-09-15 — these override any
 skill or convention that says otherwise. Reconfirm if they ever look unsafe.
 
+## Large downloads (2026-10-10 — standing)
+
+Local network here downloads slowly. When a step requires downloading or
+installing anything (tool installs, updates, release binaries), ask the user
+and END the chat first so they can run the download on their machine; resume
+the task only after they confirm the file is in place.
+
 ## PR merges (invenio-rdm-gitops)
 
 When CI is green on a pull request, squash-merge it and delete the branch
