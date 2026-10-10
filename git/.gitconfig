@@ -20,3 +20,9 @@
 	directory = /opt/homebrew/Library/Taps/hashicorp/homebrew-tap
 [http]
 	version = HTTP/1.1
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
