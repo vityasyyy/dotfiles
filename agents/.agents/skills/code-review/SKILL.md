@@ -1,7 +1,6 @@
 ---
 name: code-review
 description: Rigorous universal code review for correctness, security, reliability, maintainability, observability, performance, testing, database safety, and production failure modes. Use when reviewing diffs, PRs, existing code, or proposed architecture.
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: review

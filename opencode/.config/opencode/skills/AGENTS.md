@@ -1,8 +1,10 @@
-# Engineering Agent Instructions
+# OpenCode Skill Routing
 
-This repository uses OpenCode skills for engineering behavior.
+Portable workflow skills live in `~/.agents/skills/` and are shared with
+Codex. This directory keeps OpenCode-specific skills such as `herd` and
+`shadcn`.
 
-Before non-trivial coding, review/load the relevant skills:
+Before non-trivial coding, load the relevant shared skills:
 - `engineering-core` for engineering principles, architecture, failure handling, security, testing, and observability.
 - `ponytail` for lean/minimal solutions on any coding task — runs alongside the above, never instead of them.
 - `feature-workflow` for the deterministic implementation workflow.
@@ -10,8 +12,9 @@ Before non-trivial coding, review/load the relevant skills:
 - `git-pr-workflow` for commits and pull requests.
 - `parallel-worktrees` whenever dispatching concurrent write-capable agents/subagents.
 - `production-reliability` for production, infrastructure, persistence, deployment, or reliability work.
+- `confluence-authoring` for Confluence pages and briefs.
 
-## Mandatory workflow
+## Non-trivial implementation workflow
 
 For normal feature/bug/refactor work:
 

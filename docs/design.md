@@ -11,14 +11,16 @@ Top-level dirs are install packages; the remainder of each repo path is the
 - `git/` → `~/.gitconfig`
 - `tmux/` → `~/.tmux.conf`
 - `opencode/.config/opencode/` → `~/.config/opencode/` (`opencode.json`,
-  `AGENTS.md`, `skills/`, `agents/`, `plugins/`)
+  `AGENTS.md`, OpenCode-only `skills/`, `agents/`, `plugins/`)
 - `agents/.agents/` → `~/.agents/` (`skills/`)
+- `codex/.codex/` → `~/.codex/` (Codex-specific `AGENTS.md`; runtime state stays local)
 
 Meta (never linked): `README.md`, `Brewfile`, `install.sh`, `docs/`,
 `.github/`, `.gitignore`. Discovery is `find <pkg> -type f`; the link target
 is `$HOME/<path-minus-pkg-prefix>`. No GNU Stow dependency.
 
-OUT by design: `~/.claude`, `~/.codex`, `~/.vimrc`, `~/.vim_runtime`,
+OUT by design: `~/.claude`, Codex runtime/auth state other than the managed
+`~/.codex/AGENTS.md`, `~/.vimrc`, `~/.vim_runtime`,
 `~/.config/nvim` contents (cloned, not vendored), and all secrets.
 
 ## 2. Sanitization
@@ -39,7 +41,7 @@ OUT by design: `~/.claude`, `~/.codex`, `~/.vimrc`, `~/.vim_runtime`,
 
 1. Parse `--dry-run`/`--help`. Resolve `DOTFILES_DIR` (script dir) and
    `HOME`. Timestamped `BACKUP_DIR=~/.dotfiles.backup.<ts>` created lazily.
-2. For each file under `PACKAGES=(zsh git tmux opencode agents)`:
+2. For each file under `PACKAGES=(zsh git tmux opencode agents codex ghostty)`:
    - If `$dst` is a symlink to `$src` → skip (idempotent).
    - Else if `$dst` exists (file/dir/wrong symlink) → `mv` to backup dir,
      then `mkdir -p $(dirname $dst)` + `ln -s $src $dst`.

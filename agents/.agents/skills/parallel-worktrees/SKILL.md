@@ -1,7 +1,6 @@
 ---
 name: parallel-worktrees
 description: Safe parallel-agent workflow using isolated Git worktrees. Use whenever multiple agents/subagents are dispatched to independent tasks that modify the same repository or could otherwise collide.
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: parallel-development

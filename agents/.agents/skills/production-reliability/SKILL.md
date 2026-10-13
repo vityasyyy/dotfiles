@@ -1,7 +1,6 @@
 ---
 name: production-reliability
 description: Production engineering guidance for designing, deploying, operating, observing, and recovering software. Covers statelessness, HA, backups, migrations, timeouts, retries, idempotency, graceful degradation, telemetry, incident readiness, and rollback.
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: production

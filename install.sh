@@ -5,7 +5,7 @@
 #   ./install.sh [--dry-run] [--help]
 #
 # Behaviour:
-#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, ghostty/
+#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, codex/, ghostty/
 #     into $HOME, stripping the first path component
 #     (e.g. zsh/.zshrc -> ~/.zshrc).
 #   - Backs up pre-existing non-symlink targets to ~/.dotfiles.backup.<timestamp>/.
@@ -24,7 +24,7 @@ DRY_RUN=0
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${TARGET_HOME}/.dotfiles.backup.${TIMESTAMP}"
 
-PACKAGES=(zsh git tmux opencode agents ghostty)
+PACKAGES=(zsh git tmux opencode agents codex ghostty)
 OHMYZSH_REPO="https://github.com/ohmyzsh/ohmyzsh.git"
 OHMYZSH_DIR="${TARGET_HOME}/.oh-my-zsh"
 P10K_REPO="https://github.com/romkatv/powerlevel10k.git"

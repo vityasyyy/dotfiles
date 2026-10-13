@@ -1,7 +1,6 @@
 ---
 name: engineering-core
 description: Universal engineering principles for AI coding agents. Use before implementing, reviewing, debugging, refactoring, or exploring code. Establishes correctness, security, reliability, maintainability, observability, failure-oriented design, architecture, testing, and decision-making rules while minimizing unnecessary questions.
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: engineering

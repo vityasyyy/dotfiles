@@ -16,7 +16,7 @@ writes across profiles.
              ┌────────────── SOURCE OF TRUTH ───────────────┐
              │  github.com/<you>/dotfiles                   │
              │  shell · git · tmux · ghostty · opencode ·   │
-             │  agents · install.sh · Brewfile · CI         │
+             │  codex · shared skills · install.sh · CI     │
              └───────┬──────────────────────────────┬───────┘
        git pull/push │                              │ git pull/push
                      ▼                              ▼
@@ -51,9 +51,9 @@ over?" is always answered by the row it lands in.
 
 | Bucket | What | Synced? |
 | --- | --- | --- |
-| **Config** | `.zshrc`, `.gitconfig`, `.tmux.conf`, ghostty, opencode, agents, Brewfile | Yes — repo + symlinks (the whole point) |
+| **Config** | `.zshrc`, `.gitconfig`, `.tmux.conf`, Ghostty, OpenCode, Codex instructions, shared agent skills, Brewfile | Yes — repo + symlinks (the whole point) |
 | **Per-profile state** | shell history, tool caches, `~/.oh-my-zsh`, `~/.config/nvim` clones | No — installed per profile by `install.sh`, never shared |
-| **Secrets / auth** | `~/.ssh`, gh/gcloud/claude/opencode tokens, `~/.kube`, sops age key | **Never** — gitignored, CI-scanned; re-auth per profile by design |
+| **Secrets / auth** | `~/.ssh`, gh/gcloud/OpenCode/Codex tokens, `~/.kube`, sops age key | **Never** — gitignored, CI-scanned; re-auth per profile by design |
 
 ---
 
@@ -162,11 +162,24 @@ is called `config`, not `config.ghostty` — Ghostty only reads `config`).
 ### New profile (blank macOS account)
 
 ```sh
-git clone https://github.com/<you>/dotfiles.git ~/dotfiles
+git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./install.sh          # links + brew bundle + oh-my-zsh/p10k/nvim
 gh auth login -w && gcloud auth login --no-launch-browser   # per-profile, once
 brew trust hashicorp/tap && brew trust anomalyco/tap        # per-profile, once
 ```
+
+This repository is the shared source of truth for both profiles. On the
+second profile, clone it once with the command above; after that, pull the
+latest changes and re-run the installer in either profile:
+
+```sh
+git -C ~/dotfiles pull --ff-only
+~/dotfiles/install.sh
+```
+
+To publish a config change, commit and push it from either profile, then run
+those two commands in the other profile. Both clones use the same GitHub
+repository, while authentication and runtime state stay local to each profile.
 
 ### Weekly / any-change ritual
 
@@ -192,7 +205,9 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | File | Personalize |
 | --- | --- |
 | `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
-| `opencode/.config/opencode/AGENTS.md` | `Owner:` header + standing rules you want agents to follow |
+| `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode and Codex |
+| `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
+| `opencode/.config/opencode/AGENTS.md` | OpenCode-specific provider, Herdr, and TUI instructions |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | `Brewfile` | prune to your own `brew list --installed-on-request` |
 | references to `<profile-a>` / `<profile-b>` | your macOS usernames (this README + any scripts where you copy them) |
@@ -222,8 +237,9 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `zsh/.zshrc`, `.p10k.zsh`, `.bashrc`, `.profile` | `~/…` |
 | `git/.gitconfig`, `git/.config/git/config-work` | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for the `[includeIf]` paths you define — e.g. an org subfolder under `$HOME`) |
 | `tmux/.tmux.conf` | `~/.tmux.conf` |
-| `opencode/.config/opencode/**` | `~/.config/opencode/**` (config, agents, skills, plugins) |
+| `opencode/.config/opencode/**` | `~/.config/opencode/**` (config, agents, OpenCode-only skills, plugins) |
 | `agents/.agents/skills/**` | `~/.agents/skills/**` |
+| `codex/.codex/AGENTS.md` | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
 | `ghostty/Library/…/com.mitchellh.ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
 Meta files (not linked): `README.md`, `Brewfile`, `install.sh`, `docs/`,

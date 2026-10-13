@@ -1,7 +1,6 @@
 ---
 name: feature-workflow
 description: "Use when implementing features, bug fixes, or refactors in a deterministic workflow: inspect, plan, code, test, format/lint, type-check, detect duplication, commit with Conventional Commits, create a PR, and wait for CI before declaring completion."
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: feature-development

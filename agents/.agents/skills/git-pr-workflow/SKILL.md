@@ -1,7 +1,6 @@
 ---
 name: git-pr-workflow
 description: Git and pull-request discipline for AI coding agents. Enforces clean diffs, Conventional Commits, safe branch handling, descriptive PRs, and waiting for required CI checks before completion.
-compatibility: opencode
 metadata:
   audience: ai-coding-agent
   workflow: git
@@ -126,6 +125,8 @@ Never weaken or bypass tests merely to make CI green.
 
 ## Merge
 
-Do not merge unless explicitly authorized by the user's workflow.
+Merge only when the user's current request or standing repository-specific workflow authorizes it. In `invenio-rdm-gitops`, once the full diff has been reviewed and required CI is green, the standing workflow authorizes squash-merging and deleting the branch without asking for per-PR approval. Never merge directly to `main` and never force-push. If merge fails, fix forward or report the blocker.
 
-If the repository requires human approval, stop after CI is green and report that approval is pending.
+For changes consumed by deployment or infrastructure pipelines in `invenio-rdm-gitops`, verify the required post-merge production and infrastructure pipelines before reporting completion. A green PR check alone is not completion for those changes.
+
+For other repositories, follow their own merge policy and the user's explicit authorization.
