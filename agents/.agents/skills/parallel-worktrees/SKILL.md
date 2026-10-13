@@ -24,6 +24,12 @@ Each agent receives:
 - a clearly scoped task;
 - only the files/components it owns when practical.
 
+## Prerequisites
+
+- If you are already inside an isolated worktree, do not create another — work there.
+- Before dispatching any parallel work, verify the baseline: repo status clean or deliberately preserved, and tests passing on the base commit.
+- Sequential single-task work does not need a worktree; don't create one for ceremony.
+
 ## Before Dispatch
 
 1. Inspect repository status.

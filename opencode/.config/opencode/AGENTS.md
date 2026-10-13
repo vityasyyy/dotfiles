@@ -3,6 +3,31 @@
 Owner: vityasyyy. Standing instructions from 2026-09-15 — these override any
 skill or convention that says otherwise. Reconfirm if they ever look unsafe.
 
+## Skill routing table (2026-10-13 — standing)
+
+Invoke the matching skill BEFORE acting; announce "Using [skill] to [purpose]".
+One router: this table. Raise clarifying decisions through native question
+modals when the harness exposes them, inline otherwise.
+
+| Trigger | Skill |
+|---|---|
+| Plan/design/creative work of any size | `grilling` first (interview rounds to shared understanding), then `brainstorming` → `writing-plans` → `executing-plans` |
+| Any bug, failure, or unexpected behavior | `systematic-debugging` before proposing fixes |
+| Implementing maintained app code / behavior changes | `test-driven-development` (triage gate inside the skill covers skippable cases) |
+| About to claim done/fixed/passing | `verification-before-completion` — evidence before assertions |
+| Reviewing diffs/PRs/architecture | `code-review`; when receiving review feedback → `receiving-code-review` |
+| Commits, branches, PRs, CI | `git-pr-workflow` |
+| Parallel or delegated work | `herd` is the primary orchestrator (workers = herdr panes); `parallel-worktrees` for isolated in-repo branches. No ad-hoc subagent chains. |
+| Confluence/documentation work | `confluence-authoring`; atlassian MCP is disabled (below) until needed |
+| Infra/production/reliability work | `production-reliability` |
+| UI/visual design work | `frontend-design` |
+| Writing or editing skills | `writing-skills` |
+| opencode's own config/agents/skills/plugins | `customize-opencode` (built-in) |
+| User states a durable preference/correction | `memory` — persist as dated standing rule here |
+
+Execution default: inline in this session. Planning artifacts (specs, plans,
+ADRs) live under the repo's `docs/plans/`.
+
 ## Large downloads (2026-10-10 — standing)
 
 Local network here downloads slowly. When a step requires downloading or
@@ -10,13 +35,22 @@ installing anything (tool installs, updates, release binaries), ask the user
 and END the chat first so they can run the download on their machine; resume
 the task only after they confirm the file is in place.
 
+## Atlassian MCP dormant (2026-10-13 — standing)
+
+`mcp.atlassian` ships disabled in opencode.json (login is preserved in the
+auth store). For Confluence/Jira work: flip `enabled: true`, have the user
+restart opencode, then proceed with `confluence-authoring`. Flip it back off
+afterward. Same pattern if a per-session integration is requested (Figma is
+configurable per-project when needed).
+
 ## Shared workflow skills
 
-Portable engineering and document conventions live in `~/.agents/skills/`
-and are shared with Codex. Load the relevant skill for the task. In
-particular, use `confluence-authoring` for Confluence work and
-`git-pr-workflow` for branch and PR work. OpenCode-specific providers,
-roles, and Herdr orchestration remain in this configuration.
+Skill files live canonically in `~/dotfiles/agents/.agents/skills/` (shared
+with Codex) and `~/dotfiles/opencode/.config/opencode/skills/` (opencode-only),
+linked into `~/.agents/skills/` and `~/.config/opencode/skills/` by
+`dotfiles/install.sh`. Edit the dotfiles source, never the `$HOME` link; run
+`install.sh` after adding or moving skills. Project-local skills live in the
+repo's `.opencode/skills/`.
 
 ## Worker approvals (herd)
 
@@ -38,3 +72,28 @@ out-of-scope actions, anything affecting the cluster, and ambiguous decisions.
   reviewing code, choosing dependencies) — lead and workers alike. It runs
   alongside the mapped process skill (e.g. `systematic-debugging`,
   `feature-workflow`), never instead of it.
+- Code stays minimal: no speculative abstractions, no boilerplate, no
+  unnecessary JSDoc or comment bloat. Bloat in any artifact (code, docs,
+  skills) is a defect.
+
+## Response style (2026-10-13 — standing)
+
+Lead with the artifact, not prose. Concise but complete — detail lives in
+structure, not adjectives.
+
+- Diagram any architecture, data flow, or state change as Mermaid:
+  `flowchart TD` / `sequenceDiagram` / `stateDiagram-v2`.
+- Keep diagrams human-readable: short node labels, top-to-bottom layout,
+  annotated edges, no spaghetti. If it reads as noodles, split it.
+- Follow every diagram with 1–3 sentences interpreting it; don't assume the
+  picture speaks for itself.
+- Render-first: when the target surface renders Mermaid (Confluence, PR
+  markdown), prefer rendered diagrams over ASCII art; in plain terminals,
+  pair the Mermaid block with the verbal interpretation.
+
+## Memory convention (2026-10-13 — standing)
+
+Durable preferences from the operator are persisted via the `memory` skill as
+dated standing-rule sections in this file. New preferences arriving in chat
+are saved here automatically — the operator should not have to repeat himself.
+Never store secrets or credentials here.

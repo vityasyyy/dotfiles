@@ -60,6 +60,15 @@ Prefer:
 
 Do not cargo-cult SOLID, DDD, CQRS, event sourcing, microservices, design patterns, or abstractions. Introduce them only when they solve a demonstrated problem.
 
+## Surgical Changes
+
+Touch only what the request requires; every changed line should trace to it.
+
+- Don't "improve" adjacent code, comments, or formatting; match existing style even when you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+- Remove orphans (imports, variables, functions) that YOUR change created; leave pre-existing ones alone.
+- Don't fold an unrelated refactor into a feature diff.
+
 ## 4. Architecture
 
 The default application flow is:

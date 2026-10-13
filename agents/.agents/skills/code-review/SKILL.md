@@ -10,6 +10,15 @@ metadata:
 
 Review the system, not just the changed lines.
 
+## Before Requesting Review
+
+Before handing your own work to review (or asking a herd worker to review):
+
+1. Run the verification suite yourself (`verification-before-completion`) — a review request is never a status report.
+2. Re-read your own diff first: stray debug code, leftover plan artifacts ("per step N"), unrelated churn.
+3. Confirm every requirement is demonstrably implemented; state any known gaps explicitly rather than hoping the reviewer misses them.
+4. Delegate formal reviews through herd (herdr panes), not ad-hoc subagent chains.
+
 ## Review Order
 
 1. Correctness
