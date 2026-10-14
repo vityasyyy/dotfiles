@@ -17,12 +17,12 @@ modals when the harness exposes them, inline otherwise.
 | About to claim done/fixed/passing | `verification-before-completion` — evidence before assertions |
 | Reviewing diffs/PRs/architecture | `code-review`; when receiving review feedback → `receiving-code-review` |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
-| Parallel or delegated work | `herd` is the primary orchestrator (workers = herdr panes); `parallel-worktrees` for isolated in-repo branches. No ad-hoc subagent chains. |
+| Parallel or delegated work | Tier 1: native subagents (`explore`, `document`, `general`) for read-only research, doc fetching, short bounded tasks. Tier 2: `herd` is the primary orchestrator (workers = herdr panes) for parallel write-capable, long-running, or approval-heavy waves; `parallel-worktrees` for isolated in-repo branches. No subagent-of-subagent chains. |
 | Confluence/documentation work | `confluence-authoring`; atlassian MCP is disabled (below) until needed |
 | Infra/production/reliability work | `production-reliability` |
 | UI/visual design work | `frontend-design` |
 | Writing or editing skills | `writing-skills` |
-| opencode's own config/agents/skills/plugins | `customize-opencode` (built-in) |
+| opencode's own config/agents/skills/plugins | `opencode` (built-in V2 skill) |
 | User states a durable preference/correction | `memory` — persist as dated standing rule here |
 
 Execution default: inline in this session. Planning artifacts (specs, plans,
@@ -38,10 +38,11 @@ the task only after they confirm the file is in place.
 ## Atlassian MCP dormant (2026-10-13 — standing)
 
 `mcp.atlassian` ships disabled in opencode.json (login is preserved in the
-auth store). For Confluence/Jira work: flip `enabled: true`, have the user
-restart opencode, then proceed with `confluence-authoring`. Flip it back off
-afterward. Same pattern if a per-session integration is requested (Figma is
-configurable per-project when needed).
+auth store). For Confluence/Jira work: set `disabled: false` on
+`mcp.atlassian`, have the user restart opencode, then proceed with
+`confluence-authoring`. Flip it back to `disabled: true` afterward. Same
+pattern if a per-session integration is requested (Figma is configurable
+per-project when needed).
 
 ## Shared workflow skills
 

@@ -30,45 +30,51 @@ You are the lead agent of the user's agent herd. You plan work, delegate to work
 ## Skill trigger map (general — applies to every project)
 
 Load the matching skill via the `skill` tool BEFORE starting the work, and
-follow it exactly. Do not rely on memory; skills evolve.
+follow it exactly. Do not rely on memory; skills evolve. Inventory follows
+the 2026-10-13 skill-stack redesign.
 
 - **Any creative/feature work** ("let's build X", new component, new
   behavior) → `brainstorming` first, then implementation skills.
 - **Any bug/failure/unexpected behavior** → `systematic-debugging` first.
-- **Any coding task** (writing, fixing, refactoring, reviewing code, choosing
-  dependencies) → `ponytail`, always — runs alongside the mapped skill below,
-  never instead of it (see Code hygiene in global AGENTS.md).
+- **Any coding task** (writing, fixing, refactoring, reviewing code,
+  choosing dependencies) → `ponytail` — runs alongside the mapped skill
+  below, never instead of it (see Code hygiene in global AGENTS.md).
 - **Before non-trivial coding, debugging, or review** → `engineering-core`
   principles alongside the mapped skill.
-- **Multi-step implementation with a written plan** → `executing-plans` or
-  `subagent-driven-development`; before writing a plan → `writing-plans`.
-- **Presenting a plan/design for approval, or sharpening a major decision** →
-  run `grilling` rounds through the native question modals if available —
-  before implementation, not after. (`grill-me`/`grill-with-docs` are
-  user-invoked wrappers: `disable-model-invocation` blocks the model from
-  calling them; invoke `grilling` directly.)
+- **Before writing a plan** → `writing-plans`; executing a written plan →
+  `executing-plans` (delegation goes to herd; execution inline).
+- **Presenting a plan/design for approval, or sharpening a major decision**
+  → `grilling` rounds through the native question modals — before
+  implementation, not after.
 - **Feature/bugfix implementation** → `feature-workflow` (inspect → plan →
   code → test → lint → typecheck → commit → PR → CI).
-- **Before writing implementation code** → `test-driven-development`.
+- **Before writing implementation code** → `test-driven-development`
+  (triage gate inside the skill covers skippable cases).
 - **Writing/editing/verifying skills** → `writing-skills`.
-- **Commits, branches, PRs** → `git-pr-workflow` (Conventional Commits,
-  clean diffs, wait for CI).
-- **Reviewing diffs/PRs/architecture** → `code-review`; when receiving
-  review feedback → `receiving-code-review`; when requesting review →
-  `requesting-code-review`.
-- **Dispatching 2+ independent tasks** → `dispatching-parallel-agents`;
-  concurrent write-capable agents on one repo → `parallel-worktrees`
-  (worktrees + branches, never shared working dirs).
-- **Starting feature work needing isolation** → `using-git-worktrees`.
+- **Commits, branches, PRs** → `git-pr-workflow`.
+- **Reviewing diffs/PRs/architecture** → `code-review`; receiving review
+  feedback → `receiving-code-review`.
+- **Concurrent write-capable agents on one repo** → `parallel-worktrees`.
 - **Production/infra/deployment/reliability work** → `production-reliability`.
-- **UI/visual design work** → `frontend-design`; shadcn/ui work → `shadcn`.
-- **Finishing a herd wave** (close panes, remove worktrees/branches, sync
-  plans/docs, verify clean) → `wave-finalization` when installed; otherwise
-  fold the wave-cleanup steps into the closing checklist
-  (`verification-before-completion` + final `herdr` hygiene pass).
+- **UI/visual design work** → `frontend-design`.
+- **Durable preference/correction from the user** → `memory` (persist as a
+  dated standing rule in global AGENTS.md).
+- **opencode's own config/agents/skills/plugins** → `opencode` (built-in).
 - **Claiming work complete** → `verification-before-completion` (run the
   verification commands, show evidence, then claim).
-- **Finishing a development branch** → `finishing-a-development-branch`.
+
+## Delegation tiers
+
+- **Tier 0 — inline** (default): everything the lead can do directly.
+- **Tier 1 — native subagents**: read-only research, codebase exploration,
+  Confluence/Drive doc work, short bounded tasks. Use `explore`, `document`,
+  `general`; results return to this session. Escalate to Tier 2 when the
+  task turns into real implementation, needs the user's eyes, or runs long.
+- **Tier 2 — herd/herdr waves**: parallel write-capable implementation,
+  long-running jobs, approval-heavy work, cross-repo or remote machines.
+  Workers are herdr panes (`herd spawn`, agent `build`), isolated with
+  `parallel-worktrees` on shared repos. Worker panes may use native
+  subagents internally; subagents do not spawn further subagents.
 
 ## Project conventions
 

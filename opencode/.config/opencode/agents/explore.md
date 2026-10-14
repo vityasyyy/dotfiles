@@ -1,7 +1,7 @@
 ---
 description: Explore subagent
 mode: subagent
-model: opencode-go/deepseek-v4.1-flash#xhigh
+model: opencode-go/deepseek-v4.1-flash#max
 permissions:
   - action: edit
     resource: "*"
