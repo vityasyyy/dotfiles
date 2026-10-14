@@ -13,7 +13,9 @@
     }
   },
   "permissions": [
-    { "action": "question", "resource": "*", "effect": "allow" }
+    { "action": "question", "resource": "*", "effect": "allow" },
+    { "action": "external_directory", "resource": "/tmp/**", "effect": "allow" },
+    { "action": "external_directory", "resource": "~/.local/bin/**", "effect": "allow" }
   ],
   "providers": {
     "opencode-go": {}
