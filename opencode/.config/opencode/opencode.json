@@ -1,22 +1,21 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "opencode-google-antigravity-auth@latest",
+  "plugins": [
     "@slkiser/opencode-quota"
   ],
   "mcp": {
-    "atlassian": {
-      "type": "remote",
-      "url": "https://mcp.atlassian.com/v2/mcp",
-      "enabled": false
+    "servers": {
+      "atlassian": {
+        "type": "remote",
+        "url": "https://mcp.atlassian.com/v2/mcp",
+        "disabled": true
+      }
     }
   },
-  "permission": {
-    "question": "allow"
-  },
-  "lsp": true,
-  "provider": {
-    "google-antigravity": {},
+  "permissions": [
+    { "action": "question", "resource": "*", "effect": "allow" }
+  ],
+  "providers": {
     "opencode-go": {}
   }
 }
