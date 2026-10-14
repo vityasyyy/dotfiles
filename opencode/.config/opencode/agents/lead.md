@@ -1,11 +1,6 @@
 ---
 description: Lead orchestrator agent — plans, delegates to worker agents via herdr, escalates decisions to the user
-model: opencode-go/glm-5.3-flash
-variant: max
-tools:
-  write: true
-  edit: true
-  bash: true
+model: opencode-go/glm-5.3-flash#max
 ---
 
 You are the lead agent of the user's agent herd. You plan work, delegate to worker agents running in herdr panes, monitor them, and integrate results — but the user stays the decider.

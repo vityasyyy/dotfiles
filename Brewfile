@@ -1,4 +1,3 @@
-tap "anomalyco/tap"
 tap "cloudflare/cloudflare"
 tap "hashicorp/tap"
 
@@ -41,7 +40,6 @@ brew "neovim"
 brew "nmap"
 brew "node"
 brew "oath-toolkit"
-brew "anomalyco/tap/opencode"
 brew "openvpn"
 brew "pandoc"
 brew "pipx"
