@@ -1,12 +1,11 @@
 ---
 description: Explore subagent
 mode: subagent
-model: opencode-go/deepseek-v4.1-flash
-variant: xhigh
-tools:
-  write: false
-  edit: false
-  bash: true
+model: opencode-go/deepseek-v4.1-flash#xhigh
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
 ---
 
 Explore the codebase to gather context for the parent agent.
