@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# herd — thin CLI over herdr for the lead-agent orchestration workflow.
+# Canonical copy: ~/dotfiles/opencode/.local/bin/herd
+set -euo pipefail
+
+HERDR="${HERDR:-herdr}"
+
+usage() {
+  cat <<'EOF'
+herd — thin CLI over herdr for the lead-agent orchestration workflow
+
+Usage:
+  herd status                     List agents and sessions
+  herd spawn <name> [cwd]         Create workspace (if needed), split a pane, start an opencode agent
+  herd prompt <name> <task>       Prompt an agent and wait for it to settle
+  herd wait <name> [--until S]    Wait for an agent state (default: settled idle/done/blocked)
+  herd read <name> [--lines N]    Read an agent's recent output
+  herd attach <name>              Attach directly to an agent (detach: ctrl+b q)
+  herd worktree <branch> [cwd]    Create a git worktree workspace for parallel work
+EOF
+}
+
+json_get() {
+  python3 -c "import json,sys; d=json.load(sys.stdin); print($1)"
+}
+
+cmd_status() {
+  "$HERDR" agent list
+  echo
+  "$HERDR" session list
+}
+
+cmd_spawn() {
+  local name="${1:-}"
+  local cwd="${2:-$PWD}"
+  [ -n "$name" ] || { echo "usage: herd spawn <name> [cwd]" >&2; exit 2; }
+  cwd="$(cd "$cwd" && pwd -P)"
+
+  local ws
+  ws="$("$HERDR" workspace list | python3 -c "
+import json, sys
+target = sys.argv[1]
+data = json.load(sys.stdin)
+for w in data.get('result', {}).get('workspaces', []):
+    wt = w.get('worktree', {}) or {}
+    if wt.get('repo_root') == target or wt.get('checkout_path') == target:
+        print(w['workspace_id'])
+        break
+" "$cwd")"
+
+  local created_ws=0
+  if [ -z "$ws" ]; then
+    ws="$("$HERDR" workspace create --cwd "$cwd" --label "$name" --no-focus | json_get "d['result']['workspace']['workspace_id']")"
+    created_ws=1
+  fi
+
+  local anchor
+  anchor="$("$HERDR" pane list --workspace "$ws" | json_get "d['result']['panes'][0]['pane_id']")"
+  if [ -z "$anchor" ]; then
+    echo "herd spawn: workspace $ws has no panes to split" >&2
+    exit 1
+  fi
+
+  local pane
+  pane="$("$HERDR" pane split "$anchor" --direction right --cwd "$cwd" --no-focus | json_get "d['result']['pane']['pane_id']")"
+
+  local attempt out rc
+  for attempt in 1 2 3 4 5; do
+    out="$("$HERDR" agent start "$name" --kind opencode --pane "$pane" 2>&1)" && rc=0 || rc=$?
+    if [ "$rc" -eq 0 ]; then
+      return 0
+    fi
+    if printf '%s' "$out" | grep -q '"code":"agent_name_taken"' && printf '%s' "$out" | grep -qi 'status=Idle'; then
+      echo "herd spawn: agent '$name' already running (idle); treating as success" >&2
+      return 0
+    fi
+    if [ "$attempt" -lt 5 ]; then
+      echo "herd spawn: agent start failed (attempt $attempt/5), retrying..." >&2
+      sleep 1
+    fi
+  done
+
+  echo "herd spawn: failed to start agent '$name' after 5 attempts" >&2
+  echo "$out" >&2
+  if ! "$HERDR" agent get "$name" >/dev/null 2>&1; then
+    "$HERDR" pane close "$pane" >/dev/null 2>&1 || true
+    if [ "$created_ws" -eq 1 ]; then
+      "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
+    fi
+  fi
+  exit 1
+}
+
+cmd_prompt() {
+  local name="${1:-}"
+  shift || true
+  [ -n "$name" ] || { echo "usage: herd prompt <name> <task>" >&2; exit 2; }
+  local task="$*"
+  [ -n "$task" ] || { echo "usage: herd prompt <name> <task>" >&2; exit 2; }
+  "$HERDR" agent prompt "$name" "$task" --wait --timeout 120000
+}
+
+cmd_wait() {
+  local name="${1:-}"
+  [ -n "$name" ] || { echo "usage: herd wait <name> [--until S]" >&2; exit 2; }
+  shift
+  if [ "${1:-}" = "--until" ]; then
+    "$HERDR" agent wait "$name" --until "${2:?--until requires a state}" --timeout 120000
+  else
+    "$HERDR" agent wait "$name" --timeout 120000
+  fi
+}
+
+cmd_read() {
+  local name="${1:-}"
+  [ -n "$name" ] || { echo "usage: herd read <name> [--lines N]" >&2; exit 2; }
+  shift
+  local lines=120
+  if [ "${1:-}" = "--lines" ]; then
+    lines="${2:?--lines requires a number}"
+  fi
+  "$HERDR" agent read "$name" --source recent-unwrapped --lines "$lines"
+}
+
+cmd_attach() {
+  local name="${1:-}"
+  [ -n "$name" ] || { echo "usage: herd attach <name>" >&2; exit 2; }
+  "$HERDR" agent attach "$name"
+}
+
+cmd_worktree() {
+  local branch="${1:-}"
+  local cwd="${2:-$PWD}"
+  [ -n "$branch" ] || { echo "usage: herd worktree <branch> [cwd]" >&2; exit 2; }
+  cwd="$(cd "$cwd" && pwd -P)"
+
+  # Worktrees live inside the repo at <repo>/.worktrees/<branch> (gitignored),
+  # NOT in ~/.herdr/worktrees — so all worker work stays inside the project.
+  local repo_root
+  repo_root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [ -n "$repo_root" ]; then
+    local wt_path="$repo_root/.worktrees/$branch"
+    mkdir -p "$repo_root/.worktrees"
+    if [ -d "$wt_path" ]; then
+      echo "herd worktree: $wt_path already exists; opening it" >&2
+      "$HERDR" worktree open --cwd "$cwd" --path "$wt_path" --no-focus
+    else
+      "$HERDR" worktree create --cwd "$cwd" --branch "$branch" --path "$wt_path" --no-focus
+    fi
+  else
+    "$HERDR" worktree create --cwd "$cwd" --branch "$branch"
+  fi
+}
+
+case "${1:-}" in
+  status)   shift; cmd_status "$@" ;;
+  spawn)    shift; cmd_spawn "$@" ;;
+  prompt)   shift; cmd_prompt "$@" ;;
+  wait)     shift; cmd_wait "$@" ;;
+  read)     shift; cmd_read "$@" ;;
+  attach)   shift; cmd_attach "$@" ;;
+  worktree) shift; cmd_worktree "$@" ;;
+  help|-h|--help) usage ;;
+  *) usage; exit 2 ;;
+esac
