@@ -65,7 +65,12 @@ installs/downloads in the approved brief (promtool, amtool, crane, helm pulls,
 pinned-image pulls).
 
 Still escalate to the user first: secrets/credentials, destructive or
-out-of-scope actions, anything affecting the cluster, and ambiguous decisions.
+out-of-scope actions, and ambiguous decisions. Routine non-destructive cluster
+inspection does not require renewed approval.
+
+## Routine permissions (2026-10-15 — standing)
+
+- Routine non-destructive work within the requested task is pre-authorized, including read-only cluster diagnostics; do not repeatedly ask for basic permissions. Ask before destructive actions, preserve explicit approval gates for deployments and worker spawning, and retain the separate download and secrets rules.
 
 ## Code hygiene (2026-10-08 — standing, do not re-ask)
 
