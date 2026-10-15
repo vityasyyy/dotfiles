@@ -11,7 +11,7 @@ herd — thin CLI over herdr for the lead-agent orchestration workflow
 
 Usage:
   herd status                     List agents and sessions
-  herd spawn <name> [cwd]         Create a parent-labeled worker workspace and start an opencode agent
+  herd spawn <name> [cwd]         Create or group a worker workspace and start an opencode agent
   herd prompt <name> <task>       Prompt an agent and wait for it to settle
   herd wait <name> [--until S]    Wait for an agent state (default: settled idle/done/blocked)
   herd read <name> [--lines N]    Read an agent's recent output
@@ -42,11 +42,29 @@ cmd_spawn() {
   parent_label="$("$HERDR" workspace get "$parent_ws" | json_get "d['result']['workspace']['label']")"
   [ -n "$parent_label" ] || parent_label="$parent_ws"
 
-  local ws pane
-  local create_out
-  create_out="$("$HERDR" workspace create --cwd "$cwd" --label "$parent_label/$name" --no-focus)"
-  ws="$(printf '%s' "$create_out" | json_get "d['result']['workspace']['workspace_id']")"
-  pane="$(printf '%s' "$create_out" | json_get "d['result']['root_pane']['pane_id']")"
+  local worktree_list worktree_path ws pane created_ws
+  worktree_path=""
+  if worktree_list="$("$HERDR" worktree list --workspace "$parent_ws" 2>/dev/null)"; then
+    worktree_path="$(printf '%s' "$worktree_list" | python3 -c '
+import json, sys
+target = sys.argv[1]
+for worktree in json.load(sys.stdin).get("result", {}).get("worktrees", []):
+    if worktree.get("path") == target and worktree.get("is_linked_worktree") is True:
+        print(target)
+        break
+' "$cwd")"
+  fi
+
+  local workspace_out
+  if [ -n "$worktree_path" ]; then
+    workspace_out="$("$HERDR" worktree open --workspace "$parent_ws" --path "$cwd" --label "$name" --no-focus)"
+    created_ws="$(printf '%s' "$workspace_out" | json_get "0 if d['result']['already_open'] else 1")"
+  else
+    workspace_out="$("$HERDR" workspace create --cwd "$cwd" --label "$parent_label/$name" --no-focus)"
+    created_ws=1
+  fi
+  ws="$(printf '%s' "$workspace_out" | json_get "d['result']['workspace']['workspace_id']")"
+  pane="$(printf '%s' "$workspace_out" | json_get "d['result']['root_pane']['pane_id']")"
   if [ -z "$ws" ] || [ -z "$pane" ]; then
     echo "herd spawn: workspace creation did not return a workspace and root pane" >&2
     exit 1
@@ -70,7 +88,7 @@ cmd_spawn() {
 
   echo "herd spawn: failed to start agent '$name' after 5 attempts" >&2
   echo "$out" >&2
-  if ! "$HERDR" agent get "$name" >/dev/null 2>&1; then
+  if [ "$created_ws" -eq 1 ] && ! "$HERDR" agent get "$name" >/dev/null 2>&1; then
     "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
   fi
   exit 1
