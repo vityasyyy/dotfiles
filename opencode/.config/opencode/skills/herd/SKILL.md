@@ -17,7 +17,7 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
 
 1. **Plan.** Break the goal into units of work. Decide how many workers (default 1–2; more only when the task justifies the cost) and what each does. Choose topology: one worker per project by default; use git worktrees for parallel work on one repo. **Planning-first:** any concern, finding, or open question discovered during a wave goes into `docs/plans/active/` as part of the wave's PR (AGENTS.md rule 11). The wave is not done until the plan documents the concern.
 2. **Propose.** Present the plan to the user: workers, per-worker briefs, order, verification steps. Wait for approval. Adjust on feedback.
-3. **Spawn.** For each worker: `herd spawn <name> <cwd>` (creates the workspace if needed, splits a pane, starts opencode).
+3. **Spawn.** For each worker: `herd spawn <name> <cwd>`. This creates a dedicated workspace labeled `<parent>/<worker>` and starts OpenCode in its root pane. The installed Herdr CLI does not expose native parent-child workspace nesting, so use the parent-prefixed label fallback; do not split a worker pane into the lead workspace or reuse a workspace for another worker.
 4. **Prompt.** Send each worker a self-contained brief (template below) via `herd prompt <name> <brief>`. Ensure the brief includes: goal, scope, constraints, acceptance criteria, output contract (WORKER-REPORT.md), escalation rule.
 5. **Monitor — never sleep-poll.** Use blocking waits:
    - `herdr agent wait <name> --timeout <ms>` — blocks until the agent settles (idle/done/blocked). This is the ONLY monitor primitive; do not loop on `sleep` + `herd status`.
@@ -45,6 +45,7 @@ Every brief must be self-contained — workers cannot see this conversation:
 ## Rules
 
 - Default 1–2 workers. More only with explicit approval.
+- Each worker gets a new Herdr workspace labeled with its parent workspace prefix. Native workspace nesting is not exposed by the installed CLI; do not represent the fallback as a native tree.
 - One worker per project unless using worktrees.
 - Use `--no-focus` for background work; never steal the user's focus.
 - Parse IDs from JSON responses; never guess them.

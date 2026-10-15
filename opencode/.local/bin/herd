@@ -11,7 +11,7 @@ herd — thin CLI over herdr for the lead-agent orchestration workflow
 
 Usage:
   herd status                     List agents and sessions
-  herd spawn <name> [cwd]         Create workspace (if needed), split a pane, start an opencode agent
+  herd spawn <name> [cwd]         Create a parent-labeled worker workspace and start an opencode agent
   herd prompt <name> <task>       Prompt an agent and wait for it to settle
   herd wait <name> [--until S]    Wait for an agent state (default: settled idle/done/blocked)
   herd read <name> [--lines N]    Read an agent's recent output
@@ -36,33 +36,21 @@ cmd_spawn() {
   [ -n "$name" ] || { echo "usage: herd spawn <name> [cwd]" >&2; exit 2; }
   cwd="$(cd "$cwd" && pwd -P)"
 
-  local ws
-  ws="$("$HERDR" workspace list | python3 -c "
-import json, sys
-target = sys.argv[1]
-data = json.load(sys.stdin)
-for w in data.get('result', {}).get('workspaces', []):
-    wt = w.get('worktree', {}) or {}
-    if wt.get('repo_root') == target or wt.get('checkout_path') == target:
-        print(w['workspace_id'])
-        break
-" "$cwd")"
+  local parent_ws="${HERDR_WORKSPACE_ID:-}"
+  [ -n "$parent_ws" ] || { echo "herd spawn: must run inside a Herdr workspace" >&2; exit 1; }
+  local parent_label
+  parent_label="$("$HERDR" workspace get "$parent_ws" | json_get "d['result']['workspace']['label']")"
+  [ -n "$parent_label" ] || parent_label="$parent_ws"
 
-  local created_ws=0
-  if [ -z "$ws" ]; then
-    ws="$("$HERDR" workspace create --cwd "$cwd" --label "$name" --no-focus | json_get "d['result']['workspace']['workspace_id']")"
-    created_ws=1
-  fi
-
-  local anchor
-  anchor="$("$HERDR" pane list --workspace "$ws" | json_get "d['result']['panes'][0]['pane_id']")"
-  if [ -z "$anchor" ]; then
-    echo "herd spawn: workspace $ws has no panes to split" >&2
+  local ws pane
+  local create_out
+  create_out="$("$HERDR" workspace create --cwd "$cwd" --label "$parent_label/$name" --no-focus)"
+  ws="$(printf '%s' "$create_out" | json_get "d['result']['workspace']['workspace_id']")"
+  pane="$(printf '%s' "$create_out" | json_get "d['result']['root_pane']['pane_id']")"
+  if [ -z "$ws" ] || [ -z "$pane" ]; then
+    echo "herd spawn: workspace creation did not return a workspace and root pane" >&2
     exit 1
   fi
-
-  local pane
-  pane="$("$HERDR" pane split "$anchor" --direction right --cwd "$cwd" --no-focus | json_get "d['result']['pane']['pane_id']")"
 
   local attempt out rc
   for attempt in 1 2 3 4 5; do
@@ -83,10 +71,7 @@ for w in data.get('result', {}).get('workspaces', []):
   echo "herd spawn: failed to start agent '$name' after 5 attempts" >&2
   echo "$out" >&2
   if ! "$HERDR" agent get "$name" >/dev/null 2>&1; then
-    "$HERDR" pane close "$pane" >/dev/null 2>&1 || true
-    if [ "$created_ws" -eq 1 ]; then
-      "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
-    fi
+    "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
   fi
   exit 1
 }
