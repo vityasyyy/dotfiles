@@ -53,6 +53,10 @@ linked into `~/.agents/skills/` and `~/.config/opencode/skills/` by
 `install.sh` after adding or moving skills. Project-local skills live in the
 repo's `.opencode/skills/`.
 
+## Worker workspace topology (2026-10-15 — standing)
+
+- Always create each worker in a new Herdr workspace, never by splitting panes; attach worker workspaces beneath the lead workspace in a tree when supported. If native grouping is unavailable, use parent-prefixed workspace labels and explain the limitation.
+
 ## Worker approvals (herd)
 
 Auto-clear routine sandbox prompts on the operator's behalf: external-directory
