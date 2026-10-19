@@ -1,6 +1,8 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 alias python=python3
 alias pip=pip3
+# Bare `pip install` must not write into Homebrew's shared Pythons; use pipx/venv.
+export PIP_REQUIRE_VIRTUALENV=true
 alias nv=nvim
 alias ovh=ovhcloud
 bindkey -e
