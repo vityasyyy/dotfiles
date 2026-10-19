@@ -1,7 +1,7 @@
 ---
 description: Explore subagent
 mode: subagent
-model: openai/gpt-6-luna#max
+model: opencode-go/deepseek-v4.1-flash#max
 permissions:
   - action: edit
     resource: "*"

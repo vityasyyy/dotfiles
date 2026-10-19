@@ -8,14 +8,26 @@
       "atlassian": {
         "type": "remote",
         "url": "https://mcp.atlassian.com/v2/mcp",
-        "disabled": true
+        "disabled": false
       }
     }
   },
   "permissions": [
-    { "action": "question", "resource": "*", "effect": "allow" },
-    { "action": "external_directory", "resource": "/tmp/**", "effect": "allow" },
-    { "action": "external_directory", "resource": "~/.local/bin/**", "effect": "allow" }
+    {
+      "action": "question",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "external_directory",
+      "resource": "/tmp/**",
+      "effect": "allow"
+    },
+    {
+      "action": "external_directory",
+      "resource": "~/.local/bin/**",
+      "effect": "allow"
+    }
   ],
   "providers": {
     "opencode-go": {}

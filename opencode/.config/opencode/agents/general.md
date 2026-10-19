@@ -1,5 +1,5 @@
 ---
 description: General-purpose agent
 mode: subagent
-model: openai/gpt-6-luna#max
+model: opencode-go/deepseek-v4.1-flash#max
 ---
