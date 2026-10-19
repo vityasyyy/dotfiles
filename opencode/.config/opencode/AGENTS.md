@@ -57,6 +57,11 @@ repo's `.opencode/skills/`.
 
 - Always create each worker in a new Herdr workspace, never by splitting panes; attach worker workspaces beneath the lead workspace in a tree when supported. If native grouping is unavailable, use parent-prefixed workspace labels and explain the limitation.
 
+## Worker lifecycle (2026-10-19 — standing)
+
+- In herd tasks, prefer workers for implementation; the lead coordinates, reviews, verifies and integrates, and hands bounded rescue work back rather than quietly taking over the remaining implementation.
+- Close this session's idle worker workspaces after handoff; preserve reports, branches and uncommitted work, remove worktrees only after safe integration, and leave other leads' workers alone unless explicitly authorized.
+
 ## Worker approvals (herd)
 
 Auto-clear routine sandbox prompts on the operator's behalf: external-directory
