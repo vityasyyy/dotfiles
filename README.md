@@ -67,7 +67,7 @@ own layout:
 
 | Layout | What happens |
 | --- | --- |
-| Single user owns `/opt/homebrew` | `scripts/brew-share.sh --check` reports single-user mode; no ACL needed. |
+| One owner, no other profiles | `scripts/brew-share.sh --check` reports owner-only; no ACL needed. |
 | Shared Mac, multiple admins | Run `scripts/brew-share.sh --apply` once. It backfills group write and adds an inheriting ACL for group `admin`. |
 | New laptop | Clone, run `./bootstrap.sh` if brew is missing, then `./install.sh`. Auth and secrets are recreated per machine. |
 

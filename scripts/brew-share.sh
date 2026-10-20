@@ -39,14 +39,31 @@ check() {
     return 0
   fi
 
-  local p owner group current
+  local p owner group current locks bad acl acl_ok
   p="$(brew --prefix)"
   owner="$(stat -f '%Su' "$p")"
   group="$(stat -f '%Sg' "$p")"
   current="$(id -un)"
 
+  locks="$p/var/homebrew/locks"
+  bad=0
+  if [ -d "$locks" ]; then
+    bad="$(find "$locks" -type f ! -perm -g+w 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+
+  acl_ok=0
+  acl="$(ls -lde "$p" 2>/dev/null || true)"
+  case "$acl" in
+    *"group:admin allow"*) acl_ok=1 ;;
+  esac
+
   if [ "$owner" = "$current" ]; then
-    log "ok: $p is owned by $current; single-user mode, no shared ACL needed"
+    if [ "$group" = "admin" ] && [ "$bad" -eq 0 ] && [ "$acl_ok" -eq 1 ]; then
+      log "ok: $p is owned by $current and is shared-ready"
+    else
+      log "ok: $p is owned by $current; shared access is not configured"
+      log "note: run --apply if another admin profile will use this brew"
+    fi
     return 0
   fi
 
@@ -57,20 +74,8 @@ check() {
 
   log "shared: $p (owner $owner, group $group)"
   [ "$group" = "admin" ] || log "warning: prefix group is $group, expected admin"
-
-  local locks bad
-  locks="$p/var/homebrew/locks"
-  if [ -d "$locks" ]; then
-    bad="$(find "$locks" -type f ! -perm -g+w 2>/dev/null | wc -l | tr -d ' ')"
-    [ "$bad" -eq 0 ] || log "warning: $bad lock file(s) are not group-writable; run --apply"
-  fi
-
-  local acl
-  acl="$(ls -lde "$p" 2>/dev/null || true)"
-  case "$acl" in
-    *"group:admin allow"*) ;;
-    *) log "warning: no inheriting group:admin ACL on $p; run --apply" ;;
-  esac
+  [ "$bad" -eq 0 ] || log "warning: $bad lock file(s) are not group-writable; run --apply"
+  [ "$acl_ok" -eq 1 ] || log "warning: no inheriting group:admin ACL on $p; run --apply"
 
   return 0
 }
