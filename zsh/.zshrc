@@ -19,7 +19,13 @@ fi
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$HOME/.local/share/nvim/mason/bin:$PATH
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if command -v brew >/dev/null 2>&1; then
+  _dotfiles_brew_prefix="$(brew --prefix)"
+  if [ -r "${_dotfiles_brew_prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "${_dotfiles_brew_prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  fi
+  unset _dotfiles_brew_prefix
+fi
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 # Default kubeconfig (override per-cluster as needed).
