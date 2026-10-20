@@ -16,11 +16,11 @@ jobs:
       - name: Install shellcheck
         run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
 
-      - name: shellcheck install.sh
-        run: shellcheck -S warning install.sh
+      - name: shellcheck
+        run: shellcheck -S warning install.sh bootstrap.sh scripts/*.sh
 
       - name: bash syntax check
-        run: bash -n install.sh
+        run: bash -n install.sh bootstrap.sh scripts/*.sh
 
       - name: gitleaks detect
         uses: gitleaks/gitleaks-action@v2
@@ -38,12 +38,14 @@ jobs:
           set -euo pipefail
           TMP_HOME="$(mktemp -d)"
           echo "temp HOME: ${TMP_HOME}"
-          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" bash ./install.sh
+          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
+            DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+            bash ./install.sh
           fail=0
           while IFS= read -r -d '' src; do
             # Only package files participate in linking.
             case "${src}" in
-              ./zsh/*|./git/*|./tmux/*|./opencode/*|./agents/*|./ghostty/*) ;;
+              ./zsh/*|./git/*|./tmux/*|./opencode/*|./agents/*|./codex/*|./ghostty/*) ;;
               *) continue ;;
             esac
             # Strip leading ./<pkg>/ -> $HOME-relative path.
@@ -62,12 +64,36 @@ jobs:
               echo "WRONG target: ${dst} -> ${target} (expected ${expected})"
               fail=1
             fi
-          done < <(find ./zsh ./git ./tmux ./opencode ./agents ./ghostty -type f -print0)
+          done < <(find ./zsh ./git ./tmux ./opencode ./agents ./codex ./ghostty -type f -print0)
           if [ "${fail}" -ne 0 ]; then
             echo "symlink-integrity check FAILED"
             exit 1
           fi
           echo "symlink-integrity check passed"
+
+      - name: Prune removes dangling repo links
+        run: |
+          set -euo pipefail
+          TMP_HOME="$(mktemp -d)"
+          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
+            DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+            bash ./install.sh >/dev/null
+          mkdir -p "${TMP_HOME}/.config/opencode"
+          ln -s "${PWD}/opencode/.config/opencode/removed.jsonc" "${TMP_HOME}/.config/opencode/removed.jsonc"
+          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
+            DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+            bash ./install.sh --prune >/dev/null
+          if [ -L "${TMP_HOME}/.config/opencode/removed.jsonc" ]; then
+            echo "prune left a dangling link"
+            exit 1
+          fi
+          echo "prune check passed"
+
+      - name: Script smoke checks
+        run: |
+          ./bootstrap.sh --help >/dev/null
+          ./scripts/brew-share.sh --check
+          ./scripts/migrate-tools.sh --help >/dev/null
 
   brew-macos:
     runs-on: macos-latest
