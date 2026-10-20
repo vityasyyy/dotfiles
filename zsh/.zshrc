@@ -134,8 +134,6 @@ export ENV=dev
 # Created by `pipx` on 2025-12-03 08:50:43
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="/Library/TeX/texbin:$PATH"
-# Added by Antigravity
-export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 alias lzd=lazydocker
 
 # bun completions

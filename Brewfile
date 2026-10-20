@@ -1,14 +1,24 @@
-tap "cloudflare/cloudflare"
+# Brew owns every managed CLI and GUI tool. Auth, caches, and runtime state
+# stay per profile; this file is the reproducible tool set.
+#
+# Libraries installed only as dependencies are intentionally omitted; brew
+# pulls them in. Deprecated formulae are omitted too: install them through
+# pyenv/npm/uv or the vendor installer instead.
+
+# Trust only the third-party formulae used below; new formulae from these
+# taps stay untrusted until you opt in.
+tap "anomalyco/tap"
 tap "hashicorp/tap"
 
-# CLI / dev essentials (curated from `brew list --installed-on-request`,
-# transitive libs and Mac App Store blobs dropped).
+# CLI / dev essentials
 brew "age"
+brew "ant"
 brew "argocd"
 brew "bat"
 brew "btop"
 brew "cloudflared"
 brew "colima"
+brew "coreutils"
 brew "docker"
 brew "docker-buildx"
 brew "docker-compose"
@@ -20,12 +30,14 @@ brew "ffmpeg"
 brew "fuseki"
 brew "fzf"
 brew "gcc"
-brew "gemini-cli"
 brew "gh"
+brew "git-filter-repo"
+brew "gitleaks"
 brew "go"
 brew "golang-migrate"
-brew "hashicorp/tap/terraform"
+brew "hashicorp/tap/terraform", trusted: true
 brew "helm"
+brew "herdr"
 brew "htop"
 brew "jena"
 brew "k6"
@@ -34,18 +46,24 @@ brew "kubeseal"
 brew "kustomize"
 brew "lazydocker"
 brew "lazygit"
+brew "llvm"
 brew "minikube"
 brew "mkcert"
 brew "neovim"
 brew "nmap"
 brew "node"
 brew "oath-toolkit"
+brew "ocrmypdf"
+brew "anomalyco/tap/opencode-v2", trusted: true
 brew "openvpn"
 brew "pandoc"
 brew "pipx"
 brew "poetry"
+brew "poppler"
+brew "protobuf"
 brew "pyenv"
 brew "python@3.13"
+brew "python-matplotlib"
 brew "railway"
 brew "ripgrep"
 brew "sops"
@@ -53,7 +71,14 @@ brew "telnet"
 brew "texlab"
 brew "tmux"
 brew "tree"
+brew "tree-sitter"
+brew "zbar"
 brew "zsh-autosuggestions"
 
+cask "antigravity"
+cask "antigravity-cli"
+cask "claude-code"
+cask "codex"
 cask "copilot-cli"
+cask "ghostty"
 cask "mactex"
