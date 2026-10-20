@@ -91,6 +91,9 @@ inspection does not require renewed approval.
   reviewing code, choosing dependencies) — lead and workers alike. It runs
   alongside the mapped process skill (e.g. `systematic-debugging`,
   `feature-workflow`), never instead of it.
+- Never commit process/planning artifacts (WORKER-REPORT.md, wave/walkthrough
+  reports, plan docs) into product repos — keep them untracked at the repo root
+  or in the plan workspace, never in the repo's committed history.
 - Code stays minimal: no speculative abstractions, no boilerplate, no
   unnecessary JSDoc or comment bloat. Bloat in any artifact (code, docs,
   skills) is a defect.
