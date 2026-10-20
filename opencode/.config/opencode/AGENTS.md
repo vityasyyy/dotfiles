@@ -18,7 +18,7 @@ modals when the harness exposes them, inline otherwise.
 | Reviewing diffs/PRs/architecture | `code-review`; when receiving review feedback → `receiving-code-review` |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
 | Parallel or delegated work | Tier 1: native subagents (`explore`, `document`, `general`) for read-only research, doc fetching, short bounded tasks. Tier 2: `herd` is the primary orchestrator (workers = herdr panes) for parallel write-capable, long-running, or approval-heavy waves; `parallel-worktrees` for isolated in-repo branches. No subagent-of-subagent chains. |
-| Confluence/documentation work | `confluence-authoring`; atlassian MCP is disabled (below) until needed |
+| Confluence/documentation work | `confluence-authoring`; atlassian MCP is enabled by default (below) |
 | Infra/production/reliability work | `production-reliability` |
 | UI/visual design work | `frontend-design` |
 | Writing or editing skills | `writing-skills` |
@@ -35,14 +35,12 @@ installing anything (tool installs, updates, release binaries), ask the user
 and END the chat first so they can run the download on their machine; resume
 the task only after they confirm the file is in place.
 
-## Atlassian MCP dormant (2026-10-13 — standing)
+## Atlassian MCP (2026-10-20 — standing)
 
-`mcp.atlassian` ships disabled in opencode.json (login is preserved in the
-auth store). For Confluence/Jira work: set `disabled: false` on
-`mcp.atlassian`, have the user restart opencode, then proceed with
-`confluence-authoring`. Flip it back to `disabled: true` afterward. Same
-pattern if a per-session integration is requested (Figma is configurable
-per-project when needed).
+`mcp.atlassian` is enabled by default in `opencode.json`. Auth lives in the
+per-profile OpenCode auth store. For Confluence/Jira work, use
+`confluence-authoring`; no config flip is needed. Same pattern for Figma:
+the MCP is configured in the repo, auth is per profile.
 
 ## Shared workflow skills
 

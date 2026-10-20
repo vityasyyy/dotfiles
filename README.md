@@ -1,12 +1,14 @@
 # dotfiles
 
-Public, secrets-free macOS dev configs for a **two-profile Mac**: one
-source of truth, two independent homes, synced by git — never by file
+Public, secrets-free macOS dev configs for a **multi-profile Mac**: one
+source of truth, many independent homes, synced by git — never by file
 writes across profiles.
 
-> A fresh profile (or fresh Mac) goes from blank to full environment with
-> `clone` + `./install.sh`. Everything under `~/dotfiles` is the truth;
-> every dotfile in `$HOME` is a symlink into it.
+> A new profile on a Mac that already has Homebrew goes from blank to full
+> environment with `clone` + `./install.sh`. A truly blank Mac uses
+> `clone` + `./bootstrap.sh`, which installs Homebrew first.
+> Everything under `~/dotfiles` is the truth; every dotfile in `$HOME` is a
+> symlink into it.
 
 ---
 
@@ -20,22 +22,23 @@ writes across profiles.
              └───────┬──────────────────────────────┬───────┘
        git pull/push │                              │ git pull/push
                      ▼                              ▼
-      /Users/<profile-a>/dotfiles       /Users/<profile-b>/dotfiles
-        (Profile A, brew owner)           (Profile B, daily ops)
+      /Users/<profile-a>/dotfiles     /Users/<profile-n>/dotfiles
+        (may own brew)                  (shared or own brew)
              │ symlinks                       │ symlinks
              ▼                                ▼
       its $HOME dotfiles                its $HOME dotfiles
       (~/.zshrc → clone copy)           (~/.zshrc → clone copy)
 ```
 
-*Roles, not identities:* Profile A = the macOS account that installed
-Homebrew first; Profile B = the second account. Swap in your own
-usernames — that is the only personalization the sharing model needs.
+*Roles, not identities:* Profile A is the account that installed Homebrew
+first, if any; every other profile either shares that prefix (with the
+ACL) or uses its own. Swap in your own usernames — that is the only
+personalization the sharing model needs. Add as many profiles as you need.
 
 One clone per profile, symlinks pointing **inward** to it. Sync ritual:
 
 ```
-edit anywhere → git add/commit/push → git pull + ./install.sh in both
+edit anywhere → git add/commit/push → git pull + ./install.sh in every profile
 ```
 
 Profiles cannot write into each other's `$HOME` (filesystem boundary +
@@ -57,34 +60,33 @@ over?" is always answered by the row it lands in.
 
 ---
 
-## 3. Homebrew shared by two profiles
+## 3. Homebrew across profiles and laptops
 
-One install of brew lives at `/opt/homebrew`. It was installed by profile
-A, so everything under it is owned by A. Sharing it with profile B is an
-explicit model, not a default:
+The repo does not assume a particular brew owner. Each machine detects its
+own layout:
 
-```
-/opt/homebrew                       owner: Profile A      group: admin
-├── Cellar/… · bin/… (kegs)         chgrp admin + chmod g+rwX  ← both profiles install
-├── var/homebrew/locks/…            write-gate per install/upgrade
-├── Library/Taps/<x>/<tap>  × 3     git repos ← git needs safe.directory opt-in
-└── (prefix itself is a git repo)
-```
+| Layout | What happens |
+| --- | --- |
+| One owner, no other profiles | `scripts/brew-share.sh --check` reports owner-only; no ACL needed. |
+| Shared Mac, multiple admins | Run `scripts/brew-share.sh --apply` once. It backfills group write and adds an inheriting ACL for group `admin`. |
+| New laptop | Clone, run `./bootstrap.sh` if brew is missing, then `./install.sh`. Auth and secrets are recreated per machine. |
 
-| Piece | Rule | Why |
-| --- | --- | --- |
-| Admin group | both profiles are members | group-write rights come from membership |
-| `chmod -R g+rwX /opt/homebrew` | sudo, run once | lets the non-owner install/upgrade |
-| `git config safe.directory` ×4 | in the shared `.gitconfig` | git rejects *group-writable* repos owned by another uid — explicit trust is the designed escape |
-| `brew trust <tap>` | per-profile | brew 7 refuses untrusted taps for outdated-checks |
-| Homebrew API cache | per-profile (`~/Library/Caches/Homebrew`) | never shared; fresh profiles download once |
+The ACL is what makes the shared prefix durable: new kegs and lock files
+inherit group write, so one profile's install does not break the other.
+`install.sh` only warns when the prefix is shared and not writable; it never
+runs `sudo`.
 
-If a permission error ever comes back from the non-owner side (a file
-created owner-only by some upgrade), re-run:
+If a permission error still appears:
 
 ```sh
-sudo chgrp -R admin /opt/homebrew && sudo chmod -R g+rwX /opt/homebrew
+~/dotfiles/scripts/brew-share.sh --check
+~/dotfiles/scripts/brew-share.sh --apply
 ```
+
+The `admin` group is macOS's administrator group. The ACL does not add
+anyone to it; it only gives existing admins write access to the shared
+prefix. If a profile should not be able to modify brew code, do not make it
+an admin, or give it its own brew prefix.
 
 ---
 
@@ -159,26 +161,39 @@ is called `config`, not `config.ghostty` — Ghostty only reads `config`).
 
 ## 6. Runbooks
 
-### New profile (blank macOS account)
+### New profile on a Mac with Homebrew
 
 ```sh
 git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
-cd ~/dotfiles && ./install.sh          # links + brew bundle + oh-my-zsh/p10k/nvim
-gh auth login -w && gcloud auth login --no-launch-browser   # per-profile, once
-brew trust hashicorp/tap && brew trust anomalyco/tap        # per-profile, once
+cd ~/dotfiles && ./install.sh
+gh auth login -w && gcloud auth login --no-launch-browser
 ```
 
-This repository is the shared source of truth for both profiles. On the
-second profile, clone it once with the command above; after that, pull the
-latest changes and re-run the installer in either profile:
+### Blank Mac
+
+```sh
+git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
+cd ~/dotfiles && ./bootstrap.sh
+```
+
+`bootstrap.sh` installs Homebrew after an explicit confirmation, then runs
+`install.sh`. The full Brewfile includes large casks (`mactex`, GUI apps), so
+the first run takes a while.
+
+Brewfile trust is encoded with `trusted: true` on the two third-party
+formulae; no per-profile `brew trust` step is needed unless you add a new tap
+or formula.
+
+This repository is the shared source of truth for every profile. Clone it once
+per profile; after that, pull the latest changes and re-run the installer:
 
 ```sh
 git -C ~/dotfiles pull --ff-only
 ~/dotfiles/install.sh
 ```
 
-To publish a config change, commit and push it from either profile, then run
-those two commands in the other profile. Both clones use the same GitHub
+To publish a config change, commit and push it from one profile, then run
+those two commands in each other profile. All clones use the same GitHub
 repository, while authentication and runtime state stay local to each profile.
 
 ### Weekly / any-change ritual
@@ -191,11 +206,14 @@ git -C ~/dotfiles pull && ~/dotfiles/install.sh
 ### Verify a profile is fully healthy
 
 ```sh
-./install.sh                            # all lines say "skip (already linked)"
-brew bundle check --file=Brewfile       # Satisfied
+./install.sh --check                     # links + brew bundle + shared-brew state
+brew bundle check --no-upgrade --file=Brewfile
 gh auth status && gcloud auth list
 ls -la ~/.zshrc ~/.tmux.conf ~/.gitconfig    # → symlinks into ~/dotfiles
 ```
+
+`--check` exits 1 until the Brewfile is fully installed; run the migration
+first on an existing machine.
 
 Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 `DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`.
@@ -209,8 +227,8 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
 | `opencode/.config/opencode/AGENTS.md` | OpenCode-specific provider, Herdr, and TUI instructions |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
-| `Brewfile` | prune to your own `brew list --installed-on-request` |
-| references to `<profile-a>` / `<profile-b>` | your macOS usernames (this README + any scripts where you copy them) |
+| `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |
+| `scripts/brew-share.sh` | shared Mac: `--check` monthly, `--apply` only when it warns |
 | git remote | `fork` first, then `git remote set-url origin <your-fork-url>` in each profile's clone |
 
 ---
@@ -219,9 +237,9 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 
 | Symptom | Root cause | Fix |
 | --- | --- | --- |
-| `Permission denied @ rb_sysopen …/locks/X.formula.lock` from non-owner profile | brew prefix files owned by profile A, no group write | `sudo chgrp -R admin /opt/homebrew && sudo chmod -R g+rwX /opt/homebrew` |
-| `fatal: detected dubious ownership in repository` after that chmod | git refuses group-writable repos owned by another uid | `safe.directory` entries in shared `.gitconfig` (§3) — no more fixes needed |
-| `Refusing to load formula <tap> from untrusted tap` | brew 7 per-profile tap trust | `brew trust <tap>` (per profile, no sudo) |
+| `Permission denied @ rb_sysopen …/locks/X.formula.lock` from non-owner profile | brew prefix files owned by the owner, no group write | `scripts/brew-share.sh --check`, then `--apply` |
+| `fatal: detected dubious ownership in repository` after that chmod | git refuses group-writable repos owned by another uid | the `.gitconfig` taps glob covers every tap; no per-tap edit |
+| `Refusing to load formula <tap> from untrusted tap` | brew 7 formula trust | formula-level `trusted: true` in the Brewfile |
 | `Could not symlink bin/minikube — target already exists` | hand-copied binary occupied `bin/`; brew keg unlinked | `brew link --overwrite minikube` |
 | Ghostty theme/settings not applying | stray plain file `config.ghostty` (wrong name) instead of symlinked `config` | re-run `./install.sh`; never hand-edit the Application Support copy |
 | Outer tmux prefix suddenly C-a with blue bar | config reloaded from an ssh pane | reload from a local pane; double-press still works meanwhile |
@@ -242,16 +260,20 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `codex/.codex/AGENTS.md` | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
 | `ghostty/Library/…/com.mitchellh.ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
-Meta files (not linked): `README.md`, `Brewfile`, `install.sh`, `docs/`,
-`.github/`, `.gitignore`.
+Meta files (not linked): `README.md`, `Brewfile`, `install.sh`,
+`bootstrap.sh`, `scripts/`, `docs/`, `.github/`, `.gitignore`.
 
 ### install.sh
 
 Idempotent Stow-style linker (no GNU Stow). Backs up pre-existing
-non-symlink targets to `~/.dotfiles.backup.<timestamp>/`; runs
-`brew bundle` on macOS; clones oh-my-zsh / powerlevel10k / nvim only when
-missing; respects `DOTFILES_DIR` and `HOME` overrides (CI uses a temp
-`HOME`).
+non-symlink targets to `~/.dotfiles.backup.<timestamp>/` with mode `700`;
+clones oh-my-zsh / powerlevel10k / nvim before brew; runs `brew bundle`
+only when `brew bundle check --no-upgrade` is unsatisfied; respects
+`DOTFILES_DIR` and `HOME` overrides (CI uses a temp `HOME`).
+
+`--check` is a read-only health check (exit 1 when the profile is not up to
+date). `--prune` removes symlinks that point into the repo but whose target
+was deleted. Backups are kept, not auto-deleted.
 
 ### Neovim (not vendored)
 
@@ -265,10 +287,41 @@ git clone https://github.com/<you>/nvim-config.git ~/.config/nvim
 ### Brew
 
 ```sh
-brew bundle --file=Brewfile          # install
-brew bundle check --file=Brewfile    # verify
-brew outdated && brew upgrade        # shared Cellar — one run serves both profiles
+brew bundle --file=Brewfile                    # install
+brew bundle check --no-upgrade --file=Brewfile # verify presence
+brew update                                    # weekly, explicit
+brew outdated && brew upgrade                  # shared Cellar — one run serves every profile
 ```
+
+### Tool ownership
+
+Brew owns every managed CLI and GUI tool. Auth and runtime state stay per
+profile.
+
+| Tool | Brew entry | Update path |
+| --- | --- | --- |
+| OpenCode V2 | `anomalyco/tap/opencode-v2` | `brew upgrade opencode-v2` |
+| Codex | `cask "codex"` | `brew upgrade --cask codex` |
+| Claude Code | `cask "claude-code"` | `brew upgrade --cask claude-code` |
+| Herdr | `brew "herdr"` | `brew upgrade herdr` |
+| Antigravity | `cask "antigravity"`, `cask "antigravity-cli"` | `brew upgrade --cask ...` |
+| Ghostty | `cask "ghostty"` | `brew upgrade --cask ghostty` |
+
+Do not use self-updaters (`opencode upgrade`, npm `codex`, manual `claude`
+installers) on these tools; brew is the single owner.
+
+### Portability across laptops
+
+The repo carries config only. It never carries UIDs, ACL state, SSH keys,
+gh/gcloud tokens, or sops keys. On a new Apple Silicon laptop:
+
+1. Clone the repo.
+2. Run `./bootstrap.sh` (blank Mac) or `./install.sh` (brew already present).
+3. Re-auth per machine: `gh auth login -w`, `gcloud auth login --no-launch-browser`, SSH/sops keys as needed.
+4. Run `scripts/brew-share.sh --check`; if the prefix is shared, `--apply`.
+
+`safe.directory` uses `/opt/homebrew/Library/Taps/*`, so new taps do not need
+a per-tap edit.
 
 ### Secrets policy
 
@@ -278,13 +331,14 @@ Never committed, never printed:
 `~/.config/opencode/.figma-token`, `~/.config/sops/age/keys.txt`,
 `~/.ssh/`, `~/.kube/`, `~/.docker/`, `node_modules/`, `.DS_Store`.
 Covered by `.gitignore` + CI `gitleaks detect`. If unsure whether a file
-holds a secret, exclude it and record the question in `WORKER-REPORT.md`.
+holds a secret, exclude it and do not commit it.
 
 ### CI
 
-`.github/workflows/ci.yml`: shellcheck, gitleaks, symlink-integrity
-(dry-run + temp-HOME install + `readlink` verification), Brewfile parse.
-Target < ~2 min.
+`.github/workflows/ci.yml`: shellcheck and `bash -n` for `install.sh`,
+`bootstrap.sh`, and `scripts/*.sh`; gitleaks; symlink-integrity including
+`codex`; prune test; Brewfile entry resolution on macOS. External clones are
+skipped in the temp-HOME job. Target < ~2 min.
 
 ### Sanitization applied
 

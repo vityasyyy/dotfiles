@@ -19,7 +19,13 @@ fi
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$HOME/.local/share/nvim/mason/bin:$PATH
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if command -v brew >/dev/null 2>&1; then
+  _dotfiles_brew_prefix="$(brew --prefix)"
+  if [ -r "${_dotfiles_brew_prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "${_dotfiles_brew_prefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  fi
+  unset _dotfiles_brew_prefix
+fi
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 # Default kubeconfig (override per-cluster as needed).
@@ -134,8 +140,6 @@ export ENV=dev
 # Created by `pipx` on 2025-12-03 08:50:43
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="/Library/TeX/texbin:$PATH"
-# Added by Antigravity
-export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 alias lzd=lazydocker
 
 # bun completions
