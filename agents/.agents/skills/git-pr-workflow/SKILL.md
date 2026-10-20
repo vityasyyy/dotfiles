@@ -70,7 +70,9 @@ Examples:
 
 Scope should identify the domain/package/subsystem.
 
-Use a body when the reason or migration consequence is non-obvious.
+Always include a body — the subject alone is ambiguous. State what changed,
+why, and any user-visible or behavioral consequence. Never commit a subject-only
+message; amend before pushing.
 
 ## Commit Strategy
 

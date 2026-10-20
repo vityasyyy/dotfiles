@@ -95,6 +95,13 @@ inspection does not require renewed approval.
   unnecessary JSDoc or comment bloat. Bloat in any artifact (code, docs,
   skills) is a defect.
 
+## Commit messages (2026-10-20 — standing)
+
+- Every commit — lead, agent, worker, subagent — carries a descriptive body,
+  not just a Conventional Commits subject. The body states what changed, why,
+  and any user-visible or behavioral consequence the subject cannot carry.
+  A body-less or ambiguous commit message is a defect; amend before pushing.
+
 ## Response style (2026-10-13 — standing)
 
 Lead with the artifact, not prose. Concise but complete — detail lives in
