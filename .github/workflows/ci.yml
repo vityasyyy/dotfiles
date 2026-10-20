@@ -78,13 +78,22 @@ jobs:
           HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
             DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
             bash ./install.sh >/dev/null
-          mkdir -p "${TMP_HOME}/.config/opencode"
+          mkdir -p "${TMP_HOME}/.config/opencode" "${TMP_HOME}/bin"
           ln -s "${PWD}/opencode/.config/opencode/removed.jsonc" "${TMP_HOME}/.config/opencode/removed.jsonc"
-          HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
-            DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+          cat > "${TMP_HOME}/bin/brew" <<'EOF'
+          #!/bin/sh
+          echo called > "$HOME/brew-called"
+          exit 0
+          EOF
+          chmod +x "${TMP_HOME}/bin/brew"
+          PATH="${TMP_HOME}/bin:${PATH}" HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
             bash ./install.sh --prune >/dev/null
           if [ -L "${TMP_HOME}/.config/opencode/removed.jsonc" ]; then
             echo "prune left a dangling link"
+            exit 1
+          fi
+          if [ -e "${TMP_HOME}/brew-called" ]; then
+            echo "prune invoked brew"
             exit 1
           fi
           echo "prune check passed"
