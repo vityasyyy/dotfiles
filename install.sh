@@ -11,6 +11,7 @@
 #   - Backs up pre-existing non-symlink targets to ~/.dotfiles.backup.<timestamp>/.
 #   - Skips symlinks that already point at the correct source.
 #   - Runs `brew bundle` on macOS only when the Brewfile is unsatisfied.
+#   - `--prune` is standalone: it only removes dangling links.
 #   - Clones oh-my-zsh + powerlevel10k theme only when missing
 #     (the .zshrc expects both; zsh-autosuggestions comes via Brewfile).
 #   - Clones vityasyyy/nvim-config into ~/.config/nvim only when missing.
@@ -58,7 +59,7 @@ Usage: install.sh [--dry-run] [--check] [--prune] [--help]
 
   --dry-run   Print what would change without modifying anything.
   --check     Report what would change; exit 1 if the profile is not up to date.
-  --prune     Remove dangling symlinks that point into this repo.
+  --prune     Remove dangling symlinks only; do not link, clone, or run brew.
   --help      Show this help.
 EOF
 }
@@ -325,10 +326,17 @@ main() {
     log "mode: dry-run (no changes)"
   fi
 
-  link_packages
   if [ "${PRUNE}" -eq 1 ]; then
     prune_links
+    if [ "${CHECK}" -eq 1 ] && [ "${CHANGES}" -ne 0 ]; then
+      log "check: profile is not up to date"
+      exit 1
+    fi
+    log "done."
+    return 0
   fi
+
+  link_packages
   maybe_install_ohmyzsh
   maybe_install_p10k
   maybe_clone_nvim
