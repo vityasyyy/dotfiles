@@ -77,6 +77,10 @@ inspection does not require renewed approval.
 
 - Routine non-destructive work within the requested task is pre-authorized, including read-only cluster diagnostics; do not repeatedly ask for basic permissions. Ask before destructive actions, preserve explicit approval gates for deployments and worker spawning, and retain the separate download and secrets rules.
 
+## Approved-scope execution (2026-10-19 — standing)
+
+- Once a task's scope and actions are approved, proceed without repeated routine confirmations. Interrupt only for required credentials/secrets, destructive or out-of-scope actions, new worker/deployment approval gates, or material safety decisions. Do not interpret this as permission to bypass those gates or claim unverified recovery.
+
 ## Code hygiene (2026-10-08 — standing, do not re-ask)
 
 - NEVER let plan artifacts leak into code: no "based on step N", "per phase
