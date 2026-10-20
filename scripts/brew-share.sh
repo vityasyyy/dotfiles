@@ -29,6 +29,19 @@ run() {
   fi
 }
 
+group_writable() {
+  local f="$1" mode acl
+  mode="$(stat -f '%Sp' "$f" 2>/dev/null || true)"
+  if [ "${mode:5:1}" = "w" ]; then
+    return 0
+  fi
+  acl="$(ls -le "$f" 2>/dev/null || true)"
+  case "$acl" in
+    *"group:admin"*"allow read,write"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 check() {
   if [ "$(uname -s)" != "Darwin" ]; then
     log "skip: brew-share is macOS-only"
@@ -39,7 +52,7 @@ check() {
     return 0
   fi
 
-  local p owner group current locks bad acl acl_ok
+  local p owner group current locks bad acl acl_ok dirs_missing d
   p="$(brew --prefix)"
   owner="$(stat -f '%Su' "$p")"
   group="$(stat -f '%Sg' "$p")"
@@ -48,21 +61,46 @@ check() {
   locks="$p/var/homebrew/locks"
   bad=0
   if [ -d "$locks" ]; then
-    bad="$(find "$locks" -type f ! -perm -g+w 2>/dev/null | wc -l | tr -d ' ')"
+    while IFS= read -r -d '' f; do
+      group_writable "$f" || bad=$((bad + 1))
+    done < <(find "$locks" -type f -print0)
   fi
 
   acl_ok=0
   acl="$(ls -lde "$p" 2>/dev/null || true)"
   case "$acl" in
-    *"group:admin allow"*) acl_ok=1 ;;
+    *"group:admin"*"allow"*) acl_ok=1 ;;
   esac
 
+  dirs_missing=0
+  for d in "$p" "$p/Caskroom" "$p/Cellar" "$p/bin" "$p/lib" "$p/Library" "$p/var/homebrew/locks"; do
+    [ -d "$d" ] || continue
+    acl="$(ls -lde "$d" 2>/dev/null || true)"
+    case "$acl" in
+      *"group:admin"*"allow"*) ;;
+      *) dirs_missing=$((dirs_missing + 1)) ;;
+    esac
+  done
+  for d in "$p"/Caskroom/* "$p"/Caskroom/*/* "$p"/Cellar/* "$p"/Cellar/*/*; do
+    [ -d "$d" ] || continue
+    acl="$(ls -lde "$d" 2>/dev/null || true)"
+    case "$acl" in
+      *"group:admin"*"allow"*) ;;
+      *) dirs_missing=$((dirs_missing + 1)) ;;
+    esac
+  done
+
   if [ "$owner" = "$current" ]; then
-    if [ "$group" = "admin" ] && [ "$bad" -eq 0 ] && [ "$acl_ok" -eq 1 ]; then
-      log "ok: $p is owned by $current and is shared-ready"
-    else
+    if [ "$acl_ok" -eq 0 ]; then
       log "ok: $p is owned by $current; shared access is not configured"
       log "note: run --apply if another admin profile will use this brew"
+    elif [ "$group" = "admin" ] && [ "$bad" -eq 0 ] && [ "$dirs_missing" -eq 0 ]; then
+      log "ok: $p is owned by $current and is shared-ready"
+    else
+      log "ok: $p is owned by $current; shared access needs repair"
+      [ "$bad" -eq 0 ] || log "note: $bad lock file(s) need group write"
+      [ "$dirs_missing" -eq 0 ] || log "note: $dirs_missing directory tree(s) need the ACL"
+      log "note: run --apply to repair the shared prefix"
     fi
     return 0
   fi
@@ -74,8 +112,9 @@ check() {
 
   log "shared: $p (owner $owner, group $group)"
   [ "$group" = "admin" ] || log "warning: prefix group is $group, expected admin"
+  [ "$acl_ok" -eq 1 ] || log "warning: no group:admin ACL on $p; run --apply"
   [ "$bad" -eq 0 ] || log "warning: $bad lock file(s) are not group-writable; run --apply"
-  [ "$acl_ok" -eq 1 ] || log "warning: no inheriting group:admin ACL on $p; run --apply"
+  [ "$dirs_missing" -eq 0 ] || log "warning: $dirs_missing directory tree(s) need the ACL; run --apply"
 
   return 0
 }
