@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Move this machine from manual/npm AI tools to the brew-owned set.
+# Move this machine to the brew-owned set, keeping manual Claude while its cask is broken.
 set -euo pipefail
 
 APPLY=0
@@ -41,8 +41,19 @@ if command -v npm >/dev/null 2>&1 && npm list -g --depth=0 @openai/codex >/dev/n
   run npm uninstall -g @openai/codex
 fi
 
-run brew install --cask codex
-run brew install --cask claude-code
+if [ "$APPLY" -eq 1 ]; then
+  if ! brew install --cask codex; then
+    printf 'codex cask failed; restoring the npm package:\n' >&2
+    if command -v npm >/dev/null 2>&1; then
+      npm install -g @openai/codex
+    else
+      printf 'npm not found; install codex manually.\n' >&2
+    fi
+  fi
+else
+  printf '+ brew install --cask codex\n'
+fi
+
 run brew install herdr
 run brew upgrade opencode-v2
 
@@ -62,21 +73,27 @@ else
 fi
 run brew install --cask antigravity-cli
 
-# Remove the manual binaries only after the brew versions are installed.
-if [ -x /opt/homebrew/bin/claude ] || [ "$APPLY" -eq 0 ]; then
-  run rm -f "$HOME/.local/bin/claude"
-  run rm -rf "$HOME/.local/share/claude"
-fi
-if [ -x /opt/homebrew/bin/herdr ] || [ "$APPLY" -eq 0 ]; then
+# Claude Code stays manual: the claude-code cask 2.1.304 hangs on macOS 26.
+printf 'Keeping ~/.local/bin/claude: the claude-code cask is currently broken on macOS 26.\n'
+
+if [ "$APPLY" -eq 1 ] && /opt/homebrew/bin/herdr --version >/dev/null 2>&1; then
   run rm -f "$HOME/.local/bin/herdr"
+elif [ "$APPLY" -eq 0 ]; then
+  printf '+ rm -f %s/.local/bin/herdr (after verifying herdr)\n' "$HOME"
+else
+  printf 'warning: /opt/homebrew/bin/herdr does not run; keeping the manual binary.\n' >&2
 fi
 
 # Remove only the manual Antigravity CLI symlinks; keep any app config.
-run rm -f "$HOME/.antigravity/antigravity/bin/agy"
-run rm -f "$HOME/.antigravity/antigravity/bin/antigravity"
-run rmdir "$HOME/.antigravity/antigravity/bin" 2>/dev/null || true
-run rmdir "$HOME/.antigravity/antigravity" 2>/dev/null || true
-run rmdir "$HOME/.antigravity" 2>/dev/null || true
+if [ "$APPLY" -eq 1 ] && [ -x /opt/homebrew/bin/agy ]; then
+  run rm -f "$HOME/.antigravity/antigravity/bin/agy"
+  run rm -f "$HOME/.antigravity/antigravity/bin/antigravity"
+  run rmdir "$HOME/.antigravity/antigravity/bin" 2>/dev/null || true
+  run rmdir "$HOME/.antigravity/antigravity" 2>/dev/null || true
+  run rmdir "$HOME/.antigravity" 2>/dev/null || true
+elif [ "$APPLY" -eq 0 ]; then
+  printf '+ remove manual ~/.antigravity symlinks after verifying /opt/homebrew/bin/agy\n'
+fi
 run rm -f "$HOME"/.local/bin/.herdr-update-*.tmp
 
 if brew tap | grep -qx 'cloudflare/cloudflare'; then
@@ -84,4 +101,5 @@ if brew tap | grep -qx 'cloudflare/cloudflare'; then
 fi
 
 printf '\nOptional: brew uninstall gemini-cli (deprecated; replaced by antigravity-cli)\n'
+printf 'Claude Code remains manual until the cask is fixed.\n'
 printf 'Done. Run: ./install.sh --check\n'

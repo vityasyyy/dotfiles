@@ -71,10 +71,10 @@ own layout:
 | Shared Mac, multiple admins | Run `scripts/brew-share.sh --apply` once. It backfills group write and adds an inheriting ACL for group `admin`. |
 | New laptop | Clone, run `./bootstrap.sh` if brew is missing, then `./install.sh`. Auth and secrets are recreated per machine. |
 
-The ACL is what makes the shared prefix durable: new kegs and lock files
-inherit group write, so one profile's install does not break the other.
-`install.sh` only warns when the prefix is shared and not writable; it never
-runs `sudo`.
+The ACL covers normal new kegs and lock files, but Homebrew's cask/copy
+operations do not always inherit it. Re-run `--apply` after installing or
+upgrading casks; `--check` reports whether repair is needed. `install.sh`
+only warns when the prefix is shared and not writable; it never runs `sudo`.
 
 If a permission error still appears:
 
@@ -228,7 +228,7 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `opencode/.config/opencode/AGENTS.md` | OpenCode-specific provider, Herdr, and TUI instructions |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |
-| `scripts/brew-share.sh` | shared Mac: `--check` monthly, `--apply` only when it warns |
+| `scripts/brew-share.sh` | shared Mac: `--check` monthly and after cask updates; `--apply` when it reports repair |
 | git remote | `fork` first, then `git remote set-url origin <your-fork-url>` in each profile's clone |
 
 ---
@@ -272,8 +272,9 @@ only when `brew bundle check --no-upgrade` is unsatisfied; respects
 `DOTFILES_DIR` and `HOME` overrides (CI uses a temp `HOME`).
 
 `--check` is a read-only health check (exit 1 when the profile is not up to
-date). `--prune` removes symlinks that point into the repo but whose target
-was deleted. Backups are kept, not auto-deleted.
+date). `--prune` is standalone: it only removes symlinks that point into the
+repo but whose target was deleted. It does not link, clone, or run brew.
+Backups are kept, not auto-deleted.
 
 ### Neovim (not vendored)
 
@@ -295,20 +296,22 @@ brew outdated && brew upgrade                  # shared Cellar — one run serve
 
 ### Tool ownership
 
-Brew owns every managed CLI and GUI tool. Auth and runtime state stay per
-profile.
+Brew owns every managed CLI and GUI tool except Claude Code, which stays
+manual until its cask is fixed. Auth and runtime state stay per profile.
 
 | Tool | Brew entry | Update path |
 | --- | --- | --- |
 | OpenCode V2 | `anomalyco/tap/opencode-v2` | `brew upgrade opencode-v2` |
 | Codex | `cask "codex"` | `brew upgrade --cask codex` |
-| Claude Code | `cask "claude-code"` | `brew upgrade --cask claude-code` |
+| Claude Code | manual `~/.local/bin/claude` | vendor installer |
 | Herdr | `brew "herdr"` | `brew upgrade herdr` |
 | Antigravity | `cask "antigravity"`, `cask "antigravity-cli"` | `brew upgrade --cask ...` |
 | Ghostty | `cask "ghostty"` | `brew upgrade --cask ghostty` |
 
-Do not use self-updaters (`opencode upgrade`, npm `codex`, manual `claude`
-installers) on these tools; brew is the single owner.
+Do not use self-updaters (`opencode upgrade`, npm `codex`) on the brew-owned
+tools; brew is the single owner. The `claude-code` cask is intentionally
+omitted: its 2.1.304 binary hangs on macOS 26. Keep the manual Claude install
+until upstream fixes the cask.
 
 ### Portability across laptops
 

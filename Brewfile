@@ -1,4 +1,5 @@
-# Brew owns every managed CLI and GUI tool. Auth, caches, and runtime state
+# Brew owns every managed CLI and GUI tool except Claude Code (cask broken on
+# macOS 26). Auth, caches, and runtime state
 # stay per profile; this file is the reproducible tool set.
 #
 # Libraries installed only as dependencies are intentionally omitted; brew
@@ -77,8 +78,10 @@ brew "zsh-autosuggestions"
 
 cask "antigravity"
 cask "antigravity-cli"
-cask "claude-code"
 cask "codex"
 cask "copilot-cli"
 cask "ghostty"
 cask "mactex"
+
+# claude-code is intentionally omitted: the 2.1.304 cask binary hangs on
+# macOS 26. Keep the manual ~/.local/bin/claude until the cask is fixed.
