@@ -124,3 +124,8 @@ Durable preferences from the operator are persisted via the `memory` skill as
 dated standing-rule sections in this file. New preferences arriving in chat
 are saved here automatically — the operator should not have to repeat himself.
 Never store secrets or credentials here.
+
+## Failure visibility and configuration ownership (2026-10-23 — standing)
+
+- Make operational failures visible and actionable; explicitly handle expected idempotent conditions, never silently swallow unexpected errors or report false success.
+- Keep one authoritative configuration source for each setting; remove misleading editable mirrors and make configuration precedence explicit.
