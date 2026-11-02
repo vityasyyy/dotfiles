@@ -19,7 +19,7 @@ Every non-trivial change follows one spine:
 - **Self-review:** re-read the diff as a reviewer, then report what changed,
   what was verified, risks, rollback, and known gaps.
 
-Use only the skill for the current phase:
+Use only the skill for the current phase. Announce: "Using [skill] to [purpose]."
 
 | Phase | Skill |
 |---|---|
@@ -97,8 +97,8 @@ Use only the skill for the current phase:
 - **Tier 1** — repo `AGENTS.md`: commands, conventions, gotchas.
 - **Tier 2** — `docs/plans/`: active task state, decisions, next action.
 - **Tier 3** — session archive + `mem search`: history, never injected.
-- Before compaction or session end, write a handoff using the `memory` skill.
-  Setup and recovery: `~/dotfiles/docs/agent-memory.md`.
+- Write a handoff at the `feature-workflow` checkpoints, before compaction,
+  and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 
 ## Approvals
 

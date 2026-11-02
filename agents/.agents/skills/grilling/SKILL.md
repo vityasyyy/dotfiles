@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: Use before any creative work, when the user asks to stress-test a plan or decision, or when an idea needs to become an approved design. Interviews in rounds, explores approaches, and writes the design spec before implementation.
+description: Use when requirements are ambiguous, the change is high-impact, or the user asks to stress-test a design. Runs interview rounds and writes the design spec before implementation.
 ---
 
 # Grilling
@@ -33,6 +33,13 @@ question belongs to a later round.
 When a frontier question needs a fact from the environment, look it up. Do not
 ask the user for what you can inspect. Do not block the whole round on one
 lookup: ask the questions that do not depend on it now.
+
+## When not to use
+
+A clear, small, reversible change with an obvious acceptance check does not
+need an interview. State a one-line contract and proceed. Use this skill when
+the contract cannot be filled without guessing, or when the change is
+high-impact.
 
 ## Before the first round
 
@@ -67,9 +74,9 @@ Fix issues inline. Then ask the user to review the spec and wait.
 
 ## Hard gate
 
-Do not implement, scaffold, or invoke an implementation skill until the design
-is approved. "Simple" work goes through this too — the design can be three
-sentences, but it is presented and approved.
+For ambiguous or high-impact work, do not implement or scaffold until the
+design is approved. The design can be three sentences, but it is presented and
+approved. A clear, small change does not enter this skill.
 
 ## Handoff
 

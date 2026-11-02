@@ -15,10 +15,10 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
 
 ## Workflow
 
-1. **Plan.** Break the goal into units of work. Decide how many workers (default 1–2; more only when the task justifies the cost) and what each does. Choose topology: one worker per project by default; use git worktrees for parallel work on one repo. **Planning-first:** any concern, finding, or open question discovered during a wave goes into `docs/plans/active/` as part of the wave's PR (AGENTS.md rule 11). The wave is not done until the plan documents the concern.
+1. **Plan.** Break the goal into units of work. Decide how many workers (default 1–2; more only when the task justifies the cost) and what each does. Choose topology: one worker per project by default; use git worktrees for parallel work on one repo. **Planning-first:** any concern, finding, or open question discovered during a wave goes into `docs/plans/active/` as part of the wave's PR. The wave is not done until the plan documents the concern.
 2. **Propose.** Present the plan to the user: workers, per-worker briefs, order, verification steps. Wait for approval. Adjust on feedback.
 3. **Spawn.** For each worker: `herd spawn <name> <cwd>`. This starts OpenCode in a dedicated workspace's root pane. If `<cwd>` is a linked Git worktree of the caller's repo, Herdr groups it with the parent repo workspace; otherwise `herd` creates a separate workspace labeled `<parent>/<worker>`. Herdr does not support arbitrary workspace nesting. Keep each worker in its own checkout and workspace; do not split panes in the lead workspace or reuse another worker's workspace.
-4. **Prompt.** Send each worker a self-contained brief (template below) via `herd prompt <name> <brief>`. Ensure the brief includes: goal, scope, constraints, acceptance criteria, output contract (WORKER-REPORT.md), escalation rule.
+4. **Prompt.** Send each worker a self-contained brief (template below) via `herd prompt <name> <brief>`. Ensure the brief includes: goal, scope, constraints, acceptance criteria, evidence commands, output contract (untracked `WORKER-REPORT.md`), and escalation rule.
 5. **Monitor — never sleep-poll.** Use blocking waits:
    - `herdr agent wait <name> --timeout <ms>` — blocks until the agent settles (idle/done/blocked). This is the ONLY monitor primitive; do not loop on `sleep` + `herd status`.
    - If `blocked`: `herd read <name>` to see the question; resolve from the brief if possible, otherwise ask the user.
@@ -39,7 +39,8 @@ Every brief must be self-contained — workers cannot see this conversation:
 - **Scope:** explicit files/dirs to touch.
 - **Constraints:** style, conventions, do-not-touch list.
 - **Acceptance criteria:** verifiable — tests pass, build clean, specific behavior.
-- **Output contract:** write `WORKER-REPORT.md` at the repo root: what changed, what was verified, what remains.
+- **Evidence:** the commands/checks to run and report; map each acceptance item to one.
+- **Output contract:** write `WORKER-REPORT.md` at the repo root, untracked; never commit it. Include what changed, what was verified, and what remains.
 - **Escalation:** if a decision is ambiguous or blocked, stop and report the question in `WORKER-REPORT.md` instead of guessing.
 
 ## Rules
@@ -52,7 +53,6 @@ Every brief must be self-contained — workers cannot see this conversation:
 - Don't close panes/workspaces you didn't create.
 - Never run `herdr server stop` from an active session.
 - Escalate to the user for: plan approval, ambiguous decisions, cost concerns, anything destructive.
-- Every worker gets a bounded brief: a worker that finishes early writes WORKER-REPORT.md; a worker that cannot finish reports what's left. Never let a worker wander.
+- Every worker gets a bounded brief: a worker that finishes early writes an untracked `WORKER-REPORT.md`; a worker that cannot finish reports what's left. Never let a worker wander.
 - Anti-loop: if a worker repeats a command that already produced output, stop it, re-prompt with a move-on directive, and note the incident in the next report.
 - Overlap discipline: before integrating, diff each worker's changed-file set against the others. Resolve overlaps yourself (or ask the user) — never silently let two workers edit the same file.
-- Planning-first: any concern, finding, or open question discovered during a wave goes into `docs/plans/active/` as part of the wave's PR (AGENTS.md rule 11). The wave is not done until the plan documents the concern.

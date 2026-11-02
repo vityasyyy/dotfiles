@@ -120,6 +120,19 @@ OAuth credentials stay in the per-profile auth store; never commit them.
 One session per task or phase. A session that crosses several compactions is a
 sign the task should have been split.
 
+## Skill usage review
+
+The agent announces "Using [skill]" when it loads one. Search the index weekly:
+
+```sh
+~/.agents/skills/memory/scripts/mem search "Using "
+```
+
+A skill that never appears is mis-described or redundant; a skill that appears
+on every task is over-broad. Retune the description or fold the skill. Do not
+fix under-triggering by loading everything — that consumes context without
+improving routing.
+
 ## Handoff template
 
 ```markdown

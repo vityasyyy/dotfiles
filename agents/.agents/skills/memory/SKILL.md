@@ -9,7 +9,8 @@ metadata:
 # Memory
 
 Four tiers. One fact lives in exactly one tier. Retrieval is a query, never a
-context dump.
+context dump. Workflow checkpoints are defined in `feature-workflow`; this
+skill owns the tiers and the handoff template.
 
 | Tier | Where | Budget | Holds |
 |---|---|---|---|

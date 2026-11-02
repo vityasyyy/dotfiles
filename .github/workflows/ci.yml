@@ -22,6 +22,9 @@ jobs:
       - name: bash syntax check
         run: bash -n install.sh bootstrap.sh scripts/*.sh
 
+      - name: Agent config checks
+        run: ./scripts/check-agent-config.sh
+
       - name: gitleaks detect
         uses: gitleaks/gitleaks-action@v2
         env:
