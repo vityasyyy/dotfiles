@@ -2,9 +2,10 @@
 
 OpenCode-specific skills are designed to be installed under `.opencode/skills/<skill-id>/SKILL.md`.
 
-This directory contains OpenCode-only skills such as `herd` and `shadcn`.
-Portable engineering and writing skills live in `~/.agents/skills/` and are
-shared with Codex.
+This directory contains OpenCode-only skills such as `herd`. Portable
+engineering, writing, and memory skills live in `~/.agents/skills/` and are
+shared with Codex. Project-specific shadcn copies live in the repositories
+that use them, not here.
 
 `AGENTS.md` is optional but recommended for project repositories because it provides a short, always-visible routing layer to the skills.
 

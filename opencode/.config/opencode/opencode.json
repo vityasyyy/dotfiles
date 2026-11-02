@@ -3,18 +3,12 @@
   "plugins": [
     "@slkiser/opencode-quota"
   ],
-  "mcp": {
-    "servers": {
-      "atlassian": {
-        "type": "remote",
-        "url": "https://mcp.atlassian.com/v2/mcp",
-        "disabled": false
-      },
-      "figma": {
-        "type": "remote",
-        "url": "https://mcp.figma.com/mcp"
-      }
-    }
+  "compaction": {
+    "auto": true,
+    "keep": {
+      "tokens": 30000
+    },
+    "buffer": "20%"
   },
   "permissions": [
     {

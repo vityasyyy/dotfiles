@@ -1,30 +1,77 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+description: Use before any creative work, when the user asks to stress-test a plan or decision, or when an idea needs to become an approved design. Interviews in rounds, explores approaches, and writes the design spec before implementation.
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+# Grilling
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Interview the user until you reach a shared understanding. Map the work as a
+**design tree**: every decision branches into the decisions that hang off it.
 
-Format a round like so:
+## Rounds
+
+Work the tree in rounds. The **frontier** is every decision whose prerequisites
+are settled — the questions you can ask now without guessing at answers you
+have not heard. Ask the whole frontier in one round, numbered, each with your
+recommended answer. Then wait.
 
 ```
-❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+❓ **Q1** — **<title>**: <question body and choices>
 
-➡️ <your recommended answer>
-
----
-
-❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
+➡️ <recommended answer>
 ```
 
-Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
+Use the native question modal when the harness exposes one. One decision per
+modal. Otherwise use the inline format.
 
-Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
+Each round reshapes the tree: settled answers push the frontier outward.
+Recompute it and ask the next round. A question that depends on another open
+question belongs to a later round.
 
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+## Facts are yours, decisions are the user's
 
-When the harness provides a native interactive question/modal tool, raise each round's questions through it — one modal per question, with that question's choices and the recommended answer first or pre-selected. Otherwise use the inline round format above. Mixing is fine: questions that need no real decision stay inline; genuine user decisions go to modals.
+When a frontier question needs a fact from the environment, look it up. Do not
+ask the user for what you can inspect. Do not block the whole round on one
+lookup: ask the questions that do not depend on it now.
+
+## Before the first round
+
+Inspect the project: files, docs, recent commits, existing patterns. If the
+request spans independent subsystems, say so and decompose it before refining
+details. Each sub-project gets its own design → plan → implementation cycle.
+
+## Explore approaches
+
+For a non-trivial design, propose 2–3 approaches with trade-offs and a
+recommendation. Lead with the recommended one and say why. Apply YAGNI
+ruthlessly: remove unnecessary features from every approach.
+
+## Present the design
+
+Present in sections scaled to complexity — a few sentences when simple, up to
+a few hundred words when nuanced. Ask after each section whether it looks
+right. Cover architecture, components, data flow, failure handling, and
+testing. Prefer small units with clear boundaries and testable interfaces.
+
+## Write the spec
+
+Save the approved design to `docs/plans/YYYY-MM-DD-<topic>-design.md` unless
+the project overrides the location. Then self-review:
+
+1. Placeholder scan: no TBD, TODO, or vague requirements.
+2. Internal consistency: no contradictions between sections.
+3. Scope: one implementation plan can deliver it.
+4. Ambiguity: each requirement has one interpretation.
+
+Fix issues inline. Then ask the user to review the spec and wait.
+
+## Hard gate
+
+Do not implement, scaffold, or invoke an implementation skill until the design
+is approved. "Simple" work goes through this too — the design can be three
+sentences, but it is presented and approved.
+
+## Handoff
+
+The only next skill is `writing-plans`. Do not invoke implementation skills
+from here.
