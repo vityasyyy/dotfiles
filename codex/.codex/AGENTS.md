@@ -1,67 +1,91 @@
 # Codex global instructions
 
-These are user-level defaults for Codex. Repository instructions and the user's current request take precedence where they are more specific.
+User-level defaults for Codex. Repository instructions and the current request
+take precedence where they are more specific. This file is the Codex projection
+of the shared workflow; the skills themselves are the source of truth.
 
 ## Work across both agents
 
-- OpenCode remains an independent, supported workflow. Keep shared conventions in `~/.agents/skills`; keep Codex app/provider/auth settings separate from OpenCode settings.
-- Read the current repository's `AGENTS.md` and relevant project guidance before changing code or documents. Inspect the repository to answer questions that can be settled from its files.
-- Carry the requested task through to a useful, reviewable result. Make reasonable assumptions when the repository or conversation answers them; ask only when the choice materially affects correctness, safety, or the user's intent.
-- Prefer a small, complete change that follows existing conventions. Do not put plan or phase references into code comments, docstrings, or commit messages.
-- Protect credentials and private data. Ask before destructive or out-of-scope actions, actions affecting a live cluster, or handling secrets.
-- Before a step that requires downloading or installing a tool or release binary, ask the user and pause that dependent step so they can perform the download; continue independent work where useful.
+- Keep shared conventions and skills in `~/.agents/skills`. Keep Codex
+  app/provider/auth settings separate from OpenCode settings.
+- Read the repository's `AGENTS.md` and relevant project guidance before
+  changing code or documents. Inspect the repository to answer questions its
+  files can settle.
+- Carry the task through to a reviewable result. Ask only when the choice
+  materially affects correctness, safety, or the user's intent.
+- Prefer a small, complete change that follows existing conventions. No plan
+  or phase references in code, docstrings, or commit messages.
+- Protect credentials and private data. Ask before destructive or out-of-scope
+  actions, live-cluster changes, or handling secrets.
+- Before a step that needs a download or install, ask the user and pause that
+  step so they can perform the download.
 
-## Skill routing (2026-10-13 — standing, mirrored from OpenCode)
+## Workflow
 
-Invoke the matching skill BEFORE acting; announce "Using [skill] to [purpose]".
-One router: this table. Raise clarifying decisions through native question
-tooling when the harness exposes it, inline otherwise.
+Every non-trivial change: **inspect → define contract → implement → verify →
+self-review → report.**
+
+- Inspect the call path, existing implementations, and the repo's test/lint/
+  typecheck/build commands.
+- State behavior, acceptance criteria, failure cases, non-goals, and
+  compatibility before coding.
+- Implement the smallest correct change with `ponytail`.
+- Verify with real commands; evidence before claims.
+- Re-read the diff, then report changes, evidence, risks, and known gaps.
+
+## Skill routing
+
+Load the owning skill before acting; announce "Using [skill] to [purpose]".
+Each rule has one owner; link to it rather than restating it.
 
 | Trigger | Skill |
 |---|---|
-| Any coding task (writing, fixing, refactoring, reviewing, deps) | `ponytail` first — alongside the mapped process skill, never instead of it |
-| Plan/design/creative work of any size | `grilling` first (interview rounds to shared understanding), then `brainstorming` → `writing-plans` → `executing-plans` |
-| Any bug, failure, or unexpected behavior | `systematic-debugging` before proposing fixes |
-| Implementing maintained app code / behavior changes | `test-driven-development` (triage gate inside the skill covers skippable cases) |
-| About to claim done/fixed/passing | `verification-before-completion` — evidence before assertions |
-| Reviewing diffs/PRs/architecture | `code-review`; when receiving review feedback → `receiving-code-review` |
+| Any coding task | `ponytail` first, alongside the mapped process skill |
+| Plan/design/creative work | `grilling`, then `writing-plans` |
+| Bug, failure, unexpected behavior | `systematic-debugging` |
+| Maintained app code / behavior change | `test-driven-development` |
+| About to claim done/fixed/passing | `verification-before-completion` |
+| Diff, PR, architecture review | `code-review` (includes receiving feedback) |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
-| Parallel or isolated in-repo work | `parallel-worktrees`; herdr orchestration only when a lead agent directs it — Codex does not self-orchestrate panes |
-| Confluence/documentation work | `confluence-authoring` and the connected Atlassian tools in this session |
-| Infra/production/reliability work | `production-reliability` |
-| UI/visual design work | `frontend-design` |
+| Parallel or isolated in-repo work | `parallel-worktrees`; Codex does not self-orchestrate herdr panes |
+| Confluence/documentation | `confluence-authoring` + connected Atlassian tools |
+| Infra/production/reliability | `production-reliability` |
+| UI/visual design | `frontend-design` |
 | Writing or editing skills | `writing-skills` |
 | `.docx` / `.pptx` artifacts | Documents / Presentations skills with their render and visual-check workflows |
-| User states a durable preference/correction | `memory` — persist it as a dated standing-rule entry in this file |
+| Durable preference or correction | `memory` — shared skill; Tier 0 for Codex is this file |
 
-Execution default: inline in the current session. Planning artifacts (specs,
-plans, ADRs) live under the repo's `docs/plans/`.
+Execution default: inline in the current session. Planning artifacts live under
+the repo's `docs/plans/`.
 
-## Response style (2026-10-13 — standing, mirrored from OpenCode)
+## Response style
 
-Lead with the artifact, not prose. Concise but complete — detail lives in
-structure, not adjectives.
+Lead with the artifact. Concise but complete; structure over adjectives.
 
-- Diagram any architecture, data flow, or state change as Mermaid:
-  `flowchart TD` / `sequenceDiagram` / `stateDiagram-v2`.
-- Keep diagrams human-readable: short node labels, top-to-bottom layout,
-  annotated edges, no spaghetti. If it reads as noodles, split it.
-- Follow every diagram with 1–3 sentences interpreting it; don't assume the
-  picture speaks for itself.
-- Render-first: when the target surface renders Mermaid (Confluence, PR
-  markdown), prefer rendered diagrams over ASCII art; in plain terminals,
-  pair the Mermaid block with the verbal interpretation.
+- Diagram architecture, data flow, and state changes as Mermaid
+  (`flowchart TD`, `sequenceDiagram`, `stateDiagram-v2`).
+- Short node labels, top-down, annotated edges; split diagrams that read as
+  spaghetti.
+- Follow each diagram with 1–3 sentences of interpretation.
 
 ## Writing and delivery
 
-## Writing and delivery
-
-- For Confluence, follow the shared `confluence-authoring` skill. Apply those conventions only to Confluence deliverables, not ordinary code comments or chat replies.
-- Keep engineering updates concise and concrete. Report what changed and verification actually performed; do not claim a check ran when it did not.
-- For document or presentation tasks, create the requested artifact in the requested location and show or link the finished file when possible.
+- For Confluence, follow `confluence-authoring`. Apply those conventions only
+  to Confluence deliverables, not code comments or chat replies.
+- Keep engineering updates concrete. Report what changed and what verification
+  actually ran; never claim a check that did not run.
+- For document or presentation tasks, create the artifact in the requested
+  location and link it when possible.
 
 ## Git and release rules
 
-- Preserve the user's working tree. Do not reset, clean, stash, rewrite pushed history, or commit unrelated changes.
-- For `invenio-rdm-gitops`, the standing user rule permits squash-merging a pull request and deleting its branch once the diff is reviewed and required CI is green. Never merge directly to `main`; never force-push. Report the merge commit and what it contains.
-- For changes consumed by deployment or infrastructure pipelines in that repository, follow its production verification guidance and verify required post-merge pipelines before reporting completion.
+- Preserve the user's working tree. Do not reset, clean, stash, rewrite pushed
+  history, or commit unrelated changes.
+- Commit and PR messages follow `git-pr-workflow`: Conventional subject,
+  what/why/impact body, evidence, risks. Subject-only is a defect.
+- For `invenio-rdm-gitops`, squash-merging a PR and deleting its branch is
+  permitted once the diff is reviewed and required CI is green. Never merge
+  directly to `main`; never force-push. Report the merge commit.
+- For changes consumed by that repository's deployment or infrastructure
+  pipelines, verify the required post-merge pipelines before reporting
+  completion.

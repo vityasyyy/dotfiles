@@ -22,7 +22,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during grilling. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
 ## File Structure
 
@@ -60,7 +60,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans` to implement this plan task-by-task in this session. Delegated/parallel execution goes through herd (herdr panes); do not spawn ad-hoc subagent chains. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execute this plan task-by-task using the inline execution section below. Delegated/parallel execution goes through herd (herdr panes); do not spawn ad-hoc subagent chains. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -155,12 +155,22 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan, offer the choice:
 
-**"Plan complete and saved to `docs/plans/<filename>.md`. Execution options:**
+**1. Inline execution (default)** — execute tasks in this session with
+checkpoints.
+**2. herd delegation** — parallel workers or isolation; one worker per
+worktree.
 
-**1. Inline Execution (default)** - Execute tasks in this session using `executing-plans`, batch execution with checkpoints for review
+### Inline execution
 
-**2. herd Delegation** - For work that benefits from parallel workers or isolation, orchestrate via herd (herdr panes) with one worker per worktree
+1. Ensure an isolated workspace with `parallel-worktrees` (or verify the
+   existing one).
+2. Read the plan and review it critically. Raise concerns before starting.
+3. Execute tasks in order. Mark each in progress and completed. Follow the
+   steps and run the specified verification.
+4. Stop and ask on a blocker, a missing dependency, a critical gap, or
+   repeated verification failure. Do not guess.
+5. After all tasks pass, use `git-pr-workflow` for the commit, PR, and CI gate.
 
-**Which approach?"**
+Never start implementation on `main`/`master` without explicit user consent.

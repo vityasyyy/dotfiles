@@ -1,6 +1,6 @@
 ---
 name: feature-workflow
-description: "Use when implementing features, bug fixes, or refactors in a deterministic workflow: inspect, plan, code, test, format/lint, type-check, detect duplication, commit with Conventional Commits, create a PR, and wait for CI before declaring completion."
+description: Use when implementing a feature, bug fix, or refactor. Runs the inspect → contract → implement → verify → self-review spine and scales the process to the change's risk.
 metadata:
   audience: ai-coding-agent
   workflow: feature-development
@@ -8,199 +8,91 @@ metadata:
 
 # Feature Workflow
 
-Use this workflow for feature work, bug fixes, refactors, and non-trivial changes.
+The spine lives in `AGENTS.md`. This skill sequences the owners and sets the
+minimum gates for each lane. Do not restate a rule another skill owns.
 
-## 0. Load Context Before Coding
+## Pick the lane
 
-Before editing:
+| Lane | Trigger | Minimum gates |
+|---|---|---|
+| Trivial | typo, one-line fix, config/docs; reversible; obvious check | one-line contract → implement → verify → report |
+| Standard | behavior change in maintained code | contract → tests (TDD when testable) → implement → verify → self-review → PR |
+| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → herd if parallel → contract → implement → verify → review → PR → post-merge pipelines |
 
-1. Read repository instructions.
-2. Inspect relevant architecture.
-3. Find existing implementations.
-4. Identify tests and CI commands.
-5. Identify the expected acceptance criteria.
-6. Determine whether the task is local or cross-cutting.
-7. Identify risks and failure modes.
+When unsure, take the higher lane. If a trivial change grows, move to the
+standard lane immediately; do not retrofit a plan after the fact.
 
-If the task is ambiguous in a way that affects correctness or architecture, ask before coding.
+## 1. Inspect
 
-## 1. Plan
+- Read repo `AGENTS.md`, README, manifests, and CI config.
+- Find the nearest existing implementation; trace the real call path.
+- Identify test, lint, typecheck, and build commands.
+- If the repo has no `AGENTS.md` and the conventions are non-obvious, propose
+  a short one (Tier 1 memory).
+- If behavior is broken, use `systematic-debugging` before proposing a fix.
 
-Create a concise internal implementation plan.
+## 2. Contract
 
-Include:
-- files/components likely affected;
-- behavior to change;
-- tests required;
-- migrations/config changes;
-- observability implications;
-- security implications;
-- rollback/compatibility considerations.
+Write the contract before coding:
 
-Do not over-plan trivial changes.
+```markdown
+## Contract
+Behavior:
+Acceptance:
+Failure cases:
+Non-goals:
+Compatibility:
+Evidence:
+```
 
-## 2. Code
+- If Behavior or Acceptance cannot be filled without guessing, use `grilling`.
+- Multi-step: put the contract at the top of the plan (`writing-plans`).
+- Testable: turn Acceptance into failing tests (`test-driven-development`).
+- Trivial: one line in the response is enough.
 
-Implement the smallest complete solution.
+## 3. Plan and delegate
 
-Rules:
-- follow existing project conventions;
-- do not invent dependencies unnecessarily;
-- preserve backward compatibility unless explicitly changing it;
-- validate boundaries;
-- make errors observable;
-- handle failure paths;
-- keep functions/modules cohesive;
-- avoid unrelated changes.
+- Multi-step: write the plan with `writing-plans` in `docs/plans/`.
+- Parallel or isolated: `herd` + `parallel-worktrees`; the worker brief carries
+  the contract and the evidence commands.
+- Otherwise execute inline.
 
-If you discover an architectural improvement outside the task, do not silently expand scope. Ask before a large refactor.
+## 4. Implement
 
-## 3. Test
+- Use `ponytail`.
+- Keep the diff scoped. Ask before a large refactor or public API change.
+- Update the docs, config, and migrations the change requires.
 
-Run the most targeted tests first, then the broader suite.
+## 5. Verify
 
-At minimum:
-- new/changed behavior has tests;
-- regression cases are covered;
-- failure paths are covered where relevant.
+- Run targeted tests first, then the full relevant suite.
+- Run the formatter, linter, typecheck/build, and project-specific checks.
+- Map each Acceptance item to evidence. A green suite that misses an
+  acceptance item is not done.
+- If a check cannot run, state why. Do not claim success without evidence.
+- Use `verification-before-completion` for the final gate.
 
-If tests cannot be run, determine why and report it. Do not claim success without evidence.
+## 6. Self-review and report
 
-## 4. Lint and Format
+- Standard/high-impact: review the diff with `code-review`; fix findings.
+- Trivial: re-read the diff yourself; fix stray debug code and scope creep.
+- Commit, open the PR, and wait for CI with `git-pr-workflow`.
+- Report:
 
-Run the repository's configured formatter and linter.
+  | Requirement | Evidence |
+  |---|---|
+  | ... | command, test, or manual check |
 
-Prefer project scripts over manually invented commands.
+  Add risks, rollback, and known gaps.
 
-If formatting modifies files, inspect the diff.
+## Checkpoints
 
-Lint errors must be fixed unless explicitly justified.
+Write or refresh the handoff at these points, using the `memory` skill:
 
-## 5. Type Check / Compile
+1. After the contract or plan.
+2. Before `/compact`.
+3. After verification.
+4. Before delegating to a worker.
+5. At session end.
 
-Run the project's type checker or compiler.
-
-Examples:
-- TypeScript: project typecheck command / `tsc --noEmit`
-- Go: `go test`, `go vet`, or project-specific checks as appropriate
-- Rust: `cargo check`
-- Python: configured type checker where the project uses one
-- C/C++: project build and static analysis
-
-Use the project's actual tooling first.
-
-## 6. Duplication Review
-
-Before committing:
-
-- search for duplicate implementations;
-- search for existing helpers/utilities;
-- compare similar code paths;
-- determine whether a shared abstraction is warranted.
-
-Do not over-abstract merely to eliminate textual similarity.
-
-## 7. Review the Diff
-
-Inspect:
-
-- `git diff`;
-- changed files;
-- accidental debug code;
-- secrets;
-- generated files;
-- unrelated modifications;
-- migrations;
-- API compatibility;
-- error paths;
-- logs;
-- tests.
-
-The diff is the artifact being reviewed, not your memory of what you changed.
-
-## 8. Final Local Verification
-
-Run the complete relevant verification suite:
-
-1. tests;
-2. lint;
-3. format/check;
-4. type check/build;
-5. relevant security/static analysis;
-6. project-specific checks.
-
-Do not skip a check merely because an earlier targeted check passed.
-
-## 9. Commit
-
-Use Conventional Commits.
-
-Format:
-
-`type(scope): imperative description`
-
-Examples:
-
-- `feat(auth): add refresh token rotation`
-- `fix(payment): prevent duplicate charge retries`
-- `refactor(repo): isolate transaction handling`
-- `test(order): cover expired reservation`
-- `docs(api): document pagination contract`
-- `chore(ci): cache dependency downloads`
-
-The scope should identify the affected subsystem/package/domain.
-
-Commit message requirements:
-- concise;
-- descriptive;
-- explains intent, not implementation trivia;
-- imperative mood;
-- no vague messages such as `update`, `fix stuff`, `changes`, or `wip`.
-
-Do not commit unrelated changes.
-
-## 10. Pull Request
-
-Create a PR after local verification and commit.
-
-PR must include:
-- summary;
-- why the change is needed;
-- implementation overview;
-- tests performed;
-- risks/tradeoffs;
-- migration/configuration notes;
-- rollback considerations when relevant.
-
-## 11. CI Gate
-
-After opening the PR:
-
-1. Wait for CI.
-2. Inspect all required checks.
-3. If CI fails, diagnose the failure.
-4. Fix it.
-5. Re-run local checks.
-6. Commit the fix.
-7. Push.
-8. Wait for CI again.
-
-Do not declare completion while required CI checks are failing or unknown.
-
-Do not bypass required checks merely to merge.
-
-## 12. Completion
-
-Only declare the task complete when:
-
-- implementation is complete;
-- tests pass;
-- lint/format passes;
-- type check/build passes;
-- duplication review is complete;
-- diff is clean;
-- Conventional Commit exists;
-- PR exists when requested/appropriate;
-- required CI is green.
-
-If external approval is required after CI is green, stop there and report the state.
+The handoff is the recovery artifact; the summary is not.

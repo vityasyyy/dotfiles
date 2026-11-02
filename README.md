@@ -225,7 +225,7 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
 | `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode and Codex |
 | `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
-| `opencode/.config/opencode/AGENTS.md` | OpenCode-specific provider, Herdr, and TUI instructions |
+| `opencode/.config/opencode/AGENTS.md` | Global workflow, skill routing, memory tiers, and standing rules |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |
 | `scripts/brew-share.sh` | shared Mac: `--check` monthly and after cask updates; `--apply` when it reports repair |

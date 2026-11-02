@@ -176,6 +176,29 @@ Require tests for:
 
 Reject tests that merely assert implementation details without protecting behavior.
 
+## Receiving Feedback
+
+When the feedback is about your own work:
+
+1. Read it completely. Restate the requirement in your own words.
+2. Verify it against the codebase before changing anything.
+3. Evaluate whether it is correct for this codebase — not whether it sounds
+   confident.
+4. Clarify all unclear items before implementing any of them. Items may be
+   related.
+5. Implement in order: blocking/security, simple fixes, complex fixes. Test
+   each.
+
+No performative agreement or gratitude. State the technical requirement, or
+just fix it and say what changed. Push back with evidence when the suggestion
+breaks behavior, lacks context, violates YAGNI, or conflicts with an earlier
+decision. If you were wrong, say what you verified and move on.
+
+External reviewers: be skeptical but check carefully. If you cannot verify a
+suggestion, say what you need. Reply to GitHub inline comments in the thread
+(`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a
+top-level PR comment.
+
 ## Review Output
 
 Report findings by severity:

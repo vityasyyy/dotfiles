@@ -48,3 +48,7 @@ id_ed25519*
 # figma mcp oauth client credentials (opencode)
 .figma-mcp-oauth
 **/.figma-mcp-oauth
+
+# python bytecode
+__pycache__/
+*.pyc

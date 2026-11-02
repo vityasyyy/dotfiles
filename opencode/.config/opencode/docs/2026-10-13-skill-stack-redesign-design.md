@@ -1,5 +1,8 @@
 # Skill stack redesign — 2026-10-13
 
+> Superseded on 2026-11-02 by the consolidated skill stack and the workflow
+> spine in `AGENTS.md`. Kept as history.
+
 Owner: vityasyyy · Decided in a grilling session this same day.
 
 ## Problem

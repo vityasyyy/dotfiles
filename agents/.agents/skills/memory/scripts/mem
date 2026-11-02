@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""Search local OpenCode sessions. Stdlib only; the index lives outside the repo."""
+
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import sqlite3
+import sys
+from pathlib import Path
+
+OPENCODE_DB = Path(
+    os.environ.get("OPENCODE_DB", "~/.local/share/opencode/opencode.db")
+).expanduser()
+MEMORY_DIR = Path(
+    os.environ.get("AGENT_MEMORY_DIR", "~/.local/share/agent-memory")
+).expanduser()
+INDEX_DB = MEMORY_DIR / "index.db"
+HANDOFF_DIR = MEMORY_DIR / "handoffs"
+MAX_FIELD = 4000
+
+
+def source_db():
+    if not OPENCODE_DB.exists():
+        raise SystemExit(f"mem: OpenCode database not found: {OPENCODE_DB}")
+    return sqlite3.connect(f"file:{OPENCODE_DB}?mode=ro", uri=True)
+
+
+def index_db():
+    MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        os.chmod(MEMORY_DIR, 0o700)
+    except OSError:
+        pass
+    con = sqlite3.connect(INDEX_DB)
+    con.execute(
+        """CREATE VIRTUAL TABLE IF NOT EXISTS messages USING fts5(
+            text, title, directory, session_id UNINDEXED, ts UNINDEXED, type UNINDEXED
+        )"""
+    )
+    return con
+
+
+def clip(value, limit=MAX_FIELD):
+    text = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+    return text[:limit]
+
+
+def message_text(row_type, data):
+    try:
+        payload = json.loads(data)
+    except (TypeError, json.JSONDecodeError):
+        return data or ""
+    if not isinstance(payload, dict):
+        return ""
+
+    if row_type == "user":
+        parts = [payload.get("text") or ""]
+        if payload.get("files"):
+            parts.append(clip(payload["files"], 1000))
+        return "\n".join(part for part in parts if part)
+
+    if row_type == "assistant":
+        parts = []
+        for part in payload.get("content") or []:
+            if not isinstance(part, dict):
+                continue
+            if part.get("type") == "text":
+                parts.append(part.get("text") or "")
+            elif part.get("type") == "tool":
+                state = part.get("state") or {}
+                pieces = [part.get("name") or "tool"]
+                if state.get("input"):
+                    pieces.append(clip(state["input"], 1200))
+                if state.get("content"):
+                    pieces.append(clip(state["content"], 2000))
+                if state.get("error"):
+                    pieces.append(clip(state["error"], 1200))
+                parts.append("\n".join(pieces))
+        return "\n".join(part for part in parts if part)
+
+    return ""
+
+
+def source_mtime():
+    paths = [OPENCODE_DB, Path(f"{OPENCODE_DB}-wal")]
+    return max((p.stat().st_mtime for p in paths if p.exists()), default=0)
+
+
+def build_index(force=False):
+    if not force and INDEX_DB.exists() and INDEX_DB.stat().st_mtime >= source_mtime():
+        return 0
+
+    src = source_db()
+    idx = index_db()
+    sessions = {
+        row[0]: row
+        for row in src.execute(
+            "select id, title, directory, time_created from session_v2"
+        )
+    }
+
+    idx.execute("delete from messages")
+    count = 0
+    for session_id, row_type, created, data in src.execute(
+        "select session_id, type, time_created, data from session_message "
+        "order by time_created"
+    ):
+        if row_type not in ("user", "assistant"):
+            continue
+        text = message_text(row_type, data)
+        if not text.strip():
+            continue
+        session = sessions.get(session_id)
+        title = (session[1] if session else "") or ""
+        directory = (session[2] if session else "") or ""
+        idx.execute(
+            "insert into messages(text, title, directory, session_id, ts, type) "
+            "values(?, ?, ?, ?, ?, ?)",
+            (text, title, directory, session_id, created, row_type),
+        )
+        count += 1
+
+    idx.commit()
+    print(f"indexed {count} messages from {len(sessions)} sessions -> {INDEX_DB}")
+    return count
+
+
+def cmd_index(args):
+    build_index(force=True)
+    return 0
+
+
+def cmd_search(args):
+    build_index()
+    idx = index_db()
+    sql = """select session_id, title, directory, ts, type,
+                    snippet(messages, 0, '[', ']', '…', 12)
+             from messages
+             where messages match ?
+             order by bm25(messages)
+             limit ?"""
+    try:
+        rows = idx.execute(sql, (args.query, args.limit)).fetchall()
+    except sqlite3.OperationalError:
+        rows = idx.execute(
+            """select session_id, title, directory, ts, type, substr(text, 1, 400)
+               from messages where text like ?
+               order by ts desc limit ?""",
+            (f"%{args.query}%", args.limit),
+        ).fetchall()
+
+    for session_id, title, directory, ts, row_type, snippet in rows:
+        when = dt.datetime.fromtimestamp((ts or 0) / 1000).strftime("%Y-%m-%d %H:%M")
+        print(f"{when}  {title or '(untitled)'}  [{row_type}]  {session_id}")
+        if directory:
+            print(f"  {directory}")
+        print(f"  {re.sub(r'\\s+', ' ', snippet or '').strip()}")
+        print()
+
+    if not rows:
+        print("no matches")
+    return 0
+
+
+def cmd_sessions(args):
+    build_index()
+    idx = index_db()
+    rows = idx.execute(
+        """select title, session_id, count(*), max(ts)
+           from messages group by session_id order by 4 desc limit ?""",
+        (args.limit,),
+    ).fetchall()
+    for title, session_id, count, ts in rows:
+        when = dt.datetime.fromtimestamp((ts or 0) / 1000).strftime("%Y-%m-%d %H:%M")
+        print(f"{when}  {count:>4} msgs  {title or '(untitled)'}  {session_id}")
+    if not rows:
+        print("no sessions")
+    return 0
+
+
+def cmd_handoff(args):
+    HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
+    slug = re.sub(r"[^a-z0-9]+", "-", args.task.lower()).strip("-")[:50] or "task"
+    path = HANDOFF_DIR / f"{dt.date.today().isoformat()}-{slug}.md"
+    path.write_text(
+        f"""# Handoff — {args.task}
+Date: {dt.date.today().isoformat()}
+Repo:
+Branch:
+Goal:
+State: in progress
+Decisions:
+Files:
+Commands:
+Next:
+Open questions:
+"""
+    )
+    print(path)
+    return 0
+
+
+def cmd_stats(args):
+    build_index()
+    idx = index_db()
+    messages = idx.execute("select count(*) from messages").fetchone()[0]
+    sessions = idx.execute("select count(distinct session_id) from messages").fetchone()[0]
+    print(f"index:    {INDEX_DB}")
+    print(f"source:   {OPENCODE_DB}")
+    print(f"messages: {messages}")
+    print(f"sessions: {sessions}")
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="mem", description=__doc__)
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("index", help="rebuild the session index").set_defaults(
+        func=cmd_index
+    )
+
+    search = sub.add_parser("search", help="search indexed sessions")
+    search.add_argument("query")
+    search.add_argument("--limit", type=int, default=10)
+    search.set_defaults(func=cmd_search)
+
+    sessions = sub.add_parser("sessions", help="list recent sessions")
+    sessions.add_argument("--limit", type=int, default=20)
+    sessions.set_defaults(func=cmd_sessions)
+
+    handoff = sub.add_parser("handoff", help="create a handoff template")
+    handoff.add_argument("--task", required=True)
+    handoff.set_defaults(func=cmd_handoff)
+
+    sub.add_parser("stats", help="show index statistics").set_defaults(
+        func=cmd_stats
+    )
+
+    args = parser.parse_args()
+    if not getattr(args, "func", None):
+        parser.print_help()
+        return 1
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

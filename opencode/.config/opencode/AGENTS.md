@@ -1,131 +1,110 @@
 # Global operator preferences
 
-Owner: vityasyyy. Standing instructions from 2026-09-15 — these override any
-skill or convention that says otherwise. Reconfirm if they ever look unsafe.
+Owner: vityasyyy. These rules override skills and conventions unless they
+would be unsafe. Each rule has one owner: link to it, never restate it.
 
-## Skill routing table (2026-10-13 — standing)
+## Workflow
 
-Invoke the matching skill BEFORE acting; announce "Using [skill] to [purpose]".
-One router: this table. Raise clarifying decisions through native question
-modals when the harness exposes them, inline otherwise.
+Every non-trivial change follows one spine:
 
-| Trigger | Skill |
+**inspect → define contract → implement → verify → self-review → report.**
+
+- **Inspect:** read repo instructions, trace the call path, find the nearest
+  existing implementation, identify test/lint/typecheck/build commands.
+- **Contract:** state behavior, acceptance criteria, failure cases, non-goals,
+  and compatibility. Multi-step work gets a plan; testable behavior gets a
+  failing test first.
+- **Implement:** smallest correct diff. Follow `ponytail`; reuse before adding.
+- **Verify:** run the real commands. Evidence, not claims.
+- **Self-review:** re-read the diff as a reviewer, then report what changed,
+  what was verified, risks, rollback, and known gaps.
+
+Use only the skill for the current phase. Announce: "Using [skill] to [purpose]."
+
+| Phase | Skill |
 |---|---|
-| Plan/design/creative work of any size | `grilling` first (interview rounds to shared understanding), then `brainstorming` → `writing-plans` → `executing-plans` |
-| Any bug, failure, or unexpected behavior | `systematic-debugging` before proposing fixes |
-| Implementing maintained app code / behavior changes | `test-driven-development` (triage gate inside the skill covers skippable cases) |
-| About to claim done/fixed/passing | `verification-before-completion` — evidence before assertions |
-| Reviewing diffs/PRs/architecture | `code-review`; when receiving review feedback → `receiving-code-review` |
-| Commits, branches, PRs, CI | `git-pr-workflow` |
-| Parallel or delegated work | Tier 1: native subagents (`explore`, `document`, `general`) for read-only research, doc fetching, short bounded tasks. Tier 2: `herd` is the primary orchestrator (workers = herdr panes) for parallel write-capable, long-running, or approval-heavy waves; `parallel-worktrees` for isolated in-repo branches. No subagent-of-subagent chains. |
-| Confluence/documentation work | `confluence-authoring`; atlassian MCP is enabled by default (below) |
-| Infra/production/reliability work | `production-reliability` |
-| UI/visual design work | `frontend-design` |
-| Writing or editing skills | `writing-skills` |
-| opencode's own config/agents/skills/plugins | `opencode` (built-in V2 skill) |
-| User states a durable preference/correction | `memory` — persist as dated standing rule here |
+| Ambiguous intent, design interview | `grilling` |
+| Multi-step plan, inline execution | `writing-plans` |
+| Bug or unexpected behavior | `systematic-debugging` |
+| Behavior change needing tests | `test-driven-development` |
+| Implementation | `ponytail` then `feature-workflow` |
+| Diff, PR, architecture review | `code-review` |
+| Commit, PR, CI | `git-pr-workflow` |
+| Claiming done | `verification-before-completion` |
+| Parallel write work | `herd` + `herdr` + `parallel-worktrees` |
+| Ops, infra, reliability | `production-reliability` |
+| Confluence docs | `confluence-authoring` |
+| UI/visual design | `frontend-design` |
+| Editing skills | `writing-skills` |
+| Durable preference | `memory` |
+| OpenCode config | `opencode` (built-in) |
 
-Execution default: inline in this session. Planning artifacts (specs, plans,
-ADRs) live under the repo's `docs/plans/`.
+## Engineering defaults
 
-## Large downloads (2026-10-10 — standing)
+- Priority: correctness > security > reliability > maintainability >
+  observability > performance.
+- Understand the system and existing conventions; no speculative abstraction,
+  scaffolding, or unrequested refactor. Delete only dead code you create.
+- Validate at trust boundaries. Make operational failures visible and
+  actionable; handle expected idempotent conditions explicitly; never swallow
+  unexpected errors, expose secrets, or report false success.
+- One authoritative configuration source per setting; make precedence explicit.
+- Tests protect behavior, not implementation details.
+- Production/infra: PR CI green is not done; verify post-merge Deploy and
+  Infra Apply.
 
-Local network here downloads slowly. When a step requires downloading or
-installing anything (tool installs, updates, release binaries), ask the user
-and END the chat first so they can run the download on their machine; resume
-the task only after they confirm the file is in place.
+## Delegation
 
-## Atlassian MCP (2026-10-20 — standing)
+- Default: do the work inline.
+- Read-only research: native `explore` / `document` subagents.
+- Parallel write work, long jobs, approval-heavy work: `herd` with herdr
+  panes, one worker per worktree.
+- Get approval before spawning workers; verify worker output before integrating.
 
-`mcp.atlassian` is enabled by default in `opencode.json`. Auth lives in the
-per-profile OpenCode auth store. For Confluence/Jira work, use
-`confluence-authoring`; no config flip is needed. Same pattern for Figma:
-the MCP is configured in the repo, auth is per profile.
+## Tool discipline
 
-## Shared workflow skills
+- Never repeat an identical tool call. If output exists, use it or run a
+  different diagnostic.
+- Three similar calls without progress: stop, summarize, decide, or ask.
+- Blocked on external state: use a blocking wait (`gh pr checks --watch`,
+  `herdr agent wait`) or ask. Do not poll in a loop.
 
-Skill files live canonically in `~/dotfiles/agents/.agents/skills/` (shared
-with Codex) and `~/dotfiles/opencode/.config/opencode/skills/` (opencode-only),
-linked into `~/.agents/skills/` and `~/.config/opencode/skills/` by
-`dotfiles/install.sh`. Edit the dotfiles source, never the `$HOME` link; run
-`install.sh` after adding or moving skills. Project-local skills live in the
-repo's `.opencode/skills/`.
+## Code hygiene
 
-## Worker workspace topology (2026-10-15 — standing)
+- No plan artifacts in code, comments, or commits ("step N", "phase N",
+  "per task N").
+- No process artifacts committed to product repos (reports, plans,
+  walkthroughs).
+- Code stays minimal; unnecessary JSDoc, comments, and boilerplate are
+  defects.
+- Commit/PR messages are compact and scannable: Conventional subject,
+  what/why/impact body, evidence, risks. Subject-only is a defect.
 
-- Always create each worker in a new Herdr workspace, never by splitting panes; attach worker workspaces beneath the lead workspace in a tree when supported. If native grouping is unavailable, use parent-prefixed workspace labels and explain the limitation.
+## Response style
 
-## Worker lifecycle (2026-10-19 — standing)
+- Lead with the artifact. Concise but complete; structure over adjectives.
+- Diagram architecture, data flow, and state changes with Mermaid
+  (`flowchart TD`, `sequenceDiagram`, `stateDiagram-v2`). Render-first when
+  the surface supports it.
+- Short node labels, top-down layout, annotated edges. Split diagrams that
+  read as spaghetti.
+- Follow each diagram with 1–3 sentences of interpretation.
 
-- In herd tasks, prefer workers for implementation; the lead coordinates, reviews, verifies and integrates, and hands bounded rescue work back rather than quietly taking over the remaining implementation.
-- Close this session's idle worker workspaces after handoff; preserve reports, branches and uncommitted work, remove worktrees only after safe integration, and leave other leads' workers alone unless explicitly authorized.
+## Memory
 
-## Worker approvals (herd)
+- **Tier 0** — this file: invariants only, target ≤110 lines. Adding a rule
+  requires deleting or merging one.
+- **Tier 1** — repo `AGENTS.md`: commands, conventions, gotchas.
+- **Tier 2** — `docs/plans/`: active task state, decisions, next action.
+- **Tier 3** — session archive + `mem search`: history, never injected.
+- Write a handoff at the `feature-workflow` checkpoints, before compaction,
+  and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 
-Auto-clear routine sandbox prompts on the operator's behalf: external-directory
-access under `/tmp`, `~/.local/bin`, and worktrees, plus the planned tool
-installs/downloads in the approved brief (promtool, amtool, crane, helm pulls,
-pinned-image pulls).
+## Approvals
 
-Still escalate to the user first: secrets/credentials, destructive or
-out-of-scope actions, and ambiguous decisions. Routine non-destructive cluster
-inspection does not require renewed approval.
-
-## Routine permissions (2026-10-15 — standing)
-
-- Routine non-destructive work within the requested task is pre-authorized, including read-only cluster diagnostics; do not repeatedly ask for basic permissions. Ask before destructive actions, preserve explicit approval gates for deployments and worker spawning, and retain the separate download and secrets rules.
-
-## Approved-scope execution (2026-10-19 — standing)
-
-- Once a task's scope and actions are approved, proceed without repeated routine confirmations. Interrupt only for required credentials/secrets, destructive or out-of-scope actions, new worker/deployment approval gates, or material safety decisions. Do not interpret this as permission to bypass those gates or claim unverified recovery.
-
-## Code hygiene (2026-10-08 — standing, do not re-ask)
-
-- NEVER let plan artifacts leak into code: no "based on step N", "per phase
-  N", "task N", or checkpoint/stage references in code comments, JSDoc,
-  docstrings, or commit messages — code documents itself in the codebase's
-  own terms. Plan structure belongs in the plan doc / PR description only.
-- Invoke `ponytail` before ANY coding task (writing, fixing, refactoring,
-  reviewing code, choosing dependencies) — lead and workers alike. It runs
-  alongside the mapped process skill (e.g. `systematic-debugging`,
-  `feature-workflow`), never instead of it.
-- Never commit process/planning artifacts (WORKER-REPORT.md, wave/walkthrough
-  reports, plan docs) into product repos — keep them untracked at the repo root
-  or in the plan workspace, never in the repo's committed history.
-- Code stays minimal: no speculative abstractions, no boilerplate, no
-  unnecessary JSDoc or comment bloat. Bloat in any artifact (code, docs,
-  skills) is a defect.
-
-## Commit messages (2026-10-20 — standing)
-
-- Every commit — lead, agent, worker, subagent — carries a descriptive body,
-  not just a Conventional Commits subject. The body states what changed, why,
-  and any user-visible or behavioral consequence the subject cannot carry.
-  A body-less or ambiguous commit message is a defect; amend before pushing.
-
-## Response style (2026-10-13 — standing)
-
-Lead with the artifact, not prose. Concise but complete — detail lives in
-structure, not adjectives.
-
-- Diagram any architecture, data flow, or state change as Mermaid:
-  `flowchart TD` / `sequenceDiagram` / `stateDiagram-v2`.
-- Keep diagrams human-readable: short node labels, top-to-bottom layout,
-  annotated edges, no spaghetti. If it reads as noodles, split it.
-- Follow every diagram with 1–3 sentences interpreting it; don't assume the
-  picture speaks for itself.
-- Render-first: when the target surface renders Mermaid (Confluence, PR
-  markdown), prefer rendered diagrams over ASCII art; in plain terminals,
-  pair the Mermaid block with the verbal interpretation.
-
-## Memory convention (2026-10-13 — standing)
-
-Durable preferences from the operator are persisted via the `memory` skill as
-dated standing-rule sections in this file. New preferences arriving in chat
-are saved here automatically — the operator should not have to repeat himself.
-Never store secrets or credentials here.
-
-## Failure visibility and configuration ownership (2026-10-23 — standing)
-
-- Make operational failures visible and actionable; explicitly handle expected idempotent conditions, never silently swallow unexpected errors or report false success.
-- Keep one authoritative configuration source for each setting; remove misleading editable mirrors and make configuration precedence explicit.
+- Routine non-destructive work is pre-authorized, including read-only
+  diagnostics, `/tmp`, `~/.local/bin`, worktrees, and approved tool installs.
+- Ask before secrets/credentials, destructive actions, deployments, new
+  worker waves, or out-of-scope changes.
+- Large downloads: ask the user to run the download and end the chat; resume
+  after they confirm the file is in place.
