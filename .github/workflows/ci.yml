@@ -125,6 +125,13 @@ jobs:
           grep -E '^tap "' Brewfile | sed -E 's/^tap "([^"]+)".*/\1/' | while read -r t; do
             brew tap "${t}"
           done
+          # Brewfile marks third-party formulae with `trusted: true`; the
+          # direct `brew info` check below does not read that metadata.
+          grep -E '^brew ".*", trusted: true' Brewfile \
+            | sed -E 's/^brew "([^"]+)".*/\1/' \
+            | while read -r f; do
+                brew trust --formula "${f}"
+              done
           grep -E '^brew "' Brewfile | sed -E 's/^brew "([^"]+)".*/\1/' | while read -r f; do
             brew info --formula "${f}" >/dev/null
           done
