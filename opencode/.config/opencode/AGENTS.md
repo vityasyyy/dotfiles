@@ -77,8 +77,8 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
   walkthroughs).
 - Code stays minimal; unnecessary JSDoc, comments, and boilerplate are
   defects.
-- Every commit has a descriptive body: what changed, why, and the
-  user-visible consequence.
+- Commit/PR messages are compact and scannable: Conventional subject,
+  what/why/impact body, evidence, risks. Subject-only is a defect.
 
 ## Response style
 

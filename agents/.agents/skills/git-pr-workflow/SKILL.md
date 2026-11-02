@@ -70,9 +70,24 @@ Examples:
 
 Scope should identify the domain/package/subsystem.
 
-Always include a body — the subject alone is ambiguous. State what changed,
-why, and any user-visible or behavioral consequence. Never commit a subject-only
-message; amend before pushing.
+### Message shape
+
+Default:
+
+```text
+type(scope): imperative summary (≤72 chars)
+
+What: ...
+Why: ...
+Impact: ...
+```
+
+Keep it scannable: one or two short paragraphs, or three bullets. State what
+changed, why, and the user-visible or behavioral consequence the subject
+cannot carry. Do not narrate the diff or include plan artifacts.
+
+Every commit — lead, worker, or subagent — carries a body. A subject-only or
+ambiguous message is a defect; amend before pushing.
 
 ## Commit Strategy
 
@@ -84,30 +99,36 @@ Do not amend/rewrite history that the user may already have pushed unless explic
 
 ## Pull Requests
 
-PR title should follow the project's convention; otherwise use a concise Conventional Commit-style title.
+PR title: a concise Conventional Commit-style title.
 
-PR body:
+Default body for a small or standard change:
 
-### Summary
-What changed.
+```markdown
+## Summary
+- What changed
+- Why
 
-### Why
-Problem and motivation.
+## Testing
+- Exact commands/checks and their results
 
-### Implementation
-Important technical decisions.
+## Risks / Rollback
+- Only when the change is non-trivial
+```
 
-### Testing
-Exact checks/tests performed.
+High-impact changes add:
 
-### Risks
-Known risks and tradeoffs.
+```markdown
+## Implementation
+- Important technical decisions
 
-### Rollback
-How to revert or recover, especially for migrations/infrastructure.
+## Notes
+- Operational/configuration/deployment considerations
+```
 
-### Notes
-Operational/configuration/deployment considerations.
+Scale the body to the change. Do not restate the diff, paste raw logs, or
+repeat the commit body. A reviewer should get what, why, evidence, and risk in
+under a minute. Agents use the same structure: exact paths, commands, and
+known gaps, not prose.
 
 ## CI
 
