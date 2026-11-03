@@ -27,6 +27,7 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 | Multi-step plan, inline execution | `writing-plans` |
 | Bug or unexpected behavior | `systematic-debugging` |
 | Behavior change needing tests | `test-driven-development` |
+| Explain/onboard codebase, architecture map | `codebase-explainer` |
 | Implementation | `ponytail` then `feature-workflow` |
 | Diff, PR, architecture review | `code-review` |
 | Commit, PR, CI | `git-pr-workflow` |
@@ -40,7 +41,6 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 | OpenCode config | `opencode` (built-in) |
 
 ## Engineering defaults
-
 - Priority: correctness > security > reliability > maintainability >
   observability > performance.
 - Understand the system and existing conventions; no speculative abstraction,
