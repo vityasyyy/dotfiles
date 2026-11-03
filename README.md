@@ -216,7 +216,7 @@ ls -la ~/.zshrc ~/.tmux.conf ~/.gitconfig    # → symlinks into ~/dotfiles
 first on an existing machine.
 
 Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
-`DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`.
+`DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`, `DOTFILES_SKIP_JUPYTEXT=1`.
 
 ### Make it yours (fork checklist)
 
@@ -227,6 +227,7 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
 | `opencode/.config/opencode/AGENTS.md` | Global workflow, skill routing, memory tiers, and standing rules |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
+| `install.sh` (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
 | `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |
 | `scripts/brew-share.sh` | shared Mac: `--check` monthly and after cask updates; `--apply` when it reports repair |
 | git remote | `fork` first, then `git remote set-url origin <your-fork-url>` in each profile's clone |
@@ -268,8 +269,9 @@ Meta files (not linked): `README.md`, `Brewfile`, `install.sh`,
 Idempotent Stow-style linker (no GNU Stow). Backs up pre-existing
 non-symlink targets to `~/.dotfiles.backup.<timestamp>/` with mode `700`;
 clones oh-my-zsh / powerlevel10k / nvim before brew; runs `brew bundle`
-only when `brew bundle check --no-upgrade` is unsatisfied; respects
-`DOTFILES_DIR` and `HOME` overrides (CI uses a temp `HOME`).
+only when `brew bundle check --no-upgrade` is unsatisfied; installs
+`jupytext` via pipx when missing; respects `DOTFILES_DIR` and `HOME`
+overrides (CI uses a temp `HOME`).
 
 `--check` is a read-only health check (exit 1 when the profile is not up to
 date). `--prune` is standalone: it only removes symlinks that point into the
@@ -284,6 +286,16 @@ git clone https://github.com/<you>/nvim-config.git ~/.config/nvim
 
 (`install.sh` clones whatever `NVIM_REPO` points at, only when
 `~/.config/nvim` is missing — existing installs are never touched.)
+
+`.ipynb` notebooks render as markdown via `jupytext.nvim` +
+`render-markdown.nvim`. `install.sh` installs the `jupytext` CLI with
+`pipx`, and the Brewfile installs `utftex` for LaTeX math. Keys and
+troubleshooting live in the nvim-config README.
+
+```sh
+pipx install jupytext   # manual equivalent
+pipx upgrade jupytext   # update
+```
 
 ### Brew
 
@@ -305,6 +317,8 @@ manual until its cask is fixed. Auth and runtime state stay per profile.
 | Codex | `cask "codex"` | `brew upgrade --cask codex` |
 | Claude Code | manual `~/.local/bin/claude` | vendor installer |
 | Herdr | `brew "herdr"` | `brew upgrade herdr` |
+| jupytext | `pipx install jupytext` (run by `install.sh`) | `pipx upgrade jupytext` |
+| utftex | `brew "utftex"` | `brew upgrade utftex` |
 | Antigravity | `cask "antigravity"`, `cask "antigravity-cli"` | `brew upgrade --cask ...` |
 | Ghostty | `cask "ghostty"` | `brew upgrade --cask ghostty` |
 

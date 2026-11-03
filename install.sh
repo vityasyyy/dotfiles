@@ -15,6 +15,7 @@
 #   - Clones oh-my-zsh + powerlevel10k theme only when missing
 #     (the .zshrc expects both; zsh-autosuggestions comes via Brewfile).
 #   - Clones vityasyyy/nvim-config into ~/.config/nvim only when missing.
+#   - Installs the jupytext CLI via pipx when missing (Neovim .ipynb rendering).
 #   - Respects DOTFILES_DIR and HOME env overrides (used by CI).
 
 set -euo pipefail
@@ -42,6 +43,7 @@ P10K_REPO="https://github.com/romkatv/powerlevel10k.git"
 P10K_DIR="${OHMYZSH_DIR}/custom/themes/powerlevel10k"
 NVIM_REPO="https://github.com/vityasyyy/nvim-config.git"
 NVIM_DIR="${TARGET_HOME}/.config/nvim"
+JUPYTEXT_BIN="${TARGET_HOME}/.local/bin/jupytext"
 
 log() {
   printf '%s\n' "$*"
@@ -290,6 +292,36 @@ maybe_clone_nvim() {
   git clone "${NVIM_REPO}" "${NVIM_DIR}"
 }
 
+maybe_install_jupytext() {
+  if [ "${DOTFILES_SKIP_JUPYTEXT:-0}" = "1" ]; then
+    log "skip: jupytext install (DOTFILES_SKIP_JUPYTEXT=1)"
+    return 0
+  fi
+  if [ -x "${JUPYTEXT_BIN}" ] || command -v jupytext >/dev/null 2>&1; then
+    log "ok: jupytext is available"
+    return 0
+  fi
+  if ! command -v pipx >/dev/null 2>&1; then
+    log "skip: jupytext install (pipx not found; install it via brew bundle)"
+    if [ "${CHECK}" -eq 1 ]; then
+      CHANGES=1
+    fi
+    return 0
+  fi
+  if [ "${CHECK}" -eq 1 ]; then
+    log "missing: jupytext (would run: pipx install jupytext)"
+    CHANGES=1
+    return 0
+  fi
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log "[dry-run] run: pipx install jupytext"
+    CHANGES=1
+    return 0
+  fi
+  log "run: pipx install jupytext"
+  pipx install jupytext
+}
+
 main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -341,6 +373,7 @@ main() {
   maybe_install_p10k
   maybe_clone_nvim
   maybe_brew_bundle
+  maybe_install_jupytext
   maybe_check_brew_share
 
   if [ "${CHECK}" -eq 1 ] && [ "${CHANGES}" -ne 0 ]; then

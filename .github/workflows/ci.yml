@@ -43,6 +43,7 @@ jobs:
           echo "temp HOME: ${TMP_HOME}"
           HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
             DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+            DOTFILES_SKIP_JUPYTEXT=1 \
             bash ./install.sh
           fail=0
           while IFS= read -r -d '' src; do
@@ -80,6 +81,7 @@ jobs:
           TMP_HOME="$(mktemp -d)"
           HOME="${TMP_HOME}" DOTFILES_DIR="${PWD}" \
             DOTFILES_SKIP_BREW=1 DOTFILES_SKIP_OHMYZSH=1 DOTFILES_SKIP_P10K=1 DOTFILES_SKIP_NVIM=1 \
+            DOTFILES_SKIP_JUPYTEXT=1 \
             bash ./install.sh >/dev/null
           mkdir -p "${TMP_HOME}/.config/opencode" "${TMP_HOME}/bin"
           ln -s "${PWD}/opencode/.config/opencode/removed.jsonc" "${TMP_HOME}/.config/opencode/removed.jsonc"

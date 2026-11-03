@@ -73,6 +73,7 @@ brew "texlab"
 brew "tmux"
 brew "tree"
 brew "tree-sitter"
+brew "utftex"
 brew "zbar"
 brew "zsh-autosuggestions"
 
