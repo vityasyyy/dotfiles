@@ -19,6 +19,8 @@ of the shared workflow; the skills themselves are the source of truth.
   actions, live-cluster changes, or handling secrets.
 - Before a step that needs a download or install, ask the user and pause that
   step so they can perform the download.
+- Ask before destructive commands, production/staging changes, deploys,
+  migrations, or secrets. Routine read-only diagnostics are pre-authorized.
 
 ## Workflow
 

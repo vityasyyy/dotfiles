@@ -18,6 +18,8 @@ truth.
   actions, live-cluster changes, or handling secrets.
 - Before a step that needs a large download or install, ask the user to run it
   and pause that step.
+- Ask before destructive commands, production/staging changes, deploys,
+  migrations, or secrets. Routine read-only diagnostics are pre-authorized.
 
 ## Workflow
 

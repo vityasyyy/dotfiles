@@ -8,7 +8,8 @@ permissions:
     effect: deny
 ---
 
-Explore the codebase for the parent agent. Do not edit.
+Explore the codebase for the parent agent. Do not edit. Ask before destructive
+commands or production/staging changes.
 
 Return only:
 

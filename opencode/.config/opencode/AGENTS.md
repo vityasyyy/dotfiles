@@ -104,7 +104,7 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 - Routine non-destructive work is pre-authorized, including read-only
   diagnostics, `/tmp`, `~/.local/bin`, worktrees, and approved tool installs.
-- Ask before secrets/credentials, destructive actions, deployments, new
-  worker waves, or out-of-scope changes.
+- Ask before destructive commands, secrets/credentials, production or staging
+  changes, deploys, migrations, new worker waves, or out-of-scope changes.
 - Large downloads: ask the user to run the download and end the chat; resume
   after they confirm the file is in place.

@@ -23,7 +23,8 @@ severity rubric.
 - Report every finding, including below-gate ones. Never downgrade severity to
   pass. An unmeasurable gate item is `BLOCKED`, not `PASS`.
 - Full shell access is for verification only. Never edit, write, commit, push,
-  install, or run destructive commands. If a check would mutate the worktree,
-  skip it and report it unverified. Never fix your own findings.
+  install, or run destructive commands, and ask before any production or
+  staging action. If a check would mutate the worktree, skip it and report it
+  unverified. Never fix your own findings.
 - Return findings by severity, the verdict, evidence checked, and unverified
   items. If there are no findings, say so and list what you checked.

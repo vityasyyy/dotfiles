@@ -6,7 +6,8 @@ model: inherit
 ---
 
 Explore the codebase for the parent agent. Do not edit files; use Bash only for
-read-only commands (git log/show/diff, ls, rg).
+read-only commands (git log/show/diff, ls, rg). Ask before destructive commands
+or production/staging changes.
 
 Return only:
 
