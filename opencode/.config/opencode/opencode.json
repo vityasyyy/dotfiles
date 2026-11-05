@@ -21,7 +21,25 @@
       "action": "external_directory",
       "resource": "~/.local/bin/**",
       "effect": "allow"
-    }
+    },
+    { "action": "bash", "resource": "rm -r*", "effect": "ask" },
+    { "action": "bash", "resource": "rm -f*", "effect": "ask" },
+    { "action": "bash", "resource": "git reset --hard*", "effect": "ask" },
+    { "action": "bash", "resource": "git clean*", "effect": "ask" },
+    { "action": "bash", "resource": "git push --force*", "effect": "ask" },
+    { "action": "bash", "resource": "git push -f*", "effect": "ask" },
+    { "action": "bash", "resource": "sudo *", "effect": "ask" },
+    { "action": "bash", "resource": "kubectl *", "effect": "ask" },
+    { "action": "bash", "resource": "terraform apply*", "effect": "ask" },
+    { "action": "bash", "resource": "terraform destroy*", "effect": "ask" },
+    { "action": "bash", "resource": "aws *", "effect": "ask" },
+    { "action": "bash", "resource": "gcloud *", "effect": "ask" },
+    { "action": "bash", "resource": "ssh *", "effect": "ask" },
+    { "action": "bash", "resource": "psql *", "effect": "ask" },
+    { "action": "bash", "resource": "mysql *", "effect": "ask" },
+    { "action": "bash", "resource": "npm publish*", "effect": "ask" },
+    { "action": "bash", "resource": "pnpm publish*", "effect": "ask" },
+    { "action": "bash", "resource": "yarn publish*", "effect": "ask" }
   ],
   "providers": {
     "opencode-go": {}

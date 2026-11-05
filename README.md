@@ -225,8 +225,8 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
 | `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode, Codex, and Claude Code |
 | `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
-| `claude/.claude/` | Claude Code instructions, permissions, and subagents (`explore`, `document`, `general`) |
-| `opencode/.config/opencode/AGENTS.md` | Global workflow, skill routing, memory tiers, and standing rules |
+| `claude/.claude/` | Claude Code instructions, permissions, and subagents (`explore`, `review`, `document`, `general`) |
+| `opencode/.config/opencode/AGENTS.md` | Global workflow, review gate, skill routing, memory tiers, and standing rules |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | `install.sh` (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
 | `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |

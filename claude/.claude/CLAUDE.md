@@ -18,19 +18,23 @@ truth.
   actions, live-cluster changes, or handling secrets.
 - Before a step that needs a large download or install, ask the user to run it
   and pause that step.
+- Ask before destructive commands, production/staging changes, deploys,
+  migrations, or secrets. Routine read-only diagnostics are pre-authorized.
 
 ## Workflow
 
 Every non-trivial change: **inspect → define contract → implement → verify →
-self-review → report.**
+review → report.**
 
 - Inspect the call path, existing implementations, and the repo's test/lint/
   typecheck/build commands.
 - State behavior, acceptance criteria, failure cases, non-goals, and
-  compatibility before coding.
+  compatibility before coding; fix the review gate here.
 - Implement the smallest correct change with `ponytail`.
 - Verify with real commands; evidence before claims.
-- Re-read the diff, then report changes, evidence, risks, and known gaps.
+- Review in a fresh context (the `review` subagent) against the fixed gate; fix
+  blockers or push back with evidence. Never self-approve.
+- Report changes, evidence, risks, and known gaps.
 
 ## Skill routing
 
@@ -46,7 +50,7 @@ Each rule has one owner; link to it rather than restating it.
 | Explain/onboard a codebase | `codebase-explainer` |
 | Implementation | `ponytail` then `feature-workflow` |
 | About to claim done/fixed/passing | `verification-before-completion` |
-| Diff, PR, architecture review | `code-review` |
+| Diff/PR and architecture review | `review` subagent for diffs; `code-review` otherwise |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
 | Parallel or isolated in-repo work | `parallel-worktrees` |
 | Infra/production/reliability | `production-reliability` |
@@ -63,7 +67,8 @@ user to start a fresh session from it; do not run `session-handoff start`.
 
 - Default: do the work inline.
 - Read-only code research: `explore` subagent. Confluence/Drive work:
-  `document` subagent. Bounded side tasks: `general` subagent.
+  `document` subagent. Bounded side tasks: `general` subagent. Independent
+  review: `review` subagent (never edits).
 - Get approval before fanning out parallel write work; verify subagent output
   before integrating.
 

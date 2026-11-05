@@ -1,6 +1,6 @@
 ---
 name: feature-workflow
-description: Use when implementing a feature, bug fix, or refactor. Runs the inspect → contract → implement → verify → self-review spine and scales the process to the change's risk.
+description: Use when implementing a feature, bug fix, or refactor. Runs the inspect → contract → implement → verify → review spine and scales the process to the change's risk.
 metadata:
   audience: ai-coding-agent
   workflow: feature-development
@@ -16,8 +16,8 @@ minimum gates for each lane. Do not restate a rule another skill owns.
 | Lane | Trigger | Minimum gates |
 |---|---|---|
 | Trivial | typo, one-line fix, config/docs; reversible; obvious check | one-line contract → implement → verify → report |
-| Standard | behavior change in maintained code | contract → tests (TDD when testable) → implement → verify → self-review → PR |
-| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → herd if parallel → contract → implement → verify → review → PR → post-merge pipelines |
+| Standard | behavior change in maintained code | contract + gate → tests (TDD when testable) → implement → verify → review gate → PR |
+| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → herd if parallel → contract + gate → implement → verify → review gate → PR → post-merge pipelines |
 
 When unsure, take the higher lane. If a trivial change grows, move to the
 standard lane immediately; do not retrofit a plan after the fact.
@@ -46,6 +46,8 @@ Evidence:
 ```
 
 - If Behavior or Acceptance cannot be filled without guessing, use `grilling`.
+- Fix the review gate here with the contract: the default lives in
+  `code-review`, plus any task-specific thresholds.
 - Multi-step: put the contract at the top of the plan (`writing-plans`).
 - Testable: turn Acceptance into failing tests (`test-driven-development`).
 - Trivial: one line in the response is enough.
@@ -72,9 +74,14 @@ Evidence:
 - If a check cannot run, state why. Do not claim success without evidence.
 - Use `verification-before-completion` for the final gate.
 
-## 6. Self-review and report
+## 6. Review and report
 
-- Standard/high-impact: review the diff with `code-review`; fix findings.
+- Standard/high-impact: run an independent review round against the gate fixed
+  at contract time (OpenCode `/review`, Claude the `review` subagent, Codex a
+  fresh session). The reviewer reports; you fix blocking findings or push back
+  with evidence.
+- Re-review the delta in a fresh round. Stop on `PASS`; escalate on `STALL`
+  (same blocking set twice), `BLOCKED`, or the round budget.
 - Trivial: re-read the diff yourself; fix stray debug code and scope creep.
 - Commit, open the PR, and wait for CI with `git-pr-workflow`.
 - Report:

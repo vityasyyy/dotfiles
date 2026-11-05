@@ -12,6 +12,27 @@ err() {
   fail=1
 }
 
+# agent_denies <file> <action>... — true when every action is denied.
+agent_denies() {
+  local file="$1"
+  shift
+  awk -v required="$*" '
+    BEGIN { n = split(required, want, " ") }
+    /^[[:space:]]*-[[:space:]]*action:/ { action=$3 }
+    /^[[:space:]]*effect:/ { effect=$2 }
+    action != "" && effect != "" {
+      denied[action] = (effect == "deny")
+      action=""; effect=""
+    }
+    END {
+      for (i = 1; i <= n; i++) {
+        if (!denied[want[i]]) exit 1
+      }
+      exit 0
+    }
+  ' "${file}"
+}
+
 # Tier 0 stays small.
 tier0_lines="$(wc -l < opencode/.config/opencode/AGENTS.md | tr -d ' ')"
 if [ "${tier0_lines}" -gt 110 ]; then
@@ -30,6 +51,62 @@ for agent in claude/.claude/agents/*.md; do
   grep -q '^name: ' "${agent}" || err "${agent} is missing name"
   grep -q '^description: ' "${agent}" || err "${agent} is missing description"
 done
+claude_review="claude/.claude/agents/review.md"
+if [ ! -f "${claude_review}" ]; then
+  err "Claude review agent is missing"
+elif ! grep -q '^tools: ' "${claude_review}"; then
+  err "Claude review agent must declare tools"
+elif grep -Eq '^tools:.*(Edit|Write|NotebookEdit)' "${claude_review}"; then
+  err "Claude review agent must not have Edit or Write"
+fi
+
+claude_explore="claude/.claude/agents/explore.md"
+if [ ! -f "${claude_explore}" ]; then
+  err "Claude explore agent is missing"
+elif ! grep -q '^tools: ' "${claude_explore}"; then
+  err "Claude explore agent must declare tools"
+elif grep -Eq '^tools:.*(Edit|Write|NotebookEdit)' "${claude_explore}"; then
+  err "Claude explore agent must not have Edit or Write"
+fi
+
+# OpenCode agents have valid frontmatter; the review agent stays read-only.
+while IFS= read -r -d '' agent; do
+  if [ "$(head -n 1 "${agent}")" != "---" ]; then
+    err "${agent} is missing frontmatter"
+    continue
+  fi
+  grep -q '^description: ' "${agent}" || err "${agent} is missing description"
+done < <(find opencode/.config/opencode/agents -name '*.md' -print0)
+
+review_agent="opencode/.config/opencode/agents/review.md"
+if [ ! -f "${review_agent}" ]; then
+  err "review agent is missing"
+else
+  grep -q '^mode: subagent' "${review_agent}" \
+    || err "review agent must be a subagent"
+  grep -q '^model: opencode-go/deepseek-v4.1-flash#max' "${review_agent}" \
+    || err "review agent must pin DS V4.1 Flash max"
+  agent_denies "${review_agent}" edit task \
+    || err "review agent must deny edit and task"
+fi
+
+explore_agent="opencode/.config/opencode/agents/explore.md"
+if [ ! -f "${explore_agent}" ]; then
+  err "explore agent is missing"
+else
+  agent_denies "${explore_agent}" edit \
+    || err "explore agent must deny edit"
+fi
+
+review_command="opencode/.config/opencode/commands/review.md"
+if [ ! -f "${review_command}" ]; then
+  err "review command is missing"
+else
+  grep -q '^agent: review' "${review_command}" \
+    || err "review command must target the review agent"
+  grep -q '^subtask: true' "${review_command}" \
+    || err "review command must set subtask: true"
+fi
 
 # The config parses, and MCP stays project-local.
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
@@ -46,6 +123,33 @@ PY
 then
   err "global mcp.servers must be empty; enable MCP per project"
 fi
+if ! python3 - <<'PY'
+import json
+
+config = json.load(open("opencode/.config/opencode/opencode.json"))
+asks = {
+    item.get("resource")
+    for item in config.get("permissions", [])
+    if item.get("action") == "bash" and item.get("effect") == "ask"
+}
+required = {
+    "rm -r*",
+    "git reset --hard*",
+    "git push --force*",
+    "kubectl *",
+    "terraform apply*",
+    "aws *",
+}
+raise SystemExit(0 if required <= asks else 1)
+PY
+then
+  err "global destructive-command ask rules are missing"
+fi
+
+for file in opencode/.config/opencode/AGENTS.md claude/.claude/CLAUDE.md codex/.codex/AGENTS.md; do
+  grep -q 'Ask before destructive commands' "${file}" \
+    || err "${file} is missing the destructive-command approval rule"
+done
 
 # Every skill has portable frontmatter.
 while IFS= read -r -d '' skill; do

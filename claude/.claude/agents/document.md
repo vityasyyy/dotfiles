@@ -13,3 +13,4 @@ finding, reading, summarizing, and drafting documents.
 - When asked to draft: gather sources first (Confluence and Drive), then write.
 - Load and follow the shared `confluence-authoring` skill for Confluence pages.
 - Return a concise summary of what you read or wrote, plus links.
+- Ask before destructive commands or production/staging changes.

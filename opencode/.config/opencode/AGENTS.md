@@ -7,19 +7,20 @@ would be unsafe. Each rule has one owner: link to it, never restate it.
 
 Every non-trivial change follows one spine:
 
-**inspect → define contract → implement → verify → self-review → report.**
+**inspect → contract → implement → verify → review → report.**
 
-- **Inspect:** read repo instructions, trace the call path, find the nearest
-  existing implementation, identify test/lint/typecheck/build commands.
-- **Contract:** state behavior, acceptance criteria, failure cases, non-goals,
-  and compatibility. Multi-step work gets a plan; testable behavior gets a
-  failing test first.
-- **Implement:** smallest correct diff. Follow `ponytail`; reuse before adding.
-- **Verify:** run the real commands. Evidence, not claims.
-- **Self-review:** re-read the diff as a reviewer, then report what changed,
-  what was verified, risks, rollback, and known gaps.
+- **Inspect:** repo instructions, call path, nearest implementation, commands.
+- **Contract:** behavior, acceptance, failures, non-goals, compatibility; fix
+  the review gate here. Multi-step gets a plan; testable behavior gets a failing
+  test first.
+- **Implement:** smallest correct diff; `ponytail`; reuse before adding.
+- **Verify:** run the real commands; evidence, not claims.
+- **Review:** standard/high-impact get an independent fresh-context round
+  (`/review`); trivial gets a self-check. Fix blockers; never self-approve.
+- **Report:** what changed, what was verified, risks, rollback, gaps.
 
 Use only the skill for the current phase. Announce: "Using [skill] to [purpose]."
+When the user asks to review a diff/change, run `/review`; architecture review uses `code-review`.
 
 | Phase | Skill |
 |---|---|
@@ -29,7 +30,7 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 | Behavior change needing tests | `test-driven-development` |
 | Explain/onboard codebase, architecture map | `codebase-explainer` |
 | Implementation | `ponytail` then `feature-workflow` |
-| Diff, PR, architecture review | `code-review` |
+| Diff/PR and architecture review | `/review` for diffs; `code-review` otherwise |
 | Commit, PR, CI | `git-pr-workflow` |
 | Claiming done | `verification-before-completion` |
 | Parallel write work | `herd` + `herdr` + `parallel-worktrees` |
@@ -92,8 +93,7 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 
 ## Memory
 
-- **Tier 0** — this file: invariants only, target ≤110 lines. Adding a rule
-  requires deleting or merging one.
+- **Tier 0** — this file: invariants only, ≤110 lines; delete or merge to add.
 - **Tier 1** — repo `AGENTS.md`: commands, conventions, gotchas.
 - **Tier 2** — `docs/plans/`: active task state, decisions, next action.
 - **Tier 3** — session archive + `mem search`: history, never injected.
@@ -104,7 +104,7 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 
 - Routine non-destructive work is pre-authorized, including read-only
   diagnostics, `/tmp`, `~/.local/bin`, worktrees, and approved tool installs.
-- Ask before secrets/credentials, destructive actions, deployments, new
-  worker waves, or out-of-scope changes.
+- Ask before destructive commands, secrets/credentials, production or staging
+  changes, deploys, migrations, new worker waves, or out-of-scope changes.
 - Large downloads: ask the user to run the download and end the chat; resume
   after they confirm the file is in place.

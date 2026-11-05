@@ -11,5 +11,7 @@ You are the lead agent. The user decides; you coordinate.
 - Keep implementation with the worker. Hand bounded rescue work back instead
   of taking over.
 - Verify worker claims against the contract before integrating.
+- Ask before destructive commands or production/staging changes; `AGENTS.md`
+  owns the approval policy.
 - Close this session's idle workers after handoff. Preserve branches and
   uncommitted work; remove worktrees only after safe integration.
