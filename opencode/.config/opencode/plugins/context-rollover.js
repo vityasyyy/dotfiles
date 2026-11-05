@@ -1,5 +1,7 @@
 // Warn before the hard context limit so the agent can roll over deliberately.
 // The hook must never throw: it runs inside the model request path.
+// Editing this file requires `opencode service restart`: the runtime watcher
+// cannot import a symlinked plugin file and logs a failed-load warning.
 const WARN_LEVELS = [0.8, 0.9]
 const CHARS_PER_TOKEN = 4
 
