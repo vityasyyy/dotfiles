@@ -30,6 +30,54 @@ for agent in claude/.claude/agents/*.md; do
   grep -q '^name: ' "${agent}" || err "${agent} is missing name"
   grep -q '^description: ' "${agent}" || err "${agent} is missing description"
 done
+claude_review="claude/.claude/agents/review.md"
+if [ ! -f "${claude_review}" ]; then
+  err "Claude review agent is missing"
+elif ! grep -q '^tools: ' "${claude_review}"; then
+  err "Claude review agent must declare tools"
+elif grep -Eq '^tools:.*(Edit|Write|NotebookEdit)' "${claude_review}"; then
+  err "Claude review agent must not have Edit or Write"
+fi
+
+# OpenCode agents have valid frontmatter; the review agent stays read-only.
+while IFS= read -r -d '' agent; do
+  if [ "$(head -n 1 "${agent}")" != "---" ]; then
+    err "${agent} is missing frontmatter"
+    continue
+  fi
+  grep -q '^description: ' "${agent}" || err "${agent} is missing description"
+done < <(find opencode/.config/opencode/agents -name '*.md' -print0)
+
+review_agent="opencode/.config/opencode/agents/review.md"
+if [ ! -f "${review_agent}" ]; then
+  err "review agent is missing"
+else
+  grep -q '^mode: subagent' "${review_agent}" \
+    || err "review agent must be a subagent"
+  grep -q '^model: opencode-go/deepseek-v4.1-flash#max' "${review_agent}" \
+    || err "review agent must pin DS V4.1 Flash max"
+  awk '
+    /^[[:space:]]*-[[:space:]]*action:/ { action=$3 }
+    /^[[:space:]]*effect:/ { effect=$2 }
+    action != "" && effect != "" {
+      if (action == "edit" || action == "task") {
+        denied[action] = (effect == "deny")
+      }
+      action=""; effect=""
+    }
+    END { exit !(denied["edit"] && denied["task"]) }
+  ' "${review_agent}" || err "review agent must deny edit and task"
+fi
+
+review_command="opencode/.config/opencode/commands/review.md"
+if [ ! -f "${review_command}" ]; then
+  err "review command is missing"
+else
+  grep -q '^agent: review' "${review_command}" \
+    || err "review command must target the review agent"
+  grep -q '^subtask: true' "${review_command}" \
+    || err "review command must set subtask: true"
+fi
 
 # The config parses, and MCP stays project-local.
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \

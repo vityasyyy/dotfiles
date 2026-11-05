@@ -17,7 +17,73 @@ Before handing your own work to review (or asking a herd worker to review):
 1. Run the verification suite yourself (`verification-before-completion`) — a review request is never a status report.
 2. Re-read your own diff first: stray debug code, leftover plan artifacts ("per step N"), unrelated churn.
 3. Confirm every requirement is demonstrably implemented; state any known gaps explicitly rather than hoping the reviewer misses them.
-4. Delegate formal reviews through herd (herdr panes), not ad-hoc subagent chains.
+4. Run single-session reviews in a fresh context: OpenCode `/review`, Claude the
+   `review` subagent, Codex a fresh session. Parallel or worker output still
+   goes through herd (herdr panes). Never self-approve.
+
+## Review Gate
+
+The gate is fixed before round 1 and recorded verbatim in the ledger. Changing
+it requires the user's approval and a new ledger entry; never move the bar to
+finish a round.
+
+```yaml
+gate:
+  block: [critical, high]          # severities that fail the gate
+  require: [acceptance, evidence, scope, secrets]
+  thresholds: {}                   # e.g. coverage_pct: 80
+stop:
+  stall_rounds: 2                  # same blocking set twice -> escalate
+  max_rounds: 5                    # circuit breaker, not the goal
+```
+
+- `acceptance`: every contract item maps to evidence. Omit only for an explicit
+  advisory review; state that acceptance is unverified.
+- `evidence`: claimed commands were re-run or spot-checked.
+- `scope`: no files outside the declared scope.
+- `secrets`: no credentials, keys, or tokens.
+- `thresholds`: measurable, repo-specific checks. If a threshold cannot be
+  measured, the verdict is `BLOCKED`, not `PASS`.
+
+The gate decides blocking, not reporting: report every finding. Never downgrade
+severity to pass. A numeric score is not a gate unless it is derived
+mechanically from binary criteria.
+
+## Fresh-Context Rounds
+
+Each round is a new reviewer session. Carry state, not context:
+
+- contract, gate, and diff range;
+- the ledger: open findings, fixed findings, and pushbacks with reasons;
+- prior evidence claims, for spot-checking.
+
+Do not pass the previous reviewer transcript or the implementation chat.
+
+The implementer owns the fix loop; the reviewer never edits. Capture
+`git status --short` before each round; compare it after. If the reviewer
+mutated the tree, the round is invalid: the implementer restores the change and
+you escalate.
+
+Then:
+
+1. `PASS` — every gate item is satisfied.
+2. `FAIL` with progress — fix blocking findings or push back with evidence,
+   update the ledger, run a fresh round.
+3. `STALL` — the same blocking set twice — escalate.
+4. Budget exhausted, or `BLOCKED` — escalate; do not keep looping.
+
+Ledger (untracked; never commit):
+
+```markdown
+# Review ledger — <task>
+Gate: <verbatim, fixed>
+Base: <sha>  Head: <sha>
+Round: <n>
+Open: <id> [SEVERITY] <location> — <problem>
+Fixed: <id> ...
+Pushed back: <id> ... — <why>
+Verdict: PASS | FAIL | BLOCKED
+```
 
 ## Review Order
 

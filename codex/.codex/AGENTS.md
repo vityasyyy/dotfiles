@@ -23,15 +23,17 @@ of the shared workflow; the skills themselves are the source of truth.
 ## Workflow
 
 Every non-trivial change: **inspect → define contract → implement → verify →
-self-review → report.**
+review → report.**
 
 - Inspect the call path, existing implementations, and the repo's test/lint/
   typecheck/build commands.
 - State behavior, acceptance criteria, failure cases, non-goals, and
-  compatibility before coding.
+  compatibility before coding; fix the review gate here.
 - Implement the smallest correct change with `ponytail`.
 - Verify with real commands; evidence before claims.
-- Re-read the diff, then report changes, evidence, risks, and known gaps.
+- Review in a fresh session against the fixed gate (`code-review`); fix blockers
+  or push back with evidence. Never self-approve.
+- Report changes, evidence, risks, and known gaps.
 
 ## Skill routing
 
@@ -45,7 +47,7 @@ Each rule has one owner; link to it rather than restating it.
 | Bug, failure, unexpected behavior | `systematic-debugging` |
 | Maintained app code / behavior change | `test-driven-development` |
 | About to claim done/fixed/passing | `verification-before-completion` |
-| Diff, PR, architecture review | `code-review` (includes receiving feedback) |
+| Diff, PR, architecture review | `code-review` in a fresh session |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
 | Parallel or isolated in-repo work | `parallel-worktrees`; Codex does not self-orchestrate herdr panes |
 | Confluence/documentation | `confluence-authoring` + connected Atlassian tools |
