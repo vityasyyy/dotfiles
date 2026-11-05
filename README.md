@@ -223,8 +223,9 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | File | Personalize |
 | --- | --- |
 | `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
-| `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode and Codex |
+| `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode, Codex, and Claude Code |
 | `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
+| `claude/.claude/` | Claude Code instructions, permissions, and subagents (`explore`, `document`, `general`) |
 | `opencode/.config/opencode/AGENTS.md` | Global workflow, skill routing, memory tiers, and standing rules |
 | `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | `install.sh` (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
@@ -259,6 +260,7 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | `opencode/.config/opencode/**` | `~/.config/opencode/**` (config, agents, OpenCode-only skills, plugins) |
 | `agents/.agents/skills/**` | `~/.agents/skills/**` |
 | `codex/.codex/AGENTS.md` | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
+| `claude/.claude/**` | `~/.claude/` `CLAUDE.md`, `settings.json`, `agents/*.md`; `~/.claude/skills` links to `agents/.agents/skills` |
 | `ghostty/Library/…/com.mitchellh.ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
 Meta files (not linked): `README.md`, `Brewfile`, `install.sh`,

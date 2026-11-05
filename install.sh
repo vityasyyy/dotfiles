@@ -5,9 +5,10 @@
 #   ./install.sh [--dry-run] [--check] [--prune] [--help]
 #
 # Behaviour:
-#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, codex/, ghostty/
+#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, codex/, claude/, ghostty/
 #     into $HOME, stripping the first path component
 #     (e.g. zsh/.zshrc -> ~/.zshrc).
+#   - Links ~/.claude/skills to the shared agents/.agents/skills directory.
 #   - Backs up pre-existing non-symlink targets to ~/.dotfiles.backup.<timestamp>/.
 #   - Skips symlinks that already point at the correct source.
 #   - Runs `brew bundle` on macOS only when the Brewfile is unsatisfied.
@@ -29,11 +30,12 @@ CHANGES=0
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${TARGET_HOME}/.dotfiles.backup.${TIMESTAMP}"
 
-PACKAGES=(zsh git tmux opencode agents codex ghostty)
+PACKAGES=(zsh git tmux opencode agents codex claude ghostty)
 PRUNE_ROOTS=(
   "${TARGET_HOME}/.config/opencode"
   "${TARGET_HOME}/.agents"
   "${TARGET_HOME}/.codex"
+  "${TARGET_HOME}/.claude"
   "${TARGET_HOME}/.local/bin"
   "${TARGET_HOME}/Library/Application Support/com.mitchellh.ghostty"
 )
@@ -174,6 +176,11 @@ prune_links() {
       fi
     done < <(find "${pkg_dir}" -maxdepth 1 -type f -print0)
   done
+}
+
+# Claude Code reads skills from ~/.claude/skills; share the one skills tree.
+link_claude_skills() {
+  link_one "${DOTFILES_DIR}/agents/.agents/skills" "${TARGET_HOME}/.claude/skills"
 }
 
 maybe_brew_bundle() {
@@ -369,6 +376,7 @@ main() {
   fi
 
   link_packages
+  link_claude_skills
   maybe_install_ohmyzsh
   maybe_install_p10k
   maybe_clone_nvim

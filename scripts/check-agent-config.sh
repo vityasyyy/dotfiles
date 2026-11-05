@@ -18,6 +18,19 @@ if [ "${tier0_lines}" -gt 110 ]; then
   err "opencode/.config/opencode/AGENTS.md is ${tier0_lines} lines (cap 110)"
 fi
 
+claude_lines="$(wc -l < claude/.claude/CLAUDE.md | tr -d ' ')"
+if [ "${claude_lines}" -gt 110 ]; then
+  err "claude/.claude/CLAUDE.md is ${claude_lines} lines (cap 110)"
+fi
+if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
+  claude/.claude/settings.json; then
+  err "claude/.claude/settings.json is not valid JSON"
+fi
+for agent in claude/.claude/agents/*.md; do
+  grep -q '^name: ' "${agent}" || err "${agent} is missing name"
+  grep -q '^description: ' "${agent}" || err "${agent} is missing description"
+done
+
 # The config parses, and MCP stays project-local.
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
   opencode/.config/opencode/opencode.json; then
@@ -50,7 +63,7 @@ done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL
 
 # Deleted skills must not reappear in active configuration.
 if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review' \
-  --include='*.md' opencode agents codex docs/agent-memory.md 2>/dev/null \
+  --include='*.md' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
   | grep -Ev 'authoring-guide|2026-10-13-skill-stack' >/dev/null; then
   err "active configuration references a deleted skill"
 fi
