@@ -97,8 +97,8 @@ Use only the skill for the current phase. Announce: "Using [skill] to [purpose].
 - **Tier 1** — repo `AGENTS.md`: commands, conventions, gotchas.
 - **Tier 2** — `docs/plans/`: active task state, decisions, next action.
 - **Tier 3** — session archive + `mem search`: history, never injected.
-- Write a handoff at the `feature-workflow` checkpoints, before compaction,
-  and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
+- Write a handoff at the `feature-workflow` checkpoints, before a context
+  rollover, and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 
 ## Approvals
 

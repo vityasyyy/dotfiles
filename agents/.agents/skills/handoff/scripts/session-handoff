@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""Archive an OpenCode session and continue it in a fresh one.
+
+Usage:
+  session-handoff path [--task TITLE]
+  session-handoff start --handoff PATH [--title TITLE] [--session ID]
+"""
+
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+MEMORY_DIR = Path(
+    os.environ.get("AGENT_MEMORY_DIR", "~/.local/share/agent-memory")
+).expanduser()
+HANDOFF_DIR = MEMORY_DIR / "handoffs"
+TRANSCRIPT_DIR = MEMORY_DIR / "transcripts"
+POINTER_MARKER = "<!-- session-handoff -->"
+
+
+def fail(message):
+    print(f"session-handoff: {message}", file=sys.stderr)
+    return 1
+
+
+def slug(text, fallback="session"):
+    value = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")[:50]
+    return value or fallback
+
+
+def api(method, path, data=None):
+    command = ["opencode", "api", method, path]
+    if data is not None:
+        command.extend(["--data", json.dumps(data)])
+    # The CLI truncates large stdout when it is a pipe. A temp file avoids it.
+    with tempfile.TemporaryFile(mode="w+b") as out:
+        result = subprocess.run(command, stdout=out, stderr=subprocess.PIPE)
+        out.seek(0)
+        stdout = out.read().decode("utf-8", errors="replace")
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(stderr or f"opencode api {method} {path} failed")
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError as error:
+        raise RuntimeError(f"invalid JSON from {path}: {error}") from error
+
+
+def session_id(args):
+    value = args.session or os.environ.get("OPENCODE_SESSION_ID")
+    if not value:
+        raise RuntimeError("set OPENCODE_SESSION_ID or pass --session")
+    return value
+
+
+def cmd_path(args):
+    HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
+    name = args.task or "session"
+    path = HANDOFF_DIR / f"{dt.date.today().isoformat()}-{slug(name)}.md"
+    print(path)
+    return 0
+
+
+def cmd_start(args):
+    handoff = Path(args.handoff).expanduser()
+    if not handoff.is_file() or handoff.stat().st_size == 0:
+        return fail(f"handoff not found or empty: {handoff}")
+
+    sid = session_id(args)
+    info = api("get", f"/api/session/{sid}")["data"]
+    title = args.title or info.get("title") or "continued session"
+    agent = info.get("agent")
+    model = info.get("model")
+    location = info.get("location")
+
+    exported = api(
+        "get", f"/api/experimental/session/{sid}/export?sanitize=false"
+    )["data"]
+
+    TRANSCRIPT_DIR.mkdir(parents=True, exist_ok=True)
+    transcript = (
+        TRANSCRIPT_DIR
+        / f"{dt.date.today().isoformat()}-{slug(title)}-{sid[-8:]}.json"
+    )
+    transcript.write_text(json.dumps(exported, indent=2, ensure_ascii=False))
+    transcript.chmod(0o600)
+
+    pointer = (
+        f"\n\n{POINTER_MARKER}\n"
+        f"## Context pointers\n"
+        f"Session: {sid}\n"
+        f"Transcript: {transcript}\n"
+        f"Exported: {dt.datetime.now().astimezone().isoformat(timespec='seconds')}\n"
+    )
+    existing = handoff.read_text()
+    base = existing.split(POINTER_MARKER, 1)[0].rstrip()
+    handoff.write_text(base + pointer)
+
+    payload = {"title": f"{title} (continued)"}
+    if agent:
+        payload["agent"] = agent
+    if model:
+        payload["model"] = model
+    if location:
+        payload["location"] = location
+    created = api("post", "/api/session", payload)["data"]
+    new_id = created["id"]
+
+    prompt = f"""Continuing from session {sid} ("{title}"), archived for context rollover.
+
+Read the handoff first:
+{handoff}
+
+Full transcript of the previous session:
+{transcript}
+
+Ground rules:
+- The handoff is the source of truth for state and next action.
+- Use the transcript or `~/.agents/skills/memory/scripts/mem search "<terms>"` when a detail is missing. Do not re-derive from scratch.
+- Do not compact or summarize this session preemptively.
+- Read the handoff, restate the next action in one line, then wait for the user. Do not start work until they say continue."""
+    api("post", f"/api/session/{new_id}/prompt", {"text": prompt})
+
+    print(f"new session: {new_id}")
+    print(f"title: {created.get('title', title)}")
+    print(f"handoff: {handoff}")
+    print(f"transcript: {transcript}")
+    print("Switch to it with the session picker, then say continue.")
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="session-handoff")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    path = sub.add_parser("path", help="print a handoff path")
+    path.add_argument("--task")
+    path.set_defaults(func=cmd_path)
+
+    start = sub.add_parser("start", help="export and continue in a new session")
+    start.add_argument("--handoff", required=True)
+    start.add_argument("--title")
+    start.add_argument("--session")
+    start.set_defaults(func=cmd_start)
+
+    args = parser.parse_args()
+    try:
+        return args.func(args)
+    except (RuntimeError, KeyError, OSError) as error:
+        return fail(str(error))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

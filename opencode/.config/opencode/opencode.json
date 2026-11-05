@@ -4,11 +4,7 @@
     "@slkiser/opencode-quota"
   ],
   "compaction": {
-    "auto": true,
-    "keep": {
-      "tokens": 30000
-    },
-    "buffer": "20%"
+    "auto": false
   },
   "permissions": [
     {

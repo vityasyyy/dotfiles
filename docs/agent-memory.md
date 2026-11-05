@@ -9,7 +9,7 @@ flowchart TD
   R["Tier 0 · global AGENTS.md<br/>invariants · ≤110 lines"]
   P["Tier 1 · repo AGENTS.md<br/>commands and conventions"]
   T["Tier 2 · docs/plans<br/>contract, decisions, next step"]
-  H["Handoff<br/>written before compaction"]
+  H["Handoff<br/>written before a context rollover"]
   E["Tier 3 · session index<br/>FTS5 + digests"]
   R --> P --> T
   T -->|checkpoint| H
@@ -37,6 +37,7 @@ linked from this repository.
    ```sh
    ls ~/.config/opencode/AGENTS.md
    ls ~/.agents/skills/grilling/SKILL.md
+   ls ~/.agents/skills/handoff/scripts/session-handoff
    ls ~/.agents/skills/memory/scripts/mem
    ```
 
@@ -53,18 +54,36 @@ linked from this repository.
    ~/.agents/skills/memory/scripts/mem search "merge conflict" --limit 5
    ```
 
-5. Confirm compaction settings in `~/.config/opencode/opencode.json`:
+5. Confirm automatic compaction is off in `~/.config/opencode/opencode.json`:
 
    ```json
    "compaction": {
-     "auto": true,
-     "keep": { "tokens": 30000 },
-     "buffer": "20%"
+     "auto": false
    }
    ```
 
-   The file is linked from the repository, so a `git pull` updates it. Restart
-   the OpenCode service after changing it.
+   Sessions stop at the model's context limit instead of being summarized.
+   Write a handoff with `mem handoff` and continue in a new session before
+   reaching that limit. The file is linked from the repository, so a
+   `git pull` updates it. Restart the OpenCode service after changing it.
+
+## Context rollover
+
+Compaction is off. Before the window fills, write a handoff and continue in a
+fresh session:
+
+```sh
+~/.agents/skills/handoff/scripts/session-handoff path --task "short title"
+~/.agents/skills/handoff/scripts/session-handoff start --handoff <path>
+```
+
+`start` exports the full transcript, appends session pointers to the handoff,
+creates a successor session with the same agent and model, and seeds it with
+the handoff path. The old session stays intact.
+
+The `context-rollover` plugin warns the agent at 80% and 90% of the model
+window. `/handoff` runs the same flow on demand. A handoff is also the right
+move at the end of a long task or before switching agents.
 
 ## Per-repository setup
 
@@ -112,12 +131,12 @@ OAuth credentials stay in the per-profile auth store; never commit them.
 |---|---|
 | Start | Read Tier 0, the repo `AGENTS.md`, and the active plan. |
 | Checkpoint | Update the plan and handoff: decisions, files, commands, next. |
-| Before `/compact` | Refresh the handoff with `mem handoff` or a direct edit. |
-| After compaction | Re-read the handoff and plan before continuing. |
+| At ~80% context | Refresh the handoff with `mem handoff` or a direct edit. |
+| New session | Re-read the handoff and plan before continuing. |
 | Session end | Write a digest and run `mem index`. |
 | Task done | Start a new session; do not carry a finished task forward. |
 
-One session per task or phase. A session that crosses several compactions is a
+One session per task or phase. A session that needs more than one handoff is a
 sign the task should have been split.
 
 ## Skill usage review

@@ -1,6 +1,6 @@
 ---
 name: memory
-description: Use when persisting a durable preference or correction, deciding where a fact belongs, writing a handoff before compaction, or recalling past session context.
+description: Use when persisting a durable preference or correction, deciding where a fact belongs, writing a handoff before a context rollover, or recalling past session context.
 metadata:
   audience: ai-coding-agent
   workflow: memory
@@ -41,7 +41,8 @@ Never store secrets or credentials in any tier.
 
 ## Tier 2: handoff
 
-Write the handoff at plan time and at every checkpoint, before compaction:
+Write the handoff at plan time and at every checkpoint, before a context
+rollover:
 
 ```markdown
 # Handoff — <task>
@@ -58,8 +59,9 @@ Open questions:
 ```
 
 Store it with the task plan in `docs/plans/`, or in the handoff directory via
-`mem handoff`. After compaction, re-read the handoff and the plan first; never
-trust the summary alone.
+`mem handoff`. For an OpenCode rollover, use the `handoff` skill: it writes the
+handoff, exports the transcript, and continues in a new session. After a
+rollover, re-read the handoff and the plan first; never trust a summary alone.
 
 ## Tier 3: recall
 
@@ -84,10 +86,11 @@ indexed yet; keep their handoffs in the plan or project memory.
 
 1. Start: read Tier 0, the repo `AGENTS.md`, and the active plan.
 2. Checkpoint: update the plan and handoff with decisions, files, and next.
-3. Compaction: refresh the handoff before `/compact`; re-read it after.
+3. Rollover: refresh the handoff before `session-handoff start`; re-read it in
+   the new session.
 4. End: write a digest (goal, outcome, decisions, files, open questions) and
    index it. Start a new session for the next task.
-5. Never let a session cross a compaction without a handoff.
+5. Never let a session hit its context limit without a handoff.
 
 ## What does not qualify
 

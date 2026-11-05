@@ -87,10 +87,11 @@ Evidence:
 
 ## Checkpoints
 
-Write or refresh the handoff at these points, using the `memory` skill:
+Write or refresh the handoff at these points, using the `memory` skill. Use the
+`handoff` skill for an OpenCode context rollover:
 
 1. After the contract or plan.
-2. Before `/compact`.
+2. Before a context rollover (`handoff` skill).
 3. After verification.
 4. Before delegating to a worker.
 5. At session end.
