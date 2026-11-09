@@ -54,6 +54,39 @@ esac
 EOF
 chmod +x "$tmp/bin/herdr"
 
+cat >"$tmp/bin/opencode" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >>"$OPENCODE_CALLS"
+case "$1 $2" in
+  "api get")
+    if [ "${3:-}" = "/api/agent" ]; then
+      printf '%s\n' '{"data":[{"id":"worker"}]}'
+    else
+      echo "unexpected opencode get: $*" >&2
+      exit 1
+    fi
+    ;;
+  "api post")
+    if [ "${OPENCODE_POST_FAIL:-0}" = 1 ]; then
+      exit 1
+    fi
+    printf '%s\n' '{"data":{"id":"ses_test"}}'
+    ;;
+  "api delete")
+    ;;
+  *)
+    echo "unexpected opencode command: $*" >&2
+    exit 1
+    ;;
+esac
+EOF
+chmod +x "$tmp/bin/opencode"
+
+mkdir -p "$tmp/bin-no-opencode"
+ln -s "$tmp/bin/herdr" "$tmp/bin-no-opencode/herdr"
+ln -s "$tmp/bin/sleep" "$tmp/bin-no-opencode/sleep"
+
 cat >"$tmp/bin/sleep" <<'EOF'
 #!/usr/bin/env bash
 exit 0
@@ -67,8 +100,16 @@ linked="$(cd "$linked" && pwd -P)"
 fallback="$(cd "$fallback" && pwd -P)"
 
 run_spawn() {
-  HERDR="$tmp/bin/herdr" HERDR_CALLS="$tmp/calls" HERDR_WORKSPACE_ID=w1 \
+  HERDR="$tmp/bin/herdr" HERDR_CALLS="$tmp/calls" \
+    OPENCODE_CALLS="$tmp/opencode-calls" HERDR_WORKSPACE_ID=w1 \
     PATH="$tmp/bin:$PATH" "$repo_root/opencode/.local/bin/herd" spawn worker "$1"
+}
+
+run_spawn_no_opencode() {
+  HERDR="$tmp/bin/herdr" HERDR_CALLS="$tmp/calls" \
+    OPENCODE_CALLS="$tmp/opencode-calls" HERDR_WORKSPACE_ID=w1 \
+    PATH="$tmp/bin-no-opencode:/usr/bin:/bin" \
+    "$repo_root/opencode/.local/bin/herd" spawn worker "$1"
 }
 
 assert_call() {
@@ -85,46 +126,103 @@ assert_no_matching_call() {
   fi
 }
 
+assert_opencode_call() {
+  if ! grep -Fq -- "$1" "$tmp/opencode-calls"; then
+    echo "missing opencode call: $1" >&2
+    return 1
+  fi
+}
+
+assert_no_opencode_call() {
+  if grep -Fq -- "$1" "$tmp/opencode-calls"; then
+    echo "unexpected opencode call: $1" >&2
+    return 1
+  fi
+}
+
+assert_worker_session() {
+  local cwd="$1"
+  assert_opencode_call 'api post /api/session --data '
+  assert_opencode_call '"agent": "worker"'
+  assert_opencode_call "\"directory\": \"$cwd\""
+}
+
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 HERDR_MATCH=1 HERDR_TARGET="$linked" HERDR_ALREADY_OPEN=false run_spawn "$linked"
 assert_call "worktree open --workspace w1 --path $linked --label worker --no-focus"
-assert_call 'agent start worker --kind opencode --pane w2:p1'
+assert_call 'agent start worker --kind opencode --pane w2:p1 -- --session ses_test'
+assert_worker_session "$linked"
+assert_no_opencode_call 'api delete /api/session/ses_test'
 assert_no_matching_call "workspace create --cwd $linked "
 assert_no_matching_call 'pane split'
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 HERDR_MATCH=0 run_spawn "$fallback"
 assert_call 'workspace create --cwd '"$fallback"' --label parent/worker --no-focus'
-assert_call 'agent start worker --kind opencode --pane w2:p1'
+assert_call 'agent start worker --kind opencode --pane w2:p1 -- --session ses_test'
+assert_worker_session "$fallback"
+assert_no_opencode_call 'api delete /api/session/ses_test'
 assert_no_matching_call 'worktree open --workspace w1 '
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 HERDR_MATCH=1 HERDR_LINKED=false HERDR_TARGET="$linked" run_spawn "$linked"
 assert_call 'workspace create --cwd '"$linked"' --label parent/worker --no-focus'
+assert_worker_session "$linked"
 assert_no_matching_call 'worktree open --workspace w1 '
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 HERDR_LIST_FAIL=1 run_spawn "$fallback"
 assert_call 'workspace create --cwd '"$fallback"' --label parent/worker --no-focus'
+assert_worker_session "$fallback"
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 if HERDR_MATCH=1 HERDR_TARGET="$linked" HERDR_OPEN_FAIL=1 run_spawn "$linked" >/dev/null 2>&1; then
   echo 'expected worktree open failure' >&2
   exit 1
 fi
 assert_call "worktree open --workspace w1 --path $linked --label worker --no-focus"
 assert_no_matching_call "workspace create --cwd $linked "
+assert_no_opencode_call 'api post /api/session'
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 if HERDR_MATCH=1 HERDR_TARGET="$linked" HERDR_ALREADY_OPEN=true HERDR_START_FAIL=1 run_spawn "$linked" >/dev/null 2>&1; then
   echo 'expected agent start failure for existing workspace' >&2
   exit 1
 fi
+assert_opencode_call 'api delete /api/session/ses_test'
 assert_no_matching_call 'workspace close w2'
 
 : >"$tmp/calls"
+: >"$tmp/opencode-calls"
 if HERDR_MATCH=1 HERDR_TARGET="$linked" HERDR_ALREADY_OPEN=false HERDR_START_FAIL=1 run_spawn "$linked" >/dev/null 2>&1; then
   echo 'expected agent start failure for newly opened workspace' >&2
   exit 1
 fi
+assert_opencode_call 'api delete /api/session/ses_test'
 assert_call 'workspace close w2'
+
+: >"$tmp/calls"
+: >"$tmp/opencode-calls"
+if OPENCODE_POST_FAIL=1 HERDR_MATCH=0 run_spawn "$fallback" >/dev/null 2>&1; then
+  echo 'expected worker session creation failure' >&2
+  exit 1
+fi
+assert_call 'workspace close w2'
+assert_opencode_call 'api get /api/agent'
+assert_opencode_call 'api post /api/session'
+assert_no_opencode_call 'api delete /api/session/ses_test'
+
+: >"$tmp/calls"
+: >"$tmp/opencode-calls"
+if HERDR_MATCH=0 run_spawn_no_opencode "$fallback" >/dev/null 2>&1; then
+  echo 'expected missing opencode failure' >&2
+  exit 1
+fi
+assert_call 'workspace close w2'
+assert_no_opencode_call 'api post /api/session'

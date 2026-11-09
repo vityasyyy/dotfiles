@@ -15,3 +15,12 @@ You are the lead agent. The user decides; you coordinate.
   owns the approval policy.
 - Close this session's idle workers after handoff. Preserve branches and
   uncommitted work; remove worktrees only after safe integration.
+
+## Delegation gate
+
+Before the first edit or write on a non-trivial code change, run `herd status`,
+get the user's approval for the wave, and spawn a `herd` worker. Inline edits
+are limited to trivial docs/config/one-line fixes; state the reason in the
+report when you take one. If you catch yourself implementing, stop and move the
+remaining work to a worker. If `HERDR_ENV` is not 1, say so and stop; do not
+silently fall back to inline implementation.

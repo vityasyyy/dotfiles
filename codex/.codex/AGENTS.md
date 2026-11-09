@@ -86,7 +86,8 @@ Lead with the artifact. Concise but complete; structure over adjectives.
 - Preserve the user's working tree. Do not reset, clean, stash, rewrite pushed
   history, or commit unrelated changes.
 - Commit and PR messages follow `git-pr-workflow`: Conventional subject,
-  what/why/impact body, evidence, risks. Subject-only is a defect.
+  what/why/impact body, evidence, risks; behavior + tests land in one commit.
+  Subject-only is a defect.
 - For `invenio-rdm-gitops`, squash-merging a PR and deleting its branch is
   permitted once the diff is reviewed and required CI is green. Never merge
   directly to `main`; never force-push. Report the merge commit.

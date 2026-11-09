@@ -55,9 +55,12 @@ Evidence:
 ## 3. Plan and delegate
 
 - Multi-step: write the plan with `writing-plans` in `docs/plans/`.
-- Parallel or isolated: `herd` + `parallel-worktrees`; the worker brief carries
-  the contract and the evidence commands.
-- Otherwise execute inline.
+- Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
+  only when work is parallel or isolated. The worker brief carries the
+  contract and evidence commands. Inline only for trivial docs/config/one-line
+  fixes; state why herd was skipped. Workers never spawn herd.
+- Before the first edit, record the delegation decision. A lead editing
+  non-trivial code is a process failure, not a shortcut.
 
 ## 4. Implement
 
@@ -83,7 +86,8 @@ Evidence:
 - Re-review the delta in a fresh round. Stop on `PASS`; escalate on `STALL`
   (same blocking set twice), `BLOCKED`, or the round budget.
 - Trivial: re-read the diff yourself; fix stray debug code and scope creep.
-- Commit, open the PR, and wait for CI with `git-pr-workflow`.
+- Commit, open the PR, and wait for CI with `git-pr-workflow`. The feature and
+  its tests land in one commit; never split `feat`/`fix` from `test`.
 - Report:
 
   | Requirement | Evidence |

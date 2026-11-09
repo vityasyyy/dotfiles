@@ -70,14 +70,54 @@ for worktree in json.load(sys.stdin).get("result", {}).get("worktrees", []):
     exit 1
   fi
 
+  if ! command -v opencode >/dev/null 2>&1; then
+    echo "herd spawn: opencode is not on PATH" >&2
+    if [ "$created_ws" -eq 1 ]; then
+      "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
+    fi
+    exit 1
+  fi
+
+  if ! opencode api get /api/agent 2>/dev/null | grep -Eq '"id"[[:space:]]*:[[:space:]]*"worker"'; then
+    echo "herd spawn: worker agent is not installed; run ./install.sh" >&2
+    if [ "$created_ws" -eq 1 ]; then
+      "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
+    fi
+    exit 1
+  fi
+
+  local session_id="" session_payload
+  cleanup_session() {
+    if [ -n "${HERD_SESSION_ID:-}" ]; then
+      opencode api delete "/api/session/$HERD_SESSION_ID" >/dev/null 2>&1 || true
+      HERD_SESSION_ID=""
+    fi
+  }
+  trap cleanup_session EXIT INT TERM
+  session_payload="$(python3 -c 'import json,sys; print(json.dumps({"agent":"worker","title":sys.argv[1],"location":{"directory":sys.argv[2]}}))' "$name" "$cwd")"
+  session_id="$(opencode api post /api/session --data "$session_payload" 2>/dev/null \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["id"])' 2>/dev/null || true)"
+  if [ -z "$session_id" ]; then
+    echo "herd spawn: could not create a worker session; is the OpenCode service available?" >&2
+    if [ "$created_ws" -eq 1 ]; then
+      "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
+    fi
+    exit 1
+  fi
+  HERD_SESSION_ID="$session_id"
+
   local attempt out rc
   for attempt in 1 2 3 4 5; do
-    out="$("$HERDR" agent start "$name" --kind opencode --pane "$pane" 2>&1)" && rc=0 || rc=$?
+    out="$("$HERDR" agent start "$name" --kind opencode --pane "$pane" -- --session "$session_id" 2>&1)" && rc=0 || rc=$?
     if [ "$rc" -eq 0 ]; then
+      HERD_SESSION_ID=""
+      trap - EXIT INT TERM
       return 0
     fi
     if printf '%s' "$out" | grep -q '"code":"agent_name_taken"' && printf '%s' "$out" | grep -qi 'status=Idle'; then
       echo "herd spawn: agent '$name' already running (idle); treating as success" >&2
+      cleanup_session
+      trap - EXIT INT TERM
       return 0
     fi
     if [ "$attempt" -lt 5 ]; then
@@ -88,6 +128,8 @@ for worktree in json.load(sys.stdin).get("result", {}).get("worktrees", []):
 
   echo "herd spawn: failed to start agent '$name' after 5 attempts" >&2
   echo "$out" >&2
+  cleanup_session
+  trap - EXIT INT TERM
   if [ "$created_ws" -eq 1 ] && ! "$HERDR" agent get "$name" >/dev/null 2>&1; then
     "$HERDR" workspace close "$ws" >/dev/null 2>&1 || true
   fi

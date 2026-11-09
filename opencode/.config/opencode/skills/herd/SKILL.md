@@ -31,6 +31,14 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
    - Wait for CI with `gh pr checks <n> --watch` (blocking, never sleep-wait).
    - Once green: `gh pr merge <n> --squash --delete-branch` (only when the user's workflow authorizes merging).
 
+## Worker agent
+
+`herd spawn` creates a worker session with the `worker` OpenCode agent and
+opens it with `--session <id>`. That agent owns the worker protocol: phase
+skills, `explore`/`review` subagents, atomic feature+test commits, and the
+untracked report. The brief still carries the goal, scope, contract, evidence,
+and escalation rule; never rely on the worker inheriting this conversation.
+
 ## Worker brief template
 
 Every brief must be self-contained — workers cannot see this conversation:
@@ -40,12 +48,19 @@ Every brief must be self-contained — workers cannot see this conversation:
 - **Constraints:** style, conventions, do-not-touch list.
 - **Acceptance criteria:** verifiable — tests pass, build clean, specific behavior.
 - **Evidence:** the commands/checks to run and report; map each acceptance item to one.
+- **Worker protocol:** load the phase skills (`feature-workflow`,
+  `test-driven-development` or a stated skip, `ponytail`, `git-pr-workflow`,
+  `verification-before-completion`); use `explore` for research and `review`
+  for independent standard/high-impact review; commit feature+tests together;
+  never spawn herdr workers.
 - **Output contract:** write `WORKER-REPORT.md` at the repo root, untracked; never commit it. Include what changed, what was verified, and what remains.
 - **Escalation:** if a decision is ambiguous or blocked, stop and report the question in `WORKER-REPORT.md` instead of guessing.
 
 ## Rules
 
 - Default 1–2 workers. More only with explicit approval.
+- The lead does not implement non-trivial code while a wave is active; that
+  work belongs in a worker brief.
 - Each worker gets a dedicated Herdr workspace. Use native worktree grouping for linked checkouts of the parent repo; use the `<parent>/<worker>` label fallback for other paths. Arbitrary workspace nesting is not exposed by the installed CLI.
 - One worker per project unless using worktrees.
 - Use `--no-focus` for background work; never steal the user's focus.

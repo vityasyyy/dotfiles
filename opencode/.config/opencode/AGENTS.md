@@ -33,7 +33,7 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 | Diff/PR and architecture review | `/review` for diffs; `code-review` otherwise |
 | Commit, PR, CI | `git-pr-workflow` |
 | Claiming done | `verification-before-completion` |
-| Parallel write work | `herd` + `herdr` + `parallel-worktrees` |
+| Non-trivial implementation | `herd` + `herdr`; `parallel-worktrees` for parallel |
 | Ops, infra, reliability | `production-reliability` |
 | Confluence docs | `confluence-authoring` |
 | UI/visual design | `frontend-design` |
@@ -56,10 +56,10 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 ## Delegation
 
-- Default: do the work inline.
-- Read-only research: native `explore` / `document` subagents.
-- Parallel write work, long jobs, approval-heavy work: `herd` with herdr
-  panes, one worker per worktree.
+- Lead orchestrates; workers implement. Non-trivial code goes to `herd` (one
+  worker per worktree); inline only for trivial docs/config/one-line fixes.
+- Read-only research: `explore` / `document` subagents. Workers follow the same
+  skill routing and subagent policy; `herd` owns the brief.
 - Get approval before spawning workers; verify worker output before integrating.
 
 ## Tool discipline
@@ -78,8 +78,8 @@ When the user asks to review a diff/change, run `/review`; architecture review u
   walkthroughs).
 - Code stays minimal; unnecessary JSDoc, comments, and boilerplate are
   defects.
-- Commit/PR messages are compact and scannable: Conventional subject,
-  what/why/impact body, evidence, risks. Subject-only is a defect.
+- Commits are atomic: behavior + tests together; messages carry Conventional
+  subject, what/why/impact body, evidence, risks. Subject-only is a defect.
 
 ## Response style
 

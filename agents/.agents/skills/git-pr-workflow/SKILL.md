@@ -91,9 +91,21 @@ ambiguous message is a defect; amend before pushing.
 
 ## Commit Strategy
 
-Prefer coherent commits.
+A behavior change and the tests that prove it are one commit. Do not commit the
+red test first and the implementation second, and do not commit the
+implementation first and the tests second. Commit once per behavior change, at
+green, with both.
 
-Do not create dozens of meaningless commits.
+Before `git commit`:
+
+- `git status` — stage the implementation and its test changes together.
+- `git diff --cached --stat` — a behavior commit with no test change is a
+  defect unless the change is docs/config or the TDD skip was stated.
+- `git diff --cached` — confirm the tests exercise the committed behavior.
+- A `test:`-only commit is valid only for pre-existing behavior or test debt,
+  never for a feature in the same change.
+
+Prefer coherent commits; do not create dozens of meaningless commits.
 
 Do not amend/rewrite history that the user may already have pushed unless explicitly requested.
 

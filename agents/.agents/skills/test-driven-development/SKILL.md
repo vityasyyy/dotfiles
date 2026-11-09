@@ -297,6 +297,7 @@ Before marking work complete:
 - [ ] Output pristine (no errors, warnings)
 - [ ] Tests use real code (mocks only if unavoidable)
 - [ ] Edge cases and errors covered
+- [ ] Test and implementation are committed together (`git-pr-workflow`)
 
 Can't check all boxes? You skipped TDD. Start over.
 

@@ -98,6 +98,23 @@ else
     || err "explore agent must deny edit"
 fi
 
+worker_agent="opencode/.config/opencode/agents/worker.md"
+if [ ! -f "${worker_agent}" ]; then
+  err "worker agent is missing"
+else
+  grep -q '^mode: primary' "${worker_agent}" \
+    || err "worker agent must be a primary agent"
+  grep -q '^model: opencode-go/deepseek-v4.1-flash#max' "${worker_agent}" \
+    || err "worker agent must pin DS V4.1 Flash max"
+fi
+
+if ! grep -q -- '"agent":"worker"' opencode/.local/bin/herd; then
+  err "herd spawn must create a worker session"
+fi
+if ! grep -q -- '-- --session "$session_id"' opencode/.local/bin/herd; then
+  err "herd spawn must open the worker session"
+fi
+
 review_command="opencode/.config/opencode/commands/review.md"
 if [ ! -f "${review_command}" ]; then
   err "review command is missing"
