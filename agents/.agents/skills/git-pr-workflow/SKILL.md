@@ -1,6 +1,6 @@
 ---
 name: git-pr-workflow
-description: Git and pull-request discipline for AI coding agents. Enforces clean diffs, Conventional Commits, safe branch handling, descriptive PRs, and waiting for required CI checks before completion.
+description: Git and pull-request discipline for AI coding agents. Enforces clean diffs, Conventional Commits, safe branch handling, descriptive PRs with TL;DR, context, and change diagrams, and waiting for required CI checks before completion.
 metadata:
   audience: ai-coding-agent
   workflow: git
@@ -101,34 +101,50 @@ Do not amend/rewrite history that the user may already have pushed unless explic
 
 PR title: a concise Conventional Commit-style title.
 
+Every body starts with a TL;DR: what changed, why, and the impact in at most
+three bullets. A reader who stops there should still understand the change.
+
 Default body for a small or standard change:
 
-```markdown
-## Summary
-- What changed
-- Why
+````markdown
+## TL;DR
+- What changed, why, and the impact (≤3 bullets)
+
+## Context
+- Problem, constraint, and chosen approach; link the issue or design doc.
+  Only what a reviewer needs to judge the change.
+
+## Diagram
+<!-- Required when a reviewer would need to reconstruct a call path, data
+flow, or state transition from the diff. Skip for docs, chore, dependency
+bumps, typos, and self-evident local fixes. -->
+
+```mermaid
+flowchart TD
+  A[Existing path] --> B[Changed component]
+  B --> C[Downstream]
+```
+
+1–3 sentences: what changed and why the shape matters.
 
 ## Testing
-- Exact commands/checks and their results
+- Exact commands/checks and results
 
 ## Risks / Rollback
-- Only when the change is non-trivial
-```
+- Failure modes, rollout/flag, rollback; non-trivial changes only
+````
 
-High-impact changes add:
+Diagram rules: show only the affected slice, mark new or changed nodes
+(`classDef changed`), keep it under ~10 nodes, top-down, short labels. Never
+diagram the diff.
 
-```markdown
-## Implementation
-- Important technical decisions
-
-## Notes
-- Operational/configuration/deployment considerations
-```
+High-impact changes add Implementation decisions, migration/rollout notes, and
+a reviewer guide (where to start, open questions).
 
 Scale the body to the change. Do not restate the diff, paste raw logs, or
-repeat the commit body. A reviewer should get what, why, evidence, and risk in
-under a minute. Agents use the same structure: exact paths, commands, and
-known gaps, not prose.
+repeat the commit body. A reviewer should get what, why, context, evidence,
+and risk in under a minute. Agents use the same structure: exact paths,
+commands, and known gaps, not prose.
 
 ## CI
 
