@@ -106,6 +106,9 @@ Each active repository gets a small `AGENTS.md`:
 - lint:
 - typecheck/build:
 
+## Docs
+- Owner: `documentation`; link repo paths and external URLs.
+
 ## Conventions
 - ...
 

@@ -25,6 +25,12 @@ jobs:
       - name: Agent config checks
         run: ./scripts/check-agent-config.sh
 
+      - name: Skill trigger matrix
+        run: python3 scripts/check-skill-triggers.py
+
+      - name: Skill trigger matrix tests
+        run: ./scripts/tests/check-skill-triggers.sh
+
       - name: Documentation hygiene
         run: ./scripts/check-doc-hygiene.sh
 

@@ -364,11 +364,17 @@ for [`install.sh`](install.sh), [`bootstrap.sh`](bootstrap.sh), and
 ([`scripts/check-doc-hygiene.sh`](scripts/check-doc-hygiene.sh)), its regression
 test
 ([`scripts/tests/check-doc-hygiene.sh`](scripts/tests/check-doc-hygiene.sh)),
-and relative-link validation
-([`scripts/check-doc-links.py`](scripts/check-doc-links.py)); gitleaks;
-symlink-integrity including `codex`; prune test; [Brewfile](Brewfile) entry
-resolution on macOS. External clones are skipped in the temp-HOME job. Target
-< ~2 min.
+relative-link validation
+([`scripts/check-doc-links.py`](scripts/check-doc-links.py)), and the skill
+trigger matrix
+([`scripts/check-skill-triggers.py`](scripts/check-skill-triggers.py)) backed
+by
+[`trigger-matrix.md`](agents/.agents/skills/writing-skills/trigger-matrix.md),
+plus its regression test
+([`scripts/tests/check-skill-triggers.sh`](scripts/tests/check-skill-triggers.sh));
+gitleaks; symlink-integrity including `codex`; prune test;
+[Brewfile](Brewfile) entry resolution on macOS. External clones are skipped in
+the temp-HOME job. Target < ~2 min.
 
 ### Sanitization rules
 
