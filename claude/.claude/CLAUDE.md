@@ -59,9 +59,10 @@ Each rule has one owner; link to it rather than restating it.
 | Writing or editing skills | `writing-skills` |
 | Durable preference or correction | `memory`; Tier 0 for Claude Code is this file |
 
-`handoff` drives OpenCode sessions (`opencode api`). In Claude Code, write the
-handoff file with `session-handoff path` at the same checkpoints, then tell the
-user to start a fresh session from it; do not run `session-handoff start`.
+`handoff` drives OpenCode sessions (`opencode api`). In Claude Code, scaffold
+the handoff with the memory skill's `mem handoff` at the same checkpoints, then
+tell the user to start a fresh session from it; do not run
+`session-handoff start`.
 
 ## Delegation
 
@@ -83,8 +84,8 @@ user to start a fresh session from it; do not run `session-handoff start`.
 ## Code hygiene
 
 - No plan artifacts in code, comments, or commits ("step N", "phase N").
-- Create planning/summary Markdown only when asked; no duplicate plans or
-  process artifacts committed to product repos.
+- Create repo planning/summary Markdown only when asked; keep task state in
+  agent-memory and prefer raw artifacts.
 - Unnecessary comments, JSDoc, and boilerplate are defects.
 - Commit/PR messages follow `git-pr-workflow`: Conventional subject,
   what/why/impact body, evidence, risks; behavior + tests land in one commit.

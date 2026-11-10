@@ -25,16 +25,18 @@ and the session stops.
 ## Steps
 
 1. **Gather evidence.** Never invent state.
-   - Goal and current state: from the conversation.
+   - Goal, acceptance, and review gate: from the task plan or conversation.
    - Repository: `git status --short`, `git diff --stat`, `git log -1 --oneline`.
    - Files: exact paths you changed or read, and why.
    - Commands: what passed, what failed, what was not run.
    - Open questions: only real blockers.
-2. **Write the handoff** to
+2. **Write the handoff** with
+   `~/.agents/skills/memory/scripts/mem handoff --task "<task>"` and fill the
+   scaffolded template in place. It writes to
    `~/.local/share/agent-memory/handoffs/YYYY-MM-DD-<slug>.md`.
-   Use the template below. Aim for under 80 lines; the successor can search
-   the transcript for detail. A handoff is operational, not a planning/summary
-   document; do not create additional Markdown.
+   Aim for under 80 lines; the successor can search the transcript for detail.
+   A handoff is operational, not a planning/summary document; do not create
+   additional Markdown.
 3. **Roll over:**
 
    ```sh
@@ -49,19 +51,9 @@ and the session stops.
 
 ## Template
 
-```markdown
-# Handoff — <task>
-Date:
-Repo:
-Branch:
-Goal:
-State: done | in progress | blocked
-Decisions: what + why
-Files: exact paths
-Commands: worked / failed
-Next: one next action
-Open questions:
-```
+Owned by `memory` (Tier 2: task state and handoff); scaffold it with
+`~/.agents/skills/memory/scripts/mem handoff --task "<task>"` instead of
+copying it here.
 
 ## Inference rules
 

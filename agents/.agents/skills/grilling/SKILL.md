@@ -64,7 +64,8 @@ testing. Prefer small units with clear boundaries and testable interfaces.
 
 Save the approved design to `docs/plans/YYYY-MM-DD-<topic>-design.md` only
 when the user asks; otherwise keep it in chat. If asked, keep it concise and
-substantial. Then self-review:
+substantial. If the decision outlives the task, ask whether to record it as an
+ADR under `docs/adr/`. Then self-review:
 
 1. Placeholder scan: no TBD, TODO, or vague requirements.
 2. Internal consistency: no contradictions between sections.

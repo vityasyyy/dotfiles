@@ -140,7 +140,8 @@ flowchart TD
 1–3 sentences: what changed and why the shape matters.
 
 ## Testing
-- Exact commands/checks and results
+- Exact commands/checks and results, one line per acceptance criterion:
+  `criterion → command → result`
 
 ## Risks / Rollback
 - Failure modes, rollout/flag, rollback; non-trivial changes only

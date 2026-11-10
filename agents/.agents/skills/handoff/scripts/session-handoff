@@ -8,6 +8,7 @@ Usage:
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -30,7 +31,9 @@ def fail(message):
 
 
 def slug(text, fallback="session"):
-    value = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")[:50]
+    value = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    if len(value) > 50:
+        value = f"{value[:50]}-{hashlib.sha1(value.encode()).hexdigest()[:6]}"
     return value or fallback
 
 
@@ -61,6 +64,11 @@ def session_id(args):
 
 def cmd_path(args):
     HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
+    for directory in (MEMORY_DIR, HANDOFF_DIR):
+        try:
+            os.chmod(directory, 0o700)
+        except OSError:
+            pass
     name = args.task or "session"
     path = HANDOFF_DIR / f"{dt.date.today().isoformat()}-{slug(name)}.md"
     print(path)

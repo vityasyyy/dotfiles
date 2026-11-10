@@ -43,6 +43,11 @@ claude_lines="$(wc -l < claude/.claude/CLAUDE.md | tr -d ' ')"
 if [ "${claude_lines}" -gt 110 ]; then
   err "claude/.claude/CLAUDE.md is ${claude_lines} lines (cap 110)"
 fi
+
+codex_lines="$(wc -l < codex/.codex/AGENTS.md | tr -d ' ')"
+if [ "${codex_lines}" -gt 110 ]; then
+  err "codex/.codex/AGENTS.md is ${codex_lines} lines (cap 110)"
+fi
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
   claude/.claude/settings.json; then
   err "claude/.claude/settings.json is not valid JSON"
@@ -167,6 +172,37 @@ for file in opencode/.config/opencode/AGENTS.md claude/.claude/CLAUDE.md codex/.
   grep -q 'Ask before destructive commands' "${file}" \
     || err "${file} is missing the destructive-command approval rule"
 done
+
+# Scaffolded templates carry the review contract and stay idempotent.
+check_dir="$(mktemp -d)"
+mem_bin=agents/.agents/skills/memory/scripts/mem
+plan_path="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" plan --task check)" \
+  || err "mem plan failed"
+plan_again="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" plan --task check)" \
+  || err "mem plan failed on rerun"
+[ "${plan_path}" = "${plan_again}" ] || err "mem plan is not idempotent"
+for field in Behavior Acceptance Gate Evidence; do
+  grep -q "^${field}:" "${plan_path}" 2>/dev/null \
+    || err "mem plan is missing ${field}"
+done
+handoff_path="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" handoff --task check)" \
+  || err "mem handoff failed"
+for field in Plan Acceptance Gate; do
+  grep -q "^${field}:" "${handoff_path}" 2>/dev/null \
+    || err "mem handoff is missing ${field}"
+done
+grep -Fq "Plan: ${plan_path}" "${handoff_path}" 2>/dev/null \
+  || err "mem handoff does not point at the plan"
+printf 'keep\n' >> "${handoff_path}"
+AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" handoff --task check >/dev/null \
+  || err "mem handoff failed on rerun"
+grep -q keep "${handoff_path}" 2>/dev/null \
+  || err "mem handoff overwrites an existing file"
+unknown_path="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" handoff --task unplanned)" \
+  || err "mem handoff failed without a plan"
+grep -q '^Plan: unknown$' "${unknown_path}" 2>/dev/null \
+  || err "mem handoff does not default to unknown"
+rm -rf "${check_dir}"
 
 # Every skill has portable frontmatter.
 while IFS= read -r -d '' skill; do

@@ -17,10 +17,24 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** If working in an isolated worktree, it should have been created via the `parallel-worktrees` skill at execution time.
 
-**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`, and only when the
-user asks; otherwise present the plan in chat. User preferences for plan
-location override this default. A requested plan stays concise, clear, and
-substantial; prefer raw artifacts over duplicate summary Markdown.
+**Save plans to:** task state
+(`~/.agents/skills/memory/scripts/mem plan --task "..."`) when the work crosses
+a session, a worker, or a context rollover; keep single-session plans in chat.
+Write `docs/plans/YYYY-MM-DD-<feature-name>.md` only when the user asks. User
+preferences for plan location override this default.
+
+## Right-Size
+
+Scale the plan to the lane (`feature-workflow`):
+
+- Trivial: no plan; one-line contract in the response.
+- Standard: contract plus a task list of files, change, and evidence — one
+  screen in chat, or the memory skill's plan template when cross-boundary.
+- High-impact: the full document below, with interfaces; rollout lives in
+  `git-pr-workflow`.
+
+Show code only where it pins an interface or the failing test; workers write
+the implementation. A plan that cannot survive in chat is usually narrative.
 
 ## Scope Check
 
@@ -57,7 +71,8 @@ independently testable deliverable.
 
 ## Plan Document Header
 
-**Every plan MUST start with this header:**
+Standard-lane plans stored in task state use the memory skill's plan template
+(contract + task list) and stop there. High-impact plans MUST add this header:
 
 ```markdown
 # [Feature Name] Implementation Plan

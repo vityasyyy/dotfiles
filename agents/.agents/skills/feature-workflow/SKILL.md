@@ -42,6 +42,7 @@ Acceptance:
 Failure cases:
 Non-goals:
 Compatibility:
+Gate:
 Evidence:
 ```
 
@@ -54,8 +55,9 @@ Evidence:
 
 ## 3. Plan and delegate
 
-- Multi-step: write the plan with `writing-plans` in `docs/plans/` only when
-  the user asks; otherwise present it in chat.
+- Multi-step: keep the contract and plan in chat for single-session work; use
+  task state (`memory`) when the work crosses a session, a worker, or a context
+  rollover. Write `docs/plans/` only when the user asks.
 - Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
   only when work is parallel or isolated. The worker brief carries the
   contract and evidence commands. Inline only for trivial docs/config/one-line
@@ -102,10 +104,13 @@ Evidence:
 Write or refresh the handoff at these points, using the `memory` skill. Use the
 `handoff` skill for an OpenCode context rollover:
 
-1. After the contract or plan.
+1. After the contract or plan: write the handoff; for multi-session or
+   delegated work, update task state first.
 2. Before a context rollover (`handoff` skill).
 3. After verification.
 4. Before delegating to a worker.
 5. At session end.
+6. When the task merges or is abandoned, archive its task state under
+   `~/.local/share/agent-memory/tasks/archive/`.
 
 The handoff is the recovery artifact; the summary is not.

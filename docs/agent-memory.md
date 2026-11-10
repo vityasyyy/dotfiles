@@ -8,7 +8,7 @@ repository except the skills and this guide.
 flowchart TD
   R["Tier 0 · global AGENTS.md<br/>invariants · ≤110 lines"]
   P["Tier 1 · repo AGENTS.md<br/>commands and conventions"]
-  T["Tier 2 · docs/plans<br/>contract, decisions, next step"]
+  T["Tier 2 · task state<br/>plan · decisions · next action"]
   H["Handoff<br/>written before a context rollover"]
   E["Tier 3 · session index<br/>FTS5 + digests"]
   R --> P --> T
@@ -19,8 +19,8 @@ flowchart TD
 
 Tier 0 is always loaded. Tier 1 loads per repository. Tier 2 is the active task
 state. Tier 3 is queried, never injected. OpenCode reads
-`~/.config/opencode/AGENTS.md`; Codex reads `~/.codex/AGENTS.md`. Both are
-linked from this repository.
+`~/.config/opencode/AGENTS.md`; Claude reads `~/.claude/CLAUDE.md`; Codex reads
+`~/.codex/AGENTS.md`. All three are linked from this repository.
 
 ## New machine
 
@@ -63,9 +63,10 @@ linked from this repository.
    ```
 
    Sessions stop at the model's context limit instead of being summarized.
-   Write a handoff with `mem handoff` and continue in a new session before
-   reaching that limit. The file is linked from the repository, so a
-   `git pull` updates it. Restart the OpenCode service after changing it.
+   Write a handoff with `~/.agents/skills/memory/scripts/mem handoff` and
+   continue in a new session before reaching that limit. The file is linked
+   from the repository, so a `git pull` updates it. Restart the OpenCode
+   service after changing it.
 
 ## Context rollover
 
@@ -73,9 +74,11 @@ Compaction is off. Before the window fills, write a handoff and continue in a
 fresh session:
 
 ```sh
-~/.agents/skills/handoff/scripts/session-handoff path --task "short title"
-~/.agents/skills/handoff/scripts/session-handoff start --handoff <path>
+path=$(~/.agents/skills/memory/scripts/mem handoff --task "short title")
+~/.agents/skills/handoff/scripts/session-handoff start --handoff "$path"
 ```
+
+Fill the scaffolded handoff before starting the successor.
 
 `start` exports the full transcript, appends session pointers to the handoff,
 creates a successor session with the same agent and model, and seeds it with
@@ -105,8 +108,8 @@ Each active repository gets a small `AGENTS.md`:
 ```
 
 Keep it under ~80 lines. Project-specific rules belong here, not in the global
-file. Put multi-step plans under `docs/plans/YYYY-MM-DD-<task>.md` when the
-user asks.
+file. Cross-session task state lives in `~/.local/share/agent-memory/tasks/`;
+write `docs/plans/` only when the user asks.
 
 MCP servers are no longer global. Add only what the repository needs in
 `.opencode/opencode.json`:
@@ -132,10 +135,10 @@ OAuth credentials stay in the per-profile auth store; never commit them.
 |---|---|
 | Start | Read Tier 0, the repo `AGENTS.md`, and the active plan. |
 | Checkpoint | Update the plan and handoff: decisions, files, commands, next. |
-| At ~80% context | Refresh the handoff with `mem handoff` or a direct edit. |
+| At ~80% context | Edit the handoff in place; run `~/.agents/skills/memory/scripts/mem handoff` only to scaffold or print its path. |
 | New session | Re-read the handoff and plan before continuing. |
 | Session end | Write a digest and run `mem index`. |
-| Task done | Start a new session; do not carry a finished task forward. |
+| Task done | Move task state to `~/.local/share/agent-memory/tasks/archive/`; start a new session. |
 
 One session per task or phase. A session that needs more than one handoff is a
 sign the task should have been split.
@@ -155,19 +158,9 @@ improving routing.
 
 ## Handoff template
 
-```markdown
-# Handoff — <task>
-Date:
-Repo:
-Branch:
-Goal:
-State: done | in progress | blocked
-Decisions: what + why
-Files: exact paths
-Commands: worked / failed
-Next: one next action
-Open questions:
-```
+The template is owned by `~/.agents/skills/memory/SKILL.md`; scaffold it with
+`mem handoff --task "<task>"`. It carries `Plan`, `Acceptance`, and `Gate` so a
+successor keeps the review contract.
 
 ## Troubleshooting
 

@@ -80,11 +80,10 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 ## Documentation discipline
 
-- Create planning/summary Markdown only when asked; otherwise present it in
-  chat and prefer raw CSV/JSON artifacts.
-- For PII/sensitive data, give the raw resource first; ask before summarizing or
-  writing docs. Keep requested docs concise, clear, substantial; no duplicate
-  plans or process artifacts in product repos.
+- Create repo planning/summary Markdown only when asked; keep task state in
+  agent-memory. Prefer raw CSV/JSON over prose summaries.
+- For sensitive data, give the raw resource first; ask before summarizing.
+  Keep requested docs concise and non-duplicative.
 
 ## Response style
 
@@ -97,7 +96,8 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 ## Memory
 
 - **Tier 0** this file (≤110); **Tier 1** repo `AGENTS.md`.
-- **Tier 2** `docs/plans/` (only when asked); **Tier 3** agent-memory.
+- **Tier 2** task state in agent-memory (repo `docs/plans/` only when asked);
+  **Tier 3** session index.
 - Write a handoff at the `feature-workflow` checkpoints, before a context
   rollover, and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 

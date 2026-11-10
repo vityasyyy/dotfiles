@@ -3,6 +3,7 @@
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -18,6 +19,7 @@ MEMORY_DIR = Path(
 ).expanduser()
 INDEX_DB = MEMORY_DIR / "index.db"
 HANDOFF_DIR = MEMORY_DIR / "handoffs"
+TASKS_DIR = MEMORY_DIR / "tasks"
 MAX_FIELD = 4000
 
 
@@ -27,12 +29,16 @@ def source_db():
     return sqlite3.connect(f"file:{OPENCODE_DB}?mode=ro", uri=True)
 
 
-def index_db():
-    MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+def private_dir(path):
+    path.mkdir(parents=True, exist_ok=True)
     try:
-        os.chmod(MEMORY_DIR, 0o700)
+        os.chmod(path, 0o700)
     except OSError:
         pass
+
+
+def index_db():
+    private_dir(MEMORY_DIR)
     con = sqlite3.connect(INDEX_DB)
     con.execute(
         """CREATE VIRTUAL TABLE IF NOT EXISTS messages USING fts5(
@@ -180,16 +186,79 @@ def cmd_sessions(args):
     return 0
 
 
-def cmd_handoff(args):
-    HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
-    slug = re.sub(r"[^a-z0-9]+", "-", args.task.lower()).strip("-")[:50] or "task"
-    path = HANDOFF_DIR / f"{dt.date.today().isoformat()}-{slug}.md"
-    path.write_text(
-        f"""# Handoff — {args.task}
+def task_slug(task):
+    slug = re.sub(r"[^a-z0-9]+", "-", task.lower()).strip("-") or "task"
+    if len(slug) > 50:
+        slug = f"{slug[:50]}-{hashlib.sha1(slug.encode()).hexdigest()[:6]}"
+    return slug
+
+
+def task_path(task):
+    return TASKS_DIR / f"{dt.date.today().isoformat()}-{task_slug(task)}" / "plan.md"
+
+
+def find_plan(task):
+    slug = task_slug(task)
+    matches = sorted(
+        path for path in TASKS_DIR.glob("*/plan.md") if path.parent.name[11:] == slug
+    )
+    return matches[-1] if matches else None
+
+
+def cmd_plan(args):
+    private_dir(MEMORY_DIR)
+    private_dir(TASKS_DIR)
+    existing = find_plan(args.task)
+    if existing:
+        private_dir(existing.parent)
+        print(existing)
+        return 0
+    path = task_path(args.task)
+    private_dir(path.parent)
+    if not path.exists():
+        path.write_text(
+            f"""# Plan — {args.task}
 Date: {dt.date.today().isoformat()}
 Repo:
 Branch:
 Goal:
+
+## Contract
+Behavior:
+Acceptance:
+Failure cases:
+Non-goals:
+Compatibility:
+Gate:
+Evidence:
+
+## Tasks
+- [ ] T1: change — evidence:
+
+## Open questions
+
+## Decisions
+"""
+        )
+    print(path)
+    return 0
+
+
+def cmd_handoff(args):
+    private_dir(MEMORY_DIR)
+    private_dir(HANDOFF_DIR)
+    path = HANDOFF_DIR / f"{dt.date.today().isoformat()}-{task_slug(args.task)}.md"
+    plan = find_plan(args.task)
+    if not path.exists():
+        path.write_text(
+            f"""# Handoff — {args.task}
+Date: {dt.date.today().isoformat()}
+Repo:
+Branch:
+Goal:
+Plan: {plan or "unknown"}
+Acceptance:
+Gate:
 State: in progress
 Decisions:
 Files:
@@ -197,7 +266,7 @@ Commands:
 Next:
 Open questions:
 """
-    )
+        )
     print(path)
     return 0
 
@@ -231,6 +300,9 @@ def main():
     sessions.add_argument("--limit", type=int, default=20)
     sessions.set_defaults(func=cmd_sessions)
 
+    plan = sub.add_parser("plan", help="create a task-state plan")
+    plan.add_argument("--task", required=True)
+    plan.set_defaults(func=cmd_plan)
     handoff = sub.add_parser("handoff", help="create a handoff template")
     handoff.add_argument("--task", required=True)
     handoff.set_defaults(func=cmd_handoff)

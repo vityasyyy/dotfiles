@@ -15,7 +15,7 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
 
 ## Workflow
 
-1. **Plan.** Break the goal into units of work. Decide how many workers (default 1–2; more only when the task justifies the cost) and what each does. Choose topology: one worker per project by default; use git worktrees for parallel work on one repo. **Planning-first:** any concern, finding, or open question discovered during a wave is recorded in the worker report and the PR body; create `docs/plans/` Markdown only when the user asks. The wave is not done until the concern is documented.
+1. **Plan.** Break the goal into units of work. Decide how many workers (default 1–2; more only when the task justifies the cost) and what each does. Choose topology: one worker per project by default; use git worktrees for parallel work on one repo. **Planning-first:** the wave plan lives in task state (`memory`); any concern, finding, or open question discovered during a wave is recorded there and in the worker report and PR body; create `docs/plans/` Markdown only when the user asks. The wave is not done until the concern is documented.
 2. **Propose.** Present the plan to the user: workers, per-worker briefs, order, verification steps. Wait for approval. Adjust on feedback.
 3. **Spawn.** For each worker: `herd spawn <name> <cwd>`. This starts OpenCode in a dedicated workspace's root pane. If `<cwd>` is a linked Git worktree of the caller's repo, Herdr groups it with the parent repo workspace; otherwise `herd` creates a separate workspace labeled `<parent>/<worker>`. Herdr does not support arbitrary workspace nesting. Keep each worker in its own checkout and workspace; do not split panes in the lead workspace or reuse another worker's workspace.
 4. **Prompt.** Send each worker a self-contained brief (template below) via `herd prompt <name> <brief>`. Ensure the brief includes: goal, scope, constraints, acceptance criteria, evidence commands, output contract (untracked `WORKER-REPORT.md`), and escalation rule.
@@ -27,7 +27,7 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
 6. **Verify.** Never trust "done". Check the worker's report file, run tests/build, read the diff before integrating. Verify cross-worker file overlap: diff the worker branches against each other and reconcile conflicts before merging.
 7. **Integrate via PR + CI + squash-merge.** Do NOT merge worker branches directly into main:
    - Build a clean feature branch from `origin/main` with well-scoped Conventional Commits (type(scope): description + body with why/what).
-   - Push the branch, open a PR with a full body (Summary/Why/Implementation/Testing/Risks/Rollback/Notes).
+   - Push the branch, open a PR following `git-pr-workflow`'s body structure.
    - Wait for CI with `gh pr checks <n> --watch` (blocking, never sleep-wait).
    - Once green: `gh pr merge <n> --squash --delete-branch` (only when the user's workflow authorizes merging).
 

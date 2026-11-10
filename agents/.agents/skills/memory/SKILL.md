@@ -8,42 +8,51 @@ metadata:
 
 # Memory
 
-Four tiers. One fact lives in exactly one tier. Retrieval is a query, never a
-context dump. Workflow checkpoints are defined in `feature-workflow`; this
-skill owns the tiers and the handoff template.
+Four tiers; one fact lives in one tier. Retrieval is a query, never a context
+dump. `feature-workflow` owns checkpoints; this skill owns tiers and the
+handoff template. Commands use `MEM=~/.agents/skills/memory/scripts/mem`.
 
 | Tier | Where | Budget | Holds |
 |---|---|---|---|
-| 0 | OpenCode: `~/.config/opencode/AGENTS.md` · Codex: `~/.codex/AGENTS.md` | ≤110 lines | invariants loaded every session |
+| 0 | OpenCode: `~/.config/opencode/AGENTS.md` · Claude: `~/.claude/CLAUDE.md` · Codex: `~/.codex/AGENTS.md` | ≤110 lines | invariants loaded every session |
 | 1 | `<repo>/AGENTS.md` + `.opencode/memory/` | ≤80 lines | commands, conventions, gotchas |
-| 2 | `<repo>/docs/plans/` | structured | active task state, decisions, next action |
-| 3 | `~/.local/share/agent-memory/` | unbounded | session index + handoffs |
+| 2 | `~/.local/share/agent-memory/{tasks,handoffs}/` | structured | plan, handoff, decisions |
+| 3 | `~/.local/share/agent-memory/` | unbounded | session index + digests |
 
 ## Routing a fact
 
 - Changes behavior every session → Tier 0. One terse bullet, merged into an
   existing section, never duplicated.
 - True for this repo only → Tier 1.
-- True for this task only → Tier 2. Create plan/summary Markdown only when
-  asked; prefer raw artifacts.
+- True for this task only → Tier 2. Use task state when work crosses a
+  session, a worker, or a context rollover; otherwise keep it in chat. Repo
+  `docs/plans/` only when asked.
 - History, prior decisions, "where did we…" → Tier 3.
 
 Never store secrets or credentials in any tier.
 
 ## Tier 0 rules
 
-- Canonical sources are `~/dotfiles/opencode/.config/opencode/AGENTS.md` and
-  `~/dotfiles/codex/.codex/AGENTS.md`; edit the source for your harness, not
-  the `~` symlink.
+- Canonical sources are `~/dotfiles/opencode/.config/opencode/AGENTS.md`,
+  `~/dotfiles/claude/.claude/CLAUDE.md`, and `~/dotfiles/codex/.codex/AGENTS.md`;
+  edit the source for your harness, not the `~` symlink.
 - Match `## <Topic> (<date> — standing)`.
 - Adding a rule requires deleting or merging one. The cap is the point.
 - Do not commit Tier 0 edits without the user's approval; the user reviews
   dotfiles changes.
 
-## Tier 2: handoff
+## Tier 2: task state and handoff
 
 Write the handoff at plan time and at every checkpoint, before a context
 rollover:
+
+```sh
+$MEM plan --task "short title"
+$MEM handoff --task "short title"
+```
+
+`plan` scaffolds a task-state plan; `handoff` scaffolds the template below and
+prints its path. Both are idempotent.
 
 ```markdown
 # Handoff — <task>
@@ -51,6 +60,9 @@ Date:
 Repo:
 Branch:
 Goal:
+Plan: task-state path or chat
+Acceptance:
+Gate:
 State: done | in progress | blocked
 Decisions: what + why
 Files: exact paths
@@ -59,29 +71,25 @@ Next: one next action
 Open questions:
 ```
 
-Store it with the task plan in `docs/plans/`, or in the handoff directory via
-`mem handoff`. For an OpenCode rollover, use the `handoff` skill: it writes the
-handoff, exports the transcript, and continues in a new session. After a
-rollover, re-read the handoff and the plan first; never trust a summary alone.
+The handoff points at the plan. Update both at checkpoints; archive the task
+directory under `~/.local/share/agent-memory/tasks/archive/` when the task ends.
+A stale plan is worse than none. For an OpenCode rollover, `handoff` writes the
+handoff, exports the transcript, and continues in a new session; re-read both
+first, never trust a summary alone.
 
 ## Tier 3: recall
 
 ```sh
-MEM=~/.agents/skills/memory/scripts/mem
 $MEM stats
 $MEM search "query terms" --limit 10
 $MEM sessions --limit 20
 $MEM index
-$MEM handoff --task "short title"
 ```
 
-The index is FTS5 over OpenCode `session_message`, stored locally at
-`~/.local/share/agent-memory/index.db`. It rebuilds automatically when the
-session database changes. Search returns date, session title, and matching
-snippets. Open the source session only when the snippet is insufficient.
-
-The index currently covers OpenCode sessions. Codex transcripts are not
-indexed yet; keep their handoffs in the plan or project memory.
+The FTS5 index over OpenCode `session_message` lives at
+`~/.local/share/agent-memory/index.db`, rebuilds when the session database
+changes, and returns date, title, and snippets. Open the source session only
+when the snippet is insufficient. Codex transcripts are not indexed yet.
 
 ## Session protocol
 
@@ -93,11 +101,9 @@ indexed yet; keep their handoffs in the plan or project memory.
    index it. Start a new session for the next task.
 5. Never let a session hit its context limit without a handoff.
 
-## What does not qualify
+## Exclusions
 
-- One-off requests: just do them.
-- Project-specific conventions: repo `AGENTS.md`.
-- Secrets: never written anywhere.
-- Conversation transcripts: they stay in Tier 3; never paste them into Tier 0.
+One-off requests: just do them. Project conventions: repo `AGENTS.md`. Secrets:
+never written anywhere. Transcripts: Tier 3 only; never paste them into Tier 0.
 
 Setup and recovery on another machine: `~/dotfiles/docs/agent-memory.md`.

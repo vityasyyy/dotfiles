@@ -59,8 +59,8 @@ Each rule has one owner; link to it rather than restating it.
 | `.docx` / `.pptx` artifacts | Documents / Presentations skills with their render and visual-check workflows |
 | Durable preference or correction | `memory` — shared skill; Tier 0 for Codex is this file |
 
-Execution default: inline in the current session. Create planning/summary
-Markdown only when the user asks; otherwise present the plan in chat.
+Execution default: inline in the current session. Create repo planning/summary
+Markdown only when the user asks; keep task state in agent-memory.
 
 ## Response style
 
