@@ -18,10 +18,10 @@ Every non-trivial change follows one spine:
   (`/review`); trivial gets a self-check. Fix blockers; never self-approve.
 - **Report:** what changed, what was verified, risks, rollback, gaps.
 
-Use only the skill for the current phase. Announce: "Using [skill] to [purpose]."
+Use only the skill for the current task. Announce: "Using [skill] to [purpose]."
 When the user asks to review a diff/change, run `/review`; architecture review uses `code-review`.
 
-| Phase | Skill |
+| Trigger | Skill |
 |---|---|
 | Ambiguous intent, design interview | `grilling` |
 | Multi-step plan, inline execution | `writing-plans` |
@@ -80,10 +80,10 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 ## Documentation discipline
 
-- Create repo planning/summary Markdown only when asked; keep task state in
-  agent-memory. Prefer raw CSV/JSON over prose summaries.
-- For sensitive data, give the raw resource first; ask before summarizing.
-  Keep requested docs concise and non-duplicative.
+- Repo docs describe current state, link paths and URLs, and carry no planning
+  history; task state lives in agent-memory (`docs/plans/` is gitignored).
+- Create repo planning/summary Markdown only when asked; prefer raw artifacts.
+- Sensitive data: raw resource first, ask before summarizing; docs stay concise.
 
 ## Response style
 
@@ -96,8 +96,8 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 ## Memory
 
 - **Tier 0** this file (≤110); **Tier 1** repo `AGENTS.md`.
-- **Tier 2** task state in agent-memory (repo `docs/plans/` only when asked);
-  **Tier 3** session index.
+- **Tier 2** task state in agent-memory (gitignored `docs/plans/` only when
+  asked); **Tier 3** session index.
 - Write a handoff at the `feature-workflow` checkpoints, before a context
   rollover, and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 

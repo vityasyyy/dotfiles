@@ -83,9 +83,11 @@ tell the user to start a fresh session from it; do not run
 
 ## Code hygiene
 
-- No plan artifacts in code, comments, or commits ("step N", "phase N").
+- Repo docs and code comments describe current behavior; link existing paths
+  and URLs; no plan artifacts, dated history, or task checklists ("step N",
+  "phase N").
 - Create repo planning/summary Markdown only when asked; keep task state in
-  agent-memory and prefer raw artifacts.
+  agent-memory. A `docs/plans/` copy is gitignored and never committed.
 - Unnecessary comments, JSDoc, and boilerplate are defects.
 - Commit/PR messages follow `git-pr-workflow`: Conventional subject,
   what/why/impact body, evidence, risks; behavior + tests land in one commit.

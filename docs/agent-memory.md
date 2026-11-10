@@ -1,8 +1,9 @@
 # Agent memory: setup and recovery
 
 The memory system is four tiers of files plus a local search index. It works
-on any machine that clones this dotfiles repository; nothing is stored in the
-repository except the skills and this guide.
+on any machine that clones [this dotfiles repository](../README.md); nothing
+is stored in the repository except the [skills](../agents/.agents/skills/) and
+this guide.
 
 ```mermaid
 flowchart TD
@@ -19,8 +20,10 @@ flowchart TD
 
 Tier 0 is always loaded. Tier 1 loads per repository. Tier 2 is the active task
 state. Tier 3 is queried, never injected. OpenCode reads
-`~/.config/opencode/AGENTS.md`; Claude reads `~/.claude/CLAUDE.md`; Codex reads
-`~/.codex/AGENTS.md`. All three are linked from this repository.
+[`~/.config/opencode/AGENTS.md`](../opencode/.config/opencode/AGENTS.md);
+Claude reads [`~/.claude/CLAUDE.md`](../claude/.claude/CLAUDE.md); Codex reads
+[`~/.codex/AGENTS.md`](../codex/.codex/AGENTS.md). All three are linked from
+this repository.
 
 ## New machine
 
@@ -54,7 +57,8 @@ state. Tier 3 is queried, never injected. OpenCode reads
    ~/.agents/skills/memory/scripts/mem search "merge conflict" --limit 5
    ```
 
-5. Confirm automatic compaction is off in `~/.config/opencode/opencode.json`:
+5. Confirm automatic compaction is off in
+   [`~/.config/opencode/opencode.json`](../opencode/.config/opencode/opencode.json):
 
    ```json
    "compaction": {
@@ -64,9 +68,10 @@ state. Tier 3 is queried, never injected. OpenCode reads
 
    Sessions stop at the model's context limit instead of being summarized.
    Write a handoff with `~/.agents/skills/memory/scripts/mem handoff` and
-   continue in a new session before reaching that limit. The file is linked
-   from the repository, so a `git pull` updates it. Restart the OpenCode
-   service after changing it.
+   continue in a new session before reaching that limit. The
+   [config file](../opencode/.config/opencode/opencode.json) is linked from the
+   repository, so a `git pull` updates it. Restart the OpenCode service after
+   changing it.
 
 ## Context rollover
 
@@ -84,9 +89,10 @@ Fill the scaffolded handoff before starting the successor.
 creates a successor session with the same agent and model, and seeds it with
 the handoff path. The old session stays intact.
 
-The `context-rollover` plugin warns the agent at 80% and 90% of the model
-window. `/handoff` runs the same flow on demand. A handoff is also the right
-move at the end of a long task or before switching agents.
+The [`context-rollover`](../opencode/.config/opencode/plugins/context-rollover.js)
+plugin warns the agent at 80% and 90% of the model window. `/handoff` runs the
+same flow on demand. A handoff is also the right move at the end of a long task
+or before switching agents.
 
 ## Per-repository setup
 
@@ -107,11 +113,14 @@ Each active repository gets a small `AGENTS.md`:
 - ...
 ```
 
-Keep it under ~80 lines. Project-specific rules belong here, not in the global
-file. Cross-session task state lives in `~/.local/share/agent-memory/tasks/`;
-write `docs/plans/` only when the user asks.
+Keep it under ~80 lines. Project-specific rules belong here, not in the
+[global file](../opencode/.config/opencode/AGENTS.md). Cross-session task state
+lives in `~/.local/share/agent-memory/tasks/`;
+the handoff records the absolute plan path. A user-requested `docs/plans/` copy
+is gitignored local scratch and is never committed. Git history and PR
+descriptions are the durable decision record.
 
-MCP servers are no longer global. Add only what the repository needs in
+MCP servers are project-local. Add only what the repository needs in
 `.opencode/opencode.json`:
 
 ```json
@@ -133,15 +142,15 @@ OAuth credentials stay in the per-profile auth store; never commit them.
 
 | Moment | Action |
 |---|---|
-| Start | Read Tier 0, the repo `AGENTS.md`, and the active plan. |
+| Start | Read Tier 0, the repo `AGENTS.md`, and the active task-state plan. |
 | Checkpoint | Update the plan and handoff: decisions, files, commands, next. |
 | At ~80% context | Edit the handoff in place; run `~/.agents/skills/memory/scripts/mem handoff` only to scaffold or print its path. |
 | New session | Re-read the handoff and plan before continuing. |
 | Session end | Write a digest and run `mem index`. |
 | Task done | Move task state to `~/.local/share/agent-memory/tasks/archive/`; start a new session. |
 
-One session per task or phase. A session that needs more than one handoff is a
-sign the task should have been split.
+One session per task. A session that needs more than one handoff is a sign the
+task should have been split.
 
 ## Skill usage review
 
@@ -158,9 +167,10 @@ improving routing.
 
 ## Handoff template
 
-The template is owned by `~/.agents/skills/memory/SKILL.md`; scaffold it with
-`mem handoff --task "<task>"`. It carries `Plan`, `Acceptance`, and `Gate` so a
-successor keeps the review contract.
+The template is owned by
+[`~/.agents/skills/memory/SKILL.md`](../agents/.agents/skills/memory/SKILL.md);
+scaffold it with `mem handoff --task "<task>"`. It carries `Plan`, `Acceptance`,
+and `Gate` so a successor keeps the review contract.
 
 ## Troubleshooting
 

@@ -3,7 +3,7 @@ name: writing-skills
 description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
 ---
 
-<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Forked 2026-10-13; local routing lives in AGENTS.md. -->
+<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Local routing lives in AGENTS.md. -->
 
 # Writing Skills
 

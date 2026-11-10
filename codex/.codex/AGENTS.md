@@ -13,8 +13,9 @@ of the shared workflow; the skills themselves are the source of truth.
   files can settle.
 - Carry the task through to a reviewable result. Ask only when the choice
   materially affects correctness, safety, or the user's intent.
-- Prefer a small, complete change that follows existing conventions. No plan
-  or phase references in code, docstrings, or commit messages.
+- Prefer a small, complete change that follows existing conventions. Repo docs
+  describe current behavior, link existing paths and URLs, and carry no plan
+  artifacts, dated history, or task checklists.
 - Protect credentials and private data. Ask before destructive or out-of-scope
   actions, live-cluster changes, or handling secrets.
 - Before a step that needs a download or install, ask the user and pause that
@@ -60,7 +61,8 @@ Each rule has one owner; link to it rather than restating it.
 | Durable preference or correction | `memory` — shared skill; Tier 0 for Codex is this file |
 
 Execution default: inline in the current session. Create repo planning/summary
-Markdown only when the user asks; keep task state in agent-memory.
+Markdown only when the user asks; keep task state in agent-memory. A
+`docs/plans/` copy is gitignored and never committed.
 
 ## Response style
 

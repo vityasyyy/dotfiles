@@ -2,11 +2,12 @@
 
 Public, secrets-free macOS dev configs for a **multi-profile Mac**: one
 source of truth, many independent homes, synced by git — never by file
-writes across profiles.
+writes across profiles. Source: [github.com/vityasyyy/dotfiles](https://github.com/vityasyyy/dotfiles).
 
 > A new profile on a Mac that already has Homebrew goes from blank to full
-> environment with `clone` + `./install.sh`. A truly blank Mac uses
-> `clone` + `./bootstrap.sh`, which installs Homebrew first.
+> environment with `clone` + [`./install.sh`](install.sh). A truly blank Mac
+> uses `clone` + [`./bootstrap.sh`](bootstrap.sh), which installs Homebrew
+> first.
 > Everything under `~/dotfiles` is the truth; every dotfile in `$HOME` is a
 > symlink into it.
 
@@ -54,8 +55,8 @@ over?" is always answered by the row it lands in.
 
 | Bucket | What | Synced? |
 | --- | --- | --- |
-| **Config** | `.zshrc`, `.gitconfig`, `.tmux.conf`, Ghostty, OpenCode, Codex instructions, shared agent skills, Brewfile | Yes — repo + symlinks (the whole point) |
-| **Per-profile state** | shell history, tool caches, `~/.oh-my-zsh`, `~/.config/nvim` clones | No — installed per profile by `install.sh`, never shared |
+| **Config** | [`.zshrc`](zsh/.zshrc), [`.gitconfig`](git/.gitconfig), [`.tmux.conf`](tmux/.tmux.conf), Ghostty, OpenCode, Codex instructions, shared agent skills, [Brewfile](Brewfile) | Yes — repo + symlinks (the whole point) |
+| **Per-profile state** | shell history, tool caches, `~/.oh-my-zsh`, `~/.config/nvim` clones | No — installed per profile by [`install.sh`](install.sh), never shared |
 | **Secrets / auth** | `~/.ssh`, gh/gcloud/OpenCode/Codex tokens, `~/.kube`, sops age key | **Never** — gitignored, CI-scanned; re-auth per profile by design |
 
 ---
@@ -67,13 +68,13 @@ own layout:
 
 | Layout | What happens |
 | --- | --- |
-| One owner, no other profiles | `scripts/brew-share.sh --check` reports owner-only; no ACL needed. |
-| Shared Mac, multiple admins | Run `scripts/brew-share.sh --apply` once. It backfills group write and adds an inheriting ACL for group `admin`. |
-| New laptop | Clone, run `./bootstrap.sh` if brew is missing, then `./install.sh`. Auth and secrets are recreated per machine. |
+| One owner, no other profiles | [`scripts/brew-share.sh`](scripts/brew-share.sh) `--check` reports owner-only; no ACL needed. |
+| Shared Mac, multiple admins | Run [`scripts/brew-share.sh`](scripts/brew-share.sh) `--apply` once. It backfills group write and adds an inheriting ACL for group `admin`. |
+| New laptop | Clone, run [`bootstrap.sh`](bootstrap.sh) if brew is missing, then [`install.sh`](install.sh). Auth and secrets are recreated per machine. |
 
 The ACL covers normal new kegs and lock files, but Homebrew's cask/copy
 operations do not always inherit it. Re-run `--apply` after installing or
-upgrading casks; `--check` reports whether repair is needed. `install.sh`
+upgrading casks; `--check` reports whether repair is needed. [`install.sh`](install.sh)
 only warns when the prefix is shared and not writable; it never runs `sudo`.
 
 If a permission error still appears:
@@ -110,7 +111,7 @@ gcloud auth login --no-launch-browser     # prints URL → paste auth code back
 BROWSER=echo <other-tool> login           # forces URL-print for tools that insist on a browser
 ```
 
-Copy a URL out of ssh: select it, `C-Space`, `v`, `y` (see §5) — it lands
+Copy a URL out of ssh: select it, `C-Space`, `v`, `y` (see [§5](#5-tmux--ghostty-user-guide)) — it lands
 on the local pasteboard.
 
 Optional one-time copies for "exact" reproduction (not synced by design,
@@ -153,9 +154,10 @@ inner tmux y → OSC52 esc ──ssh──▶ outer tmux (set-clipboard on) ─�
                                                               → macOS pasteboard
 ```
 
-Config locations that point into the repo: `~/.tmux.conf`,
-`~/Library/Application Support/com.mitchellh.ghostty/config` (note: file
-is called `config`, not `config.ghostty` — Ghostty only reads `config`).
+Config locations that point into the repo: [`~/.tmux.conf`](tmux/.tmux.conf),
+[`~/Library/Application Support/com.mitchellh.ghostty/config`](<ghostty/Library/Application Support/com.mitchellh.ghostty/config>)
+(note: the file is called `config`, not `config.ghostty` — Ghostty only reads
+`config`).
 
 ---
 
@@ -176,13 +178,14 @@ git clone https://github.com/vityasyyy/dotfiles.git ~/dotfiles
 cd ~/dotfiles && ./bootstrap.sh
 ```
 
-`bootstrap.sh` installs Homebrew after an explicit confirmation, then runs
-`install.sh`. The full Brewfile includes large casks (`mactex`, GUI apps), so
-the first run takes a while.
+[`bootstrap.sh`](bootstrap.sh) installs Homebrew after an explicit
+confirmation, then runs [`install.sh`](install.sh). The full
+[Brewfile](Brewfile) includes large casks (`mactex`, GUI apps), so the first
+run takes a while.
 
-Brewfile trust is encoded with `trusted: true` on the two third-party
-formulae; no per-profile `brew trust` step is needed unless you add a new tap
-or formula.
+[Brewfile](Brewfile) trust is encoded with `trusted: true` on the two
+third-party formulae; no per-profile `brew trust` step is needed unless you
+add a new tap or formula.
 
 This repository is the shared source of truth for every profile. Clone it once
 per profile; after that, pull the latest changes and re-run the installer:
@@ -212,38 +215,38 @@ gh auth status && gcloud auth list
 ls -la ~/.zshrc ~/.tmux.conf ~/.gitconfig    # → symlinks into ~/dotfiles
 ```
 
-`--check` exits 1 until the Brewfile is fully installed; run the migration
-first on an existing machine.
+`--check` exits 1 until the [Brewfile](Brewfile) is fully installed; run the
+migration first on an existing machine.
 
 Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 `DOTFILES_SKIP_P10K=1`, `DOTFILES_SKIP_NVIM=1`, `DOTFILES_SKIP_JUPYTEXT=1`.
 
-### Make it yours (fork checklist)
+### Make it yours
 
 | File | Personalize |
 | --- | --- |
-| `git/.gitconfig` | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
-| `agents/.agents/skills/` | Shared workflow conventions and skills used by OpenCode, Codex, and Claude Code |
-| `codex/.codex/AGENTS.md` | Codex-specific routing into shared skills and Codex document tools |
-| `claude/.claude/` | Claude Code instructions, permissions, and subagents (`explore`, `review`, `document`, `general`) |
-| `opencode/.config/opencode/AGENTS.md` | Global workflow, review gate, skill routing, memory tiers, and standing rules |
-| `install.sh` (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
-| `install.sh` (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
-| `Brewfile` | add your own tools; keep `trusted: true` scoped to formulae you actually use |
-| `scripts/brew-share.sh` | shared Mac: `--check` monthly and after cask updates; `--apply` when it reports repair |
+| [`git/.gitconfig`](git/.gitconfig) | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
+| [`agents/.agents/skills/`](agents/.agents/skills/) | Shared workflow conventions and skills used by OpenCode, Codex, and Claude Code |
+| [`codex/.codex/AGENTS.md`](codex/.codex/AGENTS.md) | Codex-specific routing into shared skills and Codex document tools |
+| [`claude/.claude/`](claude/.claude/) | Claude Code instructions, permissions, and subagents (`explore`, `review`, `document`, `general`) |
+| [`opencode/.config/opencode/AGENTS.md`](opencode/.config/opencode/AGENTS.md) | Global workflow, review gate, skill routing, memory tiers, and standing rules |
+| [`install.sh`](install.sh) (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
+| [`install.sh`](install.sh) (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
+| [Brewfile](Brewfile) | add your own tools; keep `trusted: true` scoped to formulae you actually use |
+| [`scripts/brew-share.sh`](scripts/brew-share.sh) | shared Mac: `--check` monthly and after cask updates; `--apply` when it reports repair |
 | git remote | `fork` first, then `git remote set-url origin <your-fork-url>` in each profile's clone |
 
 ---
 
-## 7. Incident log (what bit us, and the exact fix)
+## 7. Troubleshooting
 
 | Symptom | Root cause | Fix |
 | --- | --- | --- |
 | `Permission denied @ rb_sysopen …/locks/X.formula.lock` from non-owner profile | brew prefix files owned by the owner, no group write | `scripts/brew-share.sh --check`, then `--apply` |
-| `fatal: detected dubious ownership in repository` after that chmod | git refuses group-writable repos owned by another uid | the `.gitconfig` taps glob covers every tap; no per-tap edit |
-| `Refusing to load formula <tap> from untrusted tap` | brew 7 formula trust | formula-level `trusted: true` in the Brewfile |
+| `fatal: detected dubious ownership in repository` after that chmod | git refuses group-writable repos owned by another uid | the [`.gitconfig`](git/.gitconfig) taps glob covers every tap; no per-tap edit |
+| `Refusing to load formula <tap> from untrusted tap` | brew 7 formula trust | formula-level `trusted: true` in the [Brewfile](Brewfile) |
 | `Could not symlink bin/minikube — target already exists` | hand-copied binary occupied `bin/`; brew keg unlinked | `brew link --overwrite minikube` |
-| Ghostty theme/settings not applying | stray plain file `config.ghostty` (wrong name) instead of symlinked `config` | re-run `./install.sh`; never hand-edit the Application Support copy |
+| Ghostty theme/settings not applying | stray plain file `config.ghostty` (wrong name) instead of symlinked `config` | re-run [`./install.sh`](install.sh); never hand-edit the Application Support copy |
 | Outer tmux prefix suddenly C-a with blue bar | config reloaded from an ssh pane | reload from a local pane; double-press still works meanwhile |
 
 ---
@@ -254,21 +257,22 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 
 | Repo path | Installs to |
 | --- | --- |
-| `zsh/.zshrc`, `.p10k.zsh`, `.bashrc`, `.profile` | `~/…` |
-| `git/.gitconfig`, `git/.config/git/config-work` | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for the `[includeIf]` paths you define — e.g. an org subfolder under `$HOME`) |
-| `tmux/.tmux.conf` | `~/.tmux.conf` |
-| `opencode/.config/opencode/**` | `~/.config/opencode/**` (config, agents, OpenCode-only skills, plugins) |
-| `agents/.agents/skills/**` | `~/.agents/skills/**` |
-| `codex/.codex/AGENTS.md` | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
-| `claude/.claude/**` | `~/.claude/` `CLAUDE.md`, `settings.json`, `agents/*.md`; `~/.claude/skills` links to `agents/.agents/skills` |
-| `ghostty/Library/…/com.mitchellh.ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
+| [`zsh/.zshrc`](zsh/.zshrc), [`.p10k.zsh`](zsh/.p10k.zsh), [`.bashrc`](zsh/.bashrc), [`.profile`](zsh/.profile) | `~/…` |
+| [`git/.gitconfig`](git/.gitconfig), [`git/.config/git/config-work`](git/.config/git/config-work) | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for the `[includeIf]` paths you define — e.g. an org subfolder under `$HOME`) |
+| [`tmux/.tmux.conf`](tmux/.tmux.conf) | `~/.tmux.conf` |
+| [`opencode/.config/opencode/**`](opencode/.config/opencode/) | `~/.config/opencode/**` (config, agents, OpenCode-only skills, plugins) |
+| [`agents/.agents/skills/**`](agents/.agents/skills/) | `~/.agents/skills/**` |
+| [`codex/.codex/AGENTS.md`](codex/.codex/AGENTS.md) | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
+| [`claude/.claude/**`](claude/.claude/) | `~/.claude/` `CLAUDE.md`, `settings.json`, `agents/*.md`; `~/.claude/skills` links to [`agents/.agents/skills`](agents/.agents/skills/) |
+| [`ghostty/Library/…/com.mitchellh.ghostty/config`](<ghostty/Library/Application Support/com.mitchellh.ghostty/config>) | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
-Meta files (not linked): `README.md`, `Brewfile`, `install.sh`,
-`bootstrap.sh`, `scripts/`, `docs/`, `.github/`, `.gitignore`.
+Meta files (not linked): [`README.md`](README.md), [Brewfile](Brewfile),
+[`install.sh`](install.sh), [`bootstrap.sh`](bootstrap.sh), [`scripts/`](scripts/),
+[`docs/`](docs/), [`.github/`](.github/), [`.gitignore`](.gitignore).
 
-### install.sh
+### [install.sh](install.sh)
 
-Idempotent Stow-style linker (no GNU Stow). Backs up pre-existing
+Idempotent Stow-style linker (no [GNU Stow](https://www.gnu.org/software/stow/)). Backs up pre-existing
 non-symlink targets to `~/.dotfiles.backup.<timestamp>/` with mode `700`;
 clones oh-my-zsh / powerlevel10k / nvim before brew; runs `brew bundle`
 only when `brew bundle check --no-upgrade` is unsatisfied; installs
@@ -286,13 +290,13 @@ Backups are kept, not auto-deleted.
 git clone https://github.com/<you>/nvim-config.git ~/.config/nvim
 ```
 
-(`install.sh` clones whatever `NVIM_REPO` points at, only when
+([`install.sh`](install.sh) clones whatever `NVIM_REPO` points at, only when
 `~/.config/nvim` is missing — existing installs are never touched.)
 
 `.ipynb` notebooks render as markdown via `jupytext.nvim` +
-`render-markdown.nvim`. `install.sh` installs the `jupytext` CLI with
-`pipx`, and the Brewfile installs `utftex` for LaTeX math. Keys and
-troubleshooting live in the nvim-config README.
+`render-markdown.nvim`. [`install.sh`](install.sh) installs the `jupytext` CLI
+with `pipx`, and the [Brewfile](Brewfile) installs `utftex` for LaTeX math.
+Keys and troubleshooting live in the nvim-config README.
 
 ```sh
 pipx install jupytext   # manual equivalent
@@ -311,7 +315,7 @@ brew outdated && brew upgrade                  # shared Cellar — one run serve
 ### Tool ownership
 
 Brew owns every managed CLI and GUI tool except Claude Code, which stays
-manual until its cask is fixed. Auth and runtime state stay per profile.
+manual while its cask is broken. Auth and runtime state stay per profile.
 
 | Tool | Brew entry | Update path |
 | --- | --- | --- |
@@ -319,15 +323,14 @@ manual until its cask is fixed. Auth and runtime state stay per profile.
 | Codex | `cask "codex"` | `brew upgrade --cask codex` |
 | Claude Code | manual `~/.local/bin/claude` | vendor installer |
 | Herdr | `brew "herdr"` | `brew upgrade herdr` |
-| jupytext | `pipx install jupytext` (run by `install.sh`) | `pipx upgrade jupytext` |
+| jupytext | `pipx install jupytext` (run by [`install.sh`](install.sh)) | `pipx upgrade jupytext` |
 | utftex | `brew "utftex"` | `brew upgrade utftex` |
 | Antigravity | `cask "antigravity"`, `cask "antigravity-cli"` | `brew upgrade --cask ...` |
 | Ghostty | `cask "ghostty"` | `brew upgrade --cask ghostty` |
 
 Do not use self-updaters (`opencode upgrade`, npm `codex`) on the brew-owned
-tools; brew is the single owner. The `claude-code` cask is intentionally
-omitted: its 2.1.304 binary hangs on macOS 26. Keep the manual Claude install
-until upstream fixes the cask.
+tools; brew is the single owner. The `claude-code` cask is omitted because its
+binary hangs on macOS 26; install Claude Code manually.
 
 ### Portability across laptops
 
@@ -335,7 +338,8 @@ The repo carries config only. It never carries UIDs, ACL state, SSH keys,
 gh/gcloud tokens, or sops keys. On a new Apple Silicon laptop:
 
 1. Clone the repo.
-2. Run `./bootstrap.sh` (blank Mac) or `./install.sh` (brew already present).
+2. Run [`./bootstrap.sh`](bootstrap.sh) (blank Mac) or
+   [`./install.sh`](install.sh) (brew already present).
 3. Re-auth per machine: `gh auth login -w`, `gcloud auth login --no-launch-browser`, SSH/sops keys as needed.
 4. Run `scripts/brew-share.sh --check`; if the prefix is shared, `--apply`.
 
@@ -349,17 +353,26 @@ Never committed, never printed:
 `~/.config/opencode/antigravity-accounts.json`,
 `~/.config/opencode/.figma-token`, `~/.config/sops/age/keys.txt`,
 `~/.ssh/`, `~/.kube/`, `~/.docker/`, `node_modules/`, `.DS_Store`.
-Covered by `.gitignore` + CI `gitleaks detect`. If unsure whether a file
-holds a secret, exclude it and do not commit it.
+Covered by [`.gitignore`](.gitignore) + CI `gitleaks detect`. If unsure whether
+a file holds a secret, exclude it and do not commit it.
 
 ### CI
 
-`.github/workflows/ci.yml`: shellcheck and `bash -n` for `install.sh`,
-`bootstrap.sh`, and `scripts/*.sh`; gitleaks; symlink-integrity including
-`codex`; prune test; Brewfile entry resolution on macOS. External clones are
-skipped in the temp-HOME job. Target < ~2 min.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml): shellcheck and `bash -n`
+for [`install.sh`](install.sh), [`bootstrap.sh`](bootstrap.sh), and
+[`scripts/`](scripts/); documentation hygiene
+([`scripts/check-doc-hygiene.sh`](scripts/check-doc-hygiene.sh)), its regression
+test
+([`scripts/tests/check-doc-hygiene.sh`](scripts/tests/check-doc-hygiene.sh)),
+and relative-link validation
+([`scripts/check-doc-links.py`](scripts/check-doc-links.py)); gitleaks;
+symlink-integrity including `codex`; prune test; [Brewfile](Brewfile) entry
+resolution on macOS. External clones are skipped in the temp-HOME job. Target
+< ~2 min.
 
-### Sanitization applied
+### Sanitization rules
 
-- `zsh/.zshrc`: `KUBECONFIG` placeholder instead of a Downloads path.
-- `git/.gitconfig`: `[user]` kept; credential helper `osxkeychain`.
+- [`zsh/.zshrc`](zsh/.zshrc) uses a `KUBECONFIG` placeholder rather than a
+  machine-specific Downloads path.
+- [`git/.gitconfig`](git/.gitconfig) keeps `[user]` and the `osxkeychain`
+  credential helper.

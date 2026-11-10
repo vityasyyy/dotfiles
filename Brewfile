@@ -84,5 +84,5 @@ cask "copilot-cli"
 cask "ghostty"
 cask "mactex"
 
-# claude-code is intentionally omitted: the 2.1.304 cask binary hangs on
-# macOS 26. Keep the manual ~/.local/bin/claude until the cask is fixed.
+# claude-code is omitted: the cask binary hangs on macOS 26. Keep the manual
+# ~/.local/bin/claude while the cask is broken.

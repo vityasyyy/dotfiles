@@ -553,8 +553,8 @@ Don't include information that will become outdated:
 **Bad example: Time-sensitive** (will become wrong):
 
 ```markdown  theme={null}
-If you're doing this before August 2025, use the old API.
-After August 2025, use the new API.
+If you're doing this before the v2 launch, use the old API.
+After the v2 launch, use the new API.
 ```
 
 **Good example** (use "old patterns" section):
@@ -567,11 +567,11 @@ Use the v2 API endpoint: `api.example.com/v2/messages`
 ## Old patterns
 
 <details>
-<summary>Legacy v1 API (deprecated 2025-08)</summary>
+<summary>Legacy v1 API (retired)</summary>
 
 The v1 API used: `api.example.com/v1/messages`
 
-This endpoint is no longer supported.
+This endpoint is retired.
 </details>
 ```
 

@@ -3,7 +3,7 @@ name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 ---
 
-<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Forked 2026-10-13; local routing lives in AGENTS.md. -->
+<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Local routing lives in AGENTS.md. -->
 
 # Writing Plans
 
@@ -20,8 +20,9 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 **Save plans to:** task state
 (`~/.agents/skills/memory/scripts/mem plan --task "..."`) when the work crosses
 a session, a worker, or a context rollover; keep single-session plans in chat.
-Write `docs/plans/YYYY-MM-DD-<feature-name>.md` only when the user asks. User
-preferences for plan location override this default.
+When the user asks for a repo-local copy, write
+`docs/plans/YYYY-MM-DD-<feature-name>.md`; that path is gitignored and must
+never be committed. User preferences for plan location override this default.
 
 ## Right-Size
 

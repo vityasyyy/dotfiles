@@ -57,7 +57,8 @@ Evidence:
 
 - Multi-step: keep the contract and plan in chat for single-session work; use
   task state (`memory`) when the work crosses a session, a worker, or a context
-  rollover. Write `docs/plans/` only when the user asks.
+  rollover. A user-requested `docs/plans/` copy is gitignored and never
+  committed.
 - Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
   only when work is parallel or isolated. The worker brief carries the
   contract and evidence commands. Inline only for trivial docs/config/one-line

@@ -221,7 +221,7 @@ done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL
 # Deleted skills must not reappear in active configuration.
 if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review' \
   --include='*.md' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
-  | grep -Ev 'authoring-guide|2026-10-13-skill-stack' >/dev/null; then
+  | grep -Ev 'authoring-guide' >/dev/null; then
   err "active configuration references a deleted skill"
 fi
 

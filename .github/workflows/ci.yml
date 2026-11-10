@@ -17,13 +17,22 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
 
       - name: shellcheck
-        run: shellcheck -S warning install.sh bootstrap.sh scripts/*.sh
+        run: shellcheck -S warning install.sh bootstrap.sh scripts/*.sh scripts/tests/*.sh
 
       - name: bash syntax check
-        run: bash -n install.sh bootstrap.sh scripts/*.sh
+        run: bash -n install.sh bootstrap.sh scripts/*.sh scripts/tests/*.sh
 
       - name: Agent config checks
         run: ./scripts/check-agent-config.sh
+
+      - name: Documentation hygiene
+        run: ./scripts/check-doc-hygiene.sh
+
+      - name: Documentation hygiene tests
+        run: ./scripts/tests/check-doc-hygiene.sh
+
+      - name: Documentation links
+        run: python3 scripts/check-doc-links.py
 
       - name: gitleaks detect
         uses: gitleaks/gitleaks-action@v2

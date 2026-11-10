@@ -3,7 +3,7 @@ name: test-driven-development
 description: Use when implementing any feature or bugfix, before writing implementation code
 ---
 
-<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Forked 2026-10-13; local routing lives in AGENTS.md. -->
+<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Local routing lives in AGENTS.md. -->
 
 # Test-Driven Development (TDD)
 

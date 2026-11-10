@@ -18,7 +18,7 @@ Use this skill for Confluence pages and briefs. It applies to drafts and publish
 
 Use the relevant parts of this structure; tailor it to the page rather than padding a short page:
 
-1. Metadata table: spec writer, reviewer, epic link.
+1. Metadata table: spec writer, reviewer, related work item.
 2. Overview, goals, and scope.
 3. Dated decisions, marked `supersedes` when replacing earlier text.
 4. Stakeholders, including relevant Slack channels.

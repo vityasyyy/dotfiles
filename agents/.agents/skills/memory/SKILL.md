@@ -25,8 +25,8 @@ handoff template. Commands use `MEM=~/.agents/skills/memory/scripts/mem`.
   existing section, never duplicated.
 - True for this repo only → Tier 1.
 - True for this task only → Tier 2. Use task state when work crosses a
-  session, a worker, or a context rollover; otherwise keep it in chat. Repo
-  `docs/plans/` only when asked.
+  session, a worker, or a context rollover; otherwise keep it in chat. A
+  user-requested `docs/plans/` copy is gitignored and never committed.
 - History, prior decisions, "where did we…" → Tier 3.
 
 Never store secrets or credentials in any tier.
