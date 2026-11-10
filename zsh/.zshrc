@@ -131,13 +131,13 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-# Apache Jena (not currently installed — re-enable if added back)
+# Apache Jena (optional; uncomment when installed)
 # export JENA_HOME=$HOME/jena
 # export PATH=$PATH:$JENA_HOME/bin
 
 export ENV=dev
 
-# Created by `pipx` on 2025-12-03 08:50:43
+# Created by `pipx`
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="/Library/TeX/texbin:$PATH"
 alias lzd=lazydocker

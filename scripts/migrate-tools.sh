@@ -73,8 +73,8 @@ else
 fi
 run brew install --cask antigravity-cli
 
-# Claude Code stays manual: the claude-code cask 2.1.304 hangs on macOS 26.
-printf 'Keeping ~/.local/bin/claude: the claude-code cask is currently broken on macOS 26.\n'
+# Claude Code stays manual: the claude-code cask hangs on macOS 26.
+printf 'Keeping ~/.local/bin/claude: the claude-code cask is broken on macOS 26.\n'
 
 if [ "$APPLY" -eq 1 ] && /opt/homebrew/bin/herdr --version >/dev/null 2>&1; then
   run rm -f "$HOME/.local/bin/herdr"
@@ -100,6 +100,6 @@ if brew tap | grep -qx 'cloudflare/cloudflare'; then
   run brew untap cloudflare/cloudflare
 fi
 
-printf '\nOptional: brew uninstall gemini-cli (deprecated; replaced by antigravity-cli)\n'
-printf 'Claude Code remains manual until the cask is fixed.\n'
+printf '\nOptional: brew uninstall gemini-cli (use antigravity-cli).\n'
+printf 'Claude Code is manual while the cask is broken.\n'
 printf 'Done. Run: ./install.sh --check\n'

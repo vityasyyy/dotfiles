@@ -452,7 +452,7 @@ function setup(api) {
 
   // A dropped report must not strand the pane on a stale state once the
   // selection retry schedule has run out: resend the latest state until the
-  // socket accepts it or the selection is no longer current.
+  // socket accepts it or the selection is stale.
   function scheduleStateRetry() {
     if (disposed || retryTimer) return;
     retryTimer = setTimeout(() => {

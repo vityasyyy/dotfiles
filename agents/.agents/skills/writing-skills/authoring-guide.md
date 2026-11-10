@@ -588,7 +588,7 @@ Micro-tests verify wording; they do not replace pressure scenarios for disciplin
 ## Anti-Patterns
 
 ### ❌ Narrative Example
-"In session 2025-10-03, we found empty projectDir caused..."
+"In one session, we found empty projectDir caused..."
 **Why bad:** Too specific, not reusable
 
 ### ❌ Multi-Language Dilution

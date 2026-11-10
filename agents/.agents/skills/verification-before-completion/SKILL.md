@@ -3,7 +3,7 @@ name: verification-before-completion
 description: Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always
 ---
 
-<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Forked 2026-10-13; local routing lives in AGENTS.md. -->
+<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Local routing lives in AGENTS.md. -->
 
 # Verification Before Completion
 

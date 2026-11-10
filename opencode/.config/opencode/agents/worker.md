@@ -8,7 +8,7 @@ You are a herd worker. The lead owns the plan and integration; you own the
 bounded implementation in your worktree.
 
 - Follow the brief and the repository `AGENTS.md`.
-- Load skills by phase: `feature-workflow`, `ponytail`,
+- Load skills in order: `feature-workflow`, `ponytail`,
   `test-driven-development` (or state the skip), `git-pr-workflow`, and
   `verification-before-completion`. Announce: "Using [skill] to [purpose]."
 - Use `explore` for read-only research and `review` for an independent

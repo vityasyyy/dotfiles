@@ -3,7 +3,7 @@ name: writing-skills
 description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
 ---
 
-<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Forked 2026-10-13; local routing lives in AGENTS.md. -->
+<!-- Forked from obra/superpowers (github.com/obra/superpowers), MIT License. Local routing lives in AGENTS.md. -->
 
 # Writing Skills
 
@@ -47,11 +47,22 @@ Match the form to the failure: discipline failures get a prohibition plus a
 rationalization table; wrong-shaped output gets a positive recipe; omitted
 elements get a required field in the template. See the guide.
 
+Representative prompts and expected routes live in
+[`trigger-matrix.md`](trigger-matrix.md). Run the matrix in a fresh OpenCode
+session when changing a description or routing row; adapt the expected route
+for Claude and Codex.
+
 ## Deploy checklist
 
-- [ ] Name is lowercase letters, numbers, hyphens.
+- [ ] Name is lowercase letters, numbers, hyphens, and matches the directory.
 - [ ] Description starts with "Use when" and names concrete triggers.
+- [ ] Description is valid YAML; quote it or use `>-` when it contains `: `.
 - [ ] Body is under ~100 lines; heavy detail is linked.
+- [ ] Human-facing docs produced by the skill follow `documentation` and link
+      their references.
 - [ ] Baseline failure recorded; skill re-tested after writing.
 - [ ] No rule duplicated from another skill — link to its owner.
+- [ ] The skill is reachable from at least one harness routing instruction.
+- [ ] Trigger matrix covers the skill and the prompt fires the expected route.
+- [ ] `./scripts/check-agent-config.sh` passes.
 - [ ] Changes committed with a descriptive body.

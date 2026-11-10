@@ -204,24 +204,48 @@ grep -q '^Plan: unknown$' "${unknown_path}" 2>/dev/null \
   || err "mem handoff does not default to unknown"
 rm -rf "${check_dir}"
 
-# Every skill has portable frontmatter.
+# Every skill has portable frontmatter, and its name matches its directory.
 while IFS= read -r -d '' skill; do
-  if [ "$(head -n 1 "${skill}")" != "---" ]; then
-    err "${skill} is missing frontmatter"
-    continue
+  if ! message="$(ruby -ryaml -e '
+    path = ARGV[0]
+    text = File.read(path)
+    body = text.sub(/\A---\r?\n/, "")
+    abort "missing frontmatter" if body == text
+    front, rest = body.split(/^---\s*$/, 2)
+    abort "missing closing frontmatter" unless rest
+    begin
+      data = YAML.safe_load(front) || {}
+    rescue StandardError => e
+      abort "invalid YAML: #{e.message}"
+    end
+    abort "frontmatter is not a mapping" unless data.is_a?(Hash)
+    name = data["name"].to_s
+    description = data["description"].to_s
+    abort "missing name" if name.empty?
+    expected = File.basename(File.dirname(path))
+    abort "name #{name.inspect} does not match directory #{expected.inspect}" unless name == expected
+    abort "missing description" if description.empty?
+    abort "description exceeds 1024 characters" if description.length > 1024
+  ' "${skill}" 2>&1)"; then
+    err "${skill}: ${message}"
   fi
-  grep -q '^name: ' "${skill}" || err "${skill} is missing name"
-  grep -q '^description: ' "${skill}" || err "${skill} is missing description"
-  description="$(sed -n 's/^description: //p' "${skill}" | head -n 1)"
-  if [ "${#description}" -gt 1024 ]; then
-    err "${skill} description exceeds 1024 characters"
+done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -print0)
+
+# Every skill is referenced in at least one harness routing instruction.
+while IFS= read -r -d '' skill; do
+  skill_name="$(basename "$(dirname "${skill}")")"
+  if ! grep -Fq -- "\`${skill_name}\`" \
+    opencode/.config/opencode/AGENTS.md \
+    claude/.claude/CLAUDE.md \
+    codex/.codex/AGENTS.md; then
+    err "skill is not routed: ${skill_name}"
   fi
 done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -print0)
 
 # Deleted skills must not reappear in active configuration.
-if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review' \
+if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring' \
   --include='*.md' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
-  | grep -Ev 'authoring-guide|2026-10-13-skill-stack' >/dev/null; then
+  | grep -Ev 'authoring-guide' >/dev/null; then
   err "active configuration references a deleted skill"
 fi
 

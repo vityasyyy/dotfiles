@@ -57,7 +57,8 @@ Evidence:
 
 - Multi-step: keep the contract and plan in chat for single-session work; use
   task state (`memory`) when the work crosses a session, a worker, or a context
-  rollover. Write `docs/plans/` only when the user asks.
+  rollover. A user-requested `docs/plans/` copy is gitignored and never
+  committed. Plan format and task granularity: `writing-plans`.
 - Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
   only when work is parallel or isolated. The worker brief carries the
   contract and evidence commands. Inline only for trivial docs/config/one-line
@@ -67,9 +68,9 @@ Evidence:
 
 ## 4. Implement
 
-- Use `ponytail`.
 - Keep the diff scoped. Ask before a large refactor or public API change.
-- Update the docs, config, and migrations the change requires.
+- Update the docs with `documentation`, plus config and migrations the change
+  requires.
 
 ## 5. Verify
 

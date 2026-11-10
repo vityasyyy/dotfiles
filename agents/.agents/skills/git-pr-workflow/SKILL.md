@@ -115,6 +115,8 @@ PR title: a concise Conventional Commit-style title.
 
 Every body starts with a TL;DR: what changed, why, and the impact in at most
 three bullets. A reader who stops there should still understand the change.
+Link changed files, design docs, dashboards, and source references; do not type
+bare paths.
 
 Default body for a small or standard change:
 

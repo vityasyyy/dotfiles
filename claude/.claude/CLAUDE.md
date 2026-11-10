@@ -54,7 +54,7 @@ Each rule has one owner; link to it rather than restating it.
 | Commits, branches, PRs, CI | `git-pr-workflow` |
 | Parallel or isolated in-repo work | `parallel-worktrees` |
 | Infra/production/reliability | `production-reliability` |
-| Confluence docs | `confluence-authoring` (via the `document` subagent) |
+| Docs, runbooks, PR bodies, Confluence | `documentation` (Confluence via the `document` subagent) |
 | UI/visual design | `frontend-design` |
 | Writing or editing skills | `writing-skills` |
 | Durable preference or correction | `memory`; Tier 0 for Claude Code is this file |
@@ -83,9 +83,10 @@ tell the user to start a fresh session from it; do not run
 
 ## Code hygiene
 
-- No plan artifacts in code, comments, or commits ("step N", "phase N").
+- Repo docs: current state, linked paths/URLs, no planning history; owner:
+  `documentation`. Code comments stay minimal and current.
 - Create repo planning/summary Markdown only when asked; keep task state in
-  agent-memory and prefer raw artifacts.
+  agent-memory. A `docs/plans/` copy is gitignored and never committed.
 - Unnecessary comments, JSDoc, and boilerplate are defects.
 - Commit/PR messages follow `git-pr-workflow`: Conventional subject,
   what/why/impact body, evidence, risks; behavior + tests land in one commit.

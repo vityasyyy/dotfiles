@@ -39,6 +39,9 @@ node_modules/
 .dotfiles.backup.*/
 **/.dotfiles.backup.*/
 
+# local planning scratch; task state lives in ~/.local/share/agent-memory
+docs/plans/
+
 # env / keys / certs (defense in depth)
 .env
 .env.*

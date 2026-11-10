@@ -64,9 +64,9 @@ Use this shape; scale section depth to the mode.
 7. **Change guide** — where to add behavior, which tests/commands to run.
 8. **Unknowns** — `[verified]`, `[inferred]`, and missing evidence.
 
-Every verified claim cites `path:line` plus a symbol. Mark inferences
-`[inferred]`; never present them as facts. After each diagram, add 1-3
-sentences of interpretation.
+Every verified claim cites `path:line` plus a symbol. In Markdown output, make
+each path reference a link. Mark inferences `[inferred]`; never present them as
+facts. After each diagram, add 1-3 sentences of interpretation.
 
 ## Rules
 
@@ -76,4 +76,4 @@ sentences of interpretation.
 - Do not infer architecture from framework conventions; confirm it in code.
 - If a claim needs a fact you have not read, say what is missing and how to verify it.
 - Optional: write `docs/codebase-map.md` only when the user asks; include the
-  commit SHA and date.
+  commit SHA and link it when a remote URL exists.
