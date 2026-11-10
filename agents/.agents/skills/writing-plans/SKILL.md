@@ -40,6 +40,27 @@ the implementation. A plan that cannot survive in chat is usually narrative.
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during grilling. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
+## Stacked PRs
+
+A stack is the delivery order of one plan; it does not replace splitting
+independent subsystems into separate plans (see Scope Check). When work spans
+multiple PRs:
+
+- Before fixing task and file boundaries, list what each PR adds and audit
+  that list for duplicated work. For an existing stack, diff each layer
+  against its parent branch, not `main`, so earlier layers are not counted.
+- For each overlap: keep one copy, consolidate into a single owner, or keep
+  both and say why — separate release cycles, a contract test pinning shared
+  behavior, or a stated constraint.
+- Inherited code between layers is not duplication. Do not merge look-alike
+  copies across separately deployed units — services, published packages,
+  per-target config bundles. Share through an explicit dependency, not
+  internal reach-through.
+- Record the stack order and each disposition in the plan.
+
+PR mechanics and diff bases live in `git-pr-workflow`; duplication as a review
+dimension lives in `code-review`.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
