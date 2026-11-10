@@ -83,7 +83,8 @@ user to start a fresh session from it; do not run `session-handoff start`.
 ## Code hygiene
 
 - No plan artifacts in code, comments, or commits ("step N", "phase N").
-- No process artifacts committed to product repos.
+- Create planning/summary Markdown only when asked; no duplicate plans or
+  process artifacts committed to product repos.
 - Unnecessary comments, JSDoc, and boilerplate are defects.
 - Commit/PR messages follow `git-pr-workflow`: Conventional subject,
   what/why/impact body, evidence, risks; behavior + tests land in one commit.

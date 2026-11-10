@@ -54,7 +54,8 @@ Evidence:
 
 ## 3. Plan and delegate
 
-- Multi-step: write the plan with `writing-plans` in `docs/plans/`.
+- Multi-step: write the plan with `writing-plans` in `docs/plans/` only when
+  the user asks; otherwise present it in chat.
 - Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
   only when work is parallel or isolated. The worker brief carries the
   contract and evidence commands. Inline only for trivial docs/config/one-line

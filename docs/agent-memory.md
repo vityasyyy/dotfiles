@@ -105,7 +105,8 @@ Each active repository gets a small `AGENTS.md`:
 ```
 
 Keep it under ~80 lines. Project-specific rules belong here, not in the global
-file. Put multi-step plans under `docs/plans/YYYY-MM-DD-<task>.md`.
+file. Put multi-step plans under `docs/plans/YYYY-MM-DD-<task>.md` when the
+user asks.
 
 MCP servers are no longer global. Add only what the repository needs in
 `.opencode/opencode.json`:

@@ -10,9 +10,8 @@ Every non-trivial change follows one spine:
 **inspect → contract → implement → verify → review → report.**
 
 - **Inspect:** repo instructions, call path, nearest implementation, commands.
-- **Contract:** behavior, acceptance, failures, non-goals, compatibility; fix
-  the review gate here. Multi-step gets a plan; testable behavior gets a failing
-  test first.
+- **Contract:** behavior, acceptance, failures, compatibility; fix the review
+  gate here. Multi-step gets a plan; testable behavior gets a failing test first.
 - **Implement:** smallest correct diff; `ponytail`; reuse before adding.
 - **Verify:** run the real commands; evidence, not claims.
 - **Review:** standard/high-impact get an independent fresh-context round
@@ -45,10 +44,10 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 - Priority: correctness > security > reliability > maintainability >
   observability > performance.
 - Understand the system and existing conventions; no speculative abstraction,
-  scaffolding, or unrequested refactor. Delete only dead code you create.
-- Validate at trust boundaries. Make operational failures visible and
-  actionable; handle expected idempotent conditions explicitly; never swallow
-  unexpected errors, expose secrets, or report false success.
+  scaffolding, or unrequested refactor; delete only dead code you create.
+- Validate at trust boundaries; make failures visible/actionable; handle
+  idempotent conditions explicitly; never swallow errors, expose secrets, or
+  report false success.
 - One authoritative configuration source per setting; make precedence explicit.
 - Tests protect behavior, not implementation details.
 - Production/infra: PR CI green is not done; verify post-merge Deploy and
@@ -74,29 +73,31 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 - No plan artifacts in code, comments, or commits ("step N", "phase N",
   "per task N").
-- No process artifacts committed to product repos (reports, plans,
-  walkthroughs).
 - Code stays minimal; unnecessary JSDoc, comments, and boilerplate are
   defects.
 - Commits are atomic: behavior + tests together; messages carry Conventional
   subject, what/why/impact body, evidence, risks. Subject-only is a defect.
 
+## Documentation discipline
+
+- Create planning/summary Markdown only when asked; otherwise present it in
+  chat and prefer raw CSV/JSON artifacts.
+- For PII/sensitive data, give the raw resource first; ask before summarizing or
+  writing docs. Keep requested docs concise, clear, substantial; no duplicate
+  plans or process artifacts in product repos.
+
 ## Response style
 
 - Lead with the artifact. Concise but complete; structure over adjectives.
-- Diagram architecture, data flow, and state changes with Mermaid
-  (`flowchart TD`, `sequenceDiagram`, `stateDiagram-v2`). Render-first when
-  the surface supports it.
-- Short node labels, top-down layout, annotated edges. Split diagrams that
-  read as spaghetti.
+- Diagram architecture, data flow, and state changes with Mermaid (`flowchart TD`,
+  `sequenceDiagram`, `stateDiagram-v2`); render-first when supported.
+- Short node labels, top-down layout, annotated edges; split spaghetti diagrams.
 - Follow each diagram with 1–3 sentences of interpretation.
 
 ## Memory
 
-- **Tier 0** — this file: invariants only, ≤110 lines; delete or merge to add.
-- **Tier 1** — repo `AGENTS.md`: commands, conventions, gotchas.
-- **Tier 2** — `docs/plans/`: active task state, decisions, next action.
-- **Tier 3** — session archive + `mem search`: history, never injected.
+- **Tier 0** this file (≤110); **Tier 1** repo `AGENTS.md`.
+- **Tier 2** `docs/plans/` (only when asked); **Tier 3** agent-memory.
 - Write a handoff at the `feature-workflow` checkpoints, before a context
   rollover, and at session end. Setup: `~/dotfiles/docs/agent-memory.md`.
 
@@ -106,5 +107,4 @@ When the user asks to review a diff/change, run `/review`; architecture review u
   diagnostics, `/tmp`, `~/.local/bin`, worktrees, and approved tool installs.
 - Ask before destructive commands, secrets/credentials, production or staging
   changes, deploys, migrations, new worker waves, or out-of-scope changes.
-- Large downloads: ask the user to run the download and end the chat; resume
-  after they confirm the file is in place.
+- Large downloads: ask the user to run them; resume after confirmation.

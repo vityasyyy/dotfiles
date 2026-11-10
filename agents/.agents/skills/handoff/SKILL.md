@@ -33,7 +33,8 @@ and the session stops.
 2. **Write the handoff** to
    `~/.local/share/agent-memory/handoffs/YYYY-MM-DD-<slug>.md`.
    Use the template below. Aim for under 80 lines; the successor can search
-   the transcript for detail.
+   the transcript for detail. A handoff is operational, not a planning/summary
+   document; do not create additional Markdown.
 3. **Roll over:**
 
    ```sh

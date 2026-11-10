@@ -24,7 +24,8 @@ skill owns the tiers and the handoff template.
 - Changes behavior every session → Tier 0. One terse bullet, merged into an
   existing section, never duplicated.
 - True for this repo only → Tier 1.
-- True for this task only → Tier 2.
+- True for this task only → Tier 2. Create plan/summary Markdown only when
+  asked; prefer raw artifacts.
 - History, prior decisions, "where did we…" → Tier 3.
 
 Never store secrets or credentials in any tier.

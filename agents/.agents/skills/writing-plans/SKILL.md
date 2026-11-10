@@ -17,8 +17,10 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** If working in an isolated worktree, it should have been created via the `parallel-worktrees` skill at execution time.
 
-**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
-- (User preferences for plan location override this default)
+**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`, and only when the
+user asks; otherwise present the plan in chat. User preferences for plan
+location override this default. A requested plan stays concise, clear, and
+substantial; prefer raw artifacts over duplicate summary Markdown.
 
 ## Scope Check
 
