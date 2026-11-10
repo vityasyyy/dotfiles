@@ -34,7 +34,7 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 | Claiming done | `verification-before-completion` |
 | Non-trivial implementation | `herd` + `herdr`; `parallel-worktrees` for parallel |
 | Ops, infra, reliability | `production-reliability` |
-| Confluence docs | `confluence-authoring` |
+| Docs, runbooks, PR bodies, Confluence | `documentation` |
 | UI/visual design | `frontend-design` |
 | Editing skills | `writing-skills` |
 | Durable preference | `memory` |
@@ -80,8 +80,8 @@ When the user asks to review a diff/change, run `/review`; architecture review u
 
 ## Documentation discipline
 
-- Repo docs describe current state, link paths and URLs, and carry no planning
-  history; task state lives in agent-memory (`docs/plans/` is gitignored).
+- Repo docs: current state, linked paths/URLs, no planning history; owner:
+  `documentation`. Task state lives in agent-memory (`docs/plans/` gitignored).
 - Create repo planning/summary Markdown only when asked; prefer raw artifacts.
 - Sensitive data: raw resource first, ask before summarizing; docs stay concise.
 

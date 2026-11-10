@@ -53,7 +53,7 @@ Each rule has one owner; link to it rather than restating it.
 | Diff, PR, architecture review | `code-review` in a fresh session |
 | Commits, branches, PRs, CI | `git-pr-workflow` |
 | Parallel or isolated in-repo work | `parallel-worktrees`; Codex does not self-orchestrate herdr panes |
-| Confluence/documentation | `confluence-authoring` + connected Atlassian tools |
+| Documentation | `documentation`; Confluence via connected Atlassian tools |
 | Infra/production/reliability | `production-reliability` |
 | UI/visual design | `frontend-design` |
 | Writing or editing skills | `writing-skills` |
@@ -76,8 +76,9 @@ Lead with the artifact. Concise but complete; structure over adjectives.
 
 ## Writing and delivery
 
-- For Confluence, follow `confluence-authoring`. Apply those conventions only
-  to Confluence deliverables, not code comments or chat replies.
+- Follow `documentation` for human-facing docs: READMEs, runbooks, design
+  docs, ADRs, PR bodies, and Confluence. Do not apply it to code comments or
+  chat replies.
 - Keep engineering updates concrete. Report what changed and what verification
   actually ran; never claim a check that did not run.
 - For document or presentation tasks, create the artifact in the requested

@@ -23,6 +23,8 @@ a session, a worker, or a context rollover; keep single-session plans in chat.
 When the user asks for a repo-local copy, write
 `docs/plans/YYYY-MM-DD-<feature-name>.md`; that path is gitignored and must
 never be committed. User preferences for plan location override this default.
+When a plan is rendered as Markdown, link file references when the target is
+reachable; otherwise use absolute paths.
 
 ## Right-Size
 

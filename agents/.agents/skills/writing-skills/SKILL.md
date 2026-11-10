@@ -49,9 +49,14 @@ elements get a required field in the template. See the guide.
 
 ## Deploy checklist
 
-- [ ] Name is lowercase letters, numbers, hyphens.
+- [ ] Name is lowercase letters, numbers, hyphens, and matches the directory.
 - [ ] Description starts with "Use when" and names concrete triggers.
+- [ ] Description is valid YAML; quote it or use `>-` when it contains `: `.
 - [ ] Body is under ~100 lines; heavy detail is linked.
+- [ ] Human-facing docs produced by the skill follow `documentation` and link
+      their references.
 - [ ] Baseline failure recorded; skill re-tested after writing.
 - [ ] No rule duplicated from another skill — link to its owner.
+- [ ] The skill is reachable from at least one harness routing instruction.
+- [ ] `./scripts/check-agent-config.sh` passes.
 - [ ] Changes committed with a descriptive body.
