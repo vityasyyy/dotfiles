@@ -17,4 +17,5 @@ Review the current change in a fresh context. Arguments: `$ARGUMENTS`
    `acceptance` from the gate and state `Contract: none supplied; acceptance
    not verified`. Do not invent requirements.
 4. Report findings by severity, the verdict, the evidence you checked, and what
-   remains unverified. Do not edit, commit, or push.
+   remains unverified. Combine the full files, contract, ledger, and command
+   output; no diff-only findings. Do not edit, commit, or push.

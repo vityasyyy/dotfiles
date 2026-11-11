@@ -83,11 +83,31 @@ jobs:
               echo "WRONG target: ${dst} -> ${target} (expected ${expected})"
               fail=1
             fi
-          done < <(find ./zsh ./git ./tmux ./opencode ./agents ./codex ./claude ./ghostty -type f -print0)
+          done < <(find ./zsh ./git ./tmux ./opencode ./agents ./claude ./ghostty -type f -print0)
           if [ "$(readlink "${TMP_HOME}/.claude/skills")" != "${PWD}/agents/.agents/skills" ]; then
             echo "WRONG or MISSING: ${TMP_HOME}/.claude/skills"
             fail=1
           fi
+          for skill in "${PWD}"/agents/.agents/skills/*/; do
+            [ -f "${skill}SKILL.md" ] || continue
+            name="$(basename "${skill%/}")"
+            if [ "$(readlink "${TMP_HOME}/.codex/skills/${name}")" != "${skill%/}" ]; then
+              echo "WRONG or MISSING: ${TMP_HOME}/.codex/skills/${name}"
+              fail=1
+            fi
+          done
+          for entry in "${TMP_HOME}/.config/opencode/AGENTS.md" "${TMP_HOME}/.claude/CLAUDE.md" "${TMP_HOME}/.codex/AGENTS.md"; do
+            if [ "$(readlink "${entry}")" != "${PWD}/agents/.agents/AGENTS.md" ]; then
+              echo "WRONG or MISSING: ${entry}"
+              fail=1
+            fi
+          done
+          while IFS= read -r -d '' link; do
+            if [ ! -e "${link}" ]; then
+              echo "DANGLING: ${link}"
+              fail=1
+            fi
+          done < <(find "${TMP_HOME}/.agents/skills" "${TMP_HOME}/.codex/skills" -type l -print0 2>/dev/null)
           if [ "${fail}" -ne 0 ]; then
             echo "symlink-integrity check FAILED"
             exit 1

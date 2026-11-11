@@ -101,7 +101,7 @@ Standard-lane plans stored in task state use the memory skill's plan template
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** Execute this plan task-by-task using the inline execution section below. Delegated/parallel execution goes through herd (herdr panes); do not spawn ad-hoc subagent chains. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execute this plan task-by-task using the inline execution section below. When the harness supports workers, delegated/parallel execution goes through it; otherwise stay inline with native subagents and do not spawn ad-hoc chains. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -200,8 +200,8 @@ After saving the plan, offer the choice:
 
 **1. Inline execution (default)** — execute tasks in this session with
 checkpoints.
-**2. herd delegation** — parallel workers or isolation; one worker per
-worktree.
+**2. Worker delegation** — parallel workers or isolation; one worker per
+worktree, where the harness supports it.
 
 ### Inline execution
 

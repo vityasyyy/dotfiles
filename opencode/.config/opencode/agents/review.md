@@ -3,7 +3,7 @@ description: Independent reviewer — measures a diff against a fixed gate and r
 mode: subagent
 model: opencode-go/deepseek-v4.1-flash#max
 temperature: 0.1
-steps: 20
+steps: 60
 permissions:
   - action: edit
     resource: "*"
@@ -38,6 +38,9 @@ and rubric.
 - Review the diff against the contract and the surrounding system, not just the
   changed lines. Stay diff-scoped: read the changed files and their direct call
   sites; do not survey the repo or use the web.
+- Cross-check every finding against the full file and its callers, not only the
+  hunk. Cite the exact line and the check that proves it; mark inference
+  `unverified` rather than reporting it as fact.
 - Verify evidence claims: re-run targeted checks, spot-check command output.
   Do not re-run the full suite unless a gate threshold requires it.
 - Report every finding, including below-gate ones. The gate decides blocking,

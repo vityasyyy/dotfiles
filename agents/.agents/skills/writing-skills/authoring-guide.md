@@ -4,7 +4,7 @@
 
 **Writing skills IS Test-Driven Development applied to process documentation.**
 
-**Personal skills live in the shared skill farm** — canonical source: `~/dotfiles/agents/.agents/skills/<name>/SKILL.md`, linked by `install.sh` into `~/.agents/skills/` (and `~/.config/opencode/skills/` for opencode-only skills). Codex and other runtimes share the same farm via `~/.agents/skills/`.
+**Personal skills live in the shared skill farm** — canonical source: `~/dotfiles/agents/.agents/skills/<name>/SKILL.md`, linked by `install.sh` into `~/.agents/skills/` (and `~/.config/opencode/skills/` for opencode-only skills). Codex discovers the same farm through `~/.codex/skills/<name>` links; Claude through `~/.claude/skills`.
 
 You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
 

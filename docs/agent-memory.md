@@ -19,11 +19,10 @@ flowchart TD
 ```
 
 Tier 0 is always loaded. Tier 1 loads per repository. Tier 2 is the active task
-state. Tier 3 is queried, never injected. OpenCode reads
-[`~/.config/opencode/AGENTS.md`](../opencode/.config/opencode/AGENTS.md);
-Claude reads [`~/.claude/CLAUDE.md`](../claude/.claude/CLAUDE.md); Codex reads
-[`~/.codex/AGENTS.md`](../codex/.codex/AGENTS.md). All three are linked from
-this repository.
+state. Tier 3 is queried, never injected. One canonical
+[`agents/.agents/AGENTS.md`](../agents/.agents/AGENTS.md) is linked into
+`~/.config/opencode/AGENTS.md`, `~/.claude/CLAUDE.md`, and `~/.codex/AGENTS.md`,
+so every harness reads the same text.
 
 ## New machine
 
@@ -117,7 +116,7 @@ Each active repository gets a small `AGENTS.md`:
 ```
 
 Keep it under ~80 lines. Project-specific rules belong here, not in the
-[global file](../opencode/.config/opencode/AGENTS.md). Cross-session task state
+[global file](../agents/.agents/AGENTS.md). Cross-session task state
 lives in `~/.local/share/agent-memory/tasks/`;
 the handoff records the absolute plan path. A user-requested `docs/plans/` copy
 is gitignored local scratch and is never committed. Git history and PR

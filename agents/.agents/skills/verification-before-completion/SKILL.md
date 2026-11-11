@@ -52,7 +52,7 @@ Skip any step = lying, not verifying
 ## Red Flags - STOP
 
 - Using "should", "probably", "seems to"
-- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!", etc.)
+- Expressing satisfaction about the work before verification ("Great!", "Perfect!", "Done!", etc.)
 - About to commit/push/PR without verification
 - Trusting agent success reports
 - Relying on partial verification
@@ -109,7 +109,7 @@ Skip any step = lying, not verifying
 
 **ALWAYS before:**
 - ANY variation of success/completion claims
-- ANY expression of satisfaction
+- ANY expression of satisfaction about the work
 - ANY positive statement about work state
 - Committing, PR creation, task completion
 - Moving to next task

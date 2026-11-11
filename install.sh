@@ -5,10 +5,13 @@
 #   ./install.sh [--dry-run] [--check] [--prune] [--help]
 #
 # Behaviour:
-#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, codex/, claude/, ghostty/
+#   - Links every file under zsh/, git/, tmux/, opencode/, agents/, claude/,
+#     ghostty/
 #     into $HOME, stripping the first path component
 #     (e.g. zsh/.zshrc -> ~/.zshrc).
 #   - Links ~/.claude/skills to the shared agents/.agents/skills directory.
+#   - Links every harness entrypoint to the one canonical AGENTS.md and every
+#     shared skill into ~/.codex/skills.
 #   - Backs up pre-existing non-symlink targets to ~/.dotfiles.backup.<timestamp>/.
 #   - Skips symlinks that already point at the correct source.
 #   - Runs `brew bundle` on macOS only when the Brewfile is unsatisfied.
@@ -30,7 +33,7 @@ CHANGES=0
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${TARGET_HOME}/.dotfiles.backup.${TIMESTAMP}"
 
-PACKAGES=(zsh git tmux opencode agents codex claude ghostty)
+PACKAGES=(zsh git tmux opencode agents claude ghostty)
 PRUNE_ROOTS=(
   "${TARGET_HOME}/.config/opencode"
   "${TARGET_HOME}/.agents"
@@ -178,9 +181,26 @@ prune_links() {
   done
 }
 
-# Claude Code reads skills from ~/.claude/skills; share the one skills tree.
-link_claude_skills() {
+# One canonical instruction file; every harness reads the same text.
+link_agent_entrypoints() {
+  local canonical="${DOTFILES_DIR}/agents/.agents/AGENTS.md"
+  link_one "${canonical}" "${TARGET_HOME}/.config/opencode/AGENTS.md"
+  link_one "${canonical}" "${TARGET_HOME}/.claude/CLAUDE.md"
+  link_one "${canonical}" "${TARGET_HOME}/.codex/AGENTS.md"
   link_one "${DOTFILES_DIR}/agents/.agents/skills" "${TARGET_HOME}/.claude/skills"
+  link_codex_skills
+}
+
+# Codex reads skills from ~/.codex/skills; link the shared tree one skill at a time.
+link_codex_skills() {
+  local src="${DOTFILES_DIR}/agents/.agents/skills"
+  local dst="${TARGET_HOME}/.codex/skills"
+  local skill_dir name
+  for skill_dir in "${src}"/*/; do
+    [ -f "${skill_dir}SKILL.md" ] || continue
+    name="$(basename "${skill_dir%/}")"
+    link_one "${skill_dir%/}" "${dst}/${name}"
+  done
 }
 
 maybe_brew_bundle() {
@@ -376,7 +396,7 @@ main() {
   fi
 
   link_packages
-  link_claude_skills
+  link_agent_entrypoints
   maybe_install_ohmyzsh
   maybe_install_p10k
   maybe_clone_nvim
