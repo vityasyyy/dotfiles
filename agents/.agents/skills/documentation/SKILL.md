@@ -34,7 +34,7 @@ Link every durable reference; leave executable snippets as code.
 - External resource: [short label](https://example.com).
 - Section reference: [§N](#anchor).
 - Home path with a repo source: link the source, e.g.
-  [`~/.config/opencode/AGENTS.md`](../../../../opencode/.config/opencode/AGENTS.md)
+  [`agents/.agents/AGENTS.md`](../../AGENTS.md)
   (repo-relative; adjust for the document's location).
 - Confluence: use inline links or a References section with absolute URLs.
 - Do not link commands, flags, environment variables, keybindings, secret
@@ -59,6 +59,11 @@ For a runbook, lead with the trigger and the exact commands. For an ADR, state
 the decision, the forces, and the consequences in present tense. For a PR body,
 follow [`git-pr-workflow`](../git-pr-workflow/SKILL.md) and link changed files,
 design docs, and dashboards.
+
+## Office formats
+
+`.docx` and `.pptx` use the harness's document tooling, including its render
+and visual-check workflow. Verify the rendered artifact, not just the source.
 
 ## Voice
 

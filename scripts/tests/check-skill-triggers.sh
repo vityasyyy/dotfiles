@@ -120,27 +120,27 @@ mutate_row T04 2 '[`ponytail`](../ponytail/SKILL.md)'
 expect_pass "repeated primary"
 reset
 
-printf '| T25 | spare | `ponytail` |\n' >> "${TMP}/matrix.md"
+printf '| T99 | spare | `ponytail` |\n' >> "${TMP}/matrix.md"
 expect_fail "malformed row" "row has 3 columns"
 reset
 
-printf 'T25 | spare | `ponytail` | | |\n' >> "${TMP}/matrix.md"
+printf 'T99 | spare | `ponytail` | | |\n' >> "${TMP}/matrix.md"
 expect_fail "row without leading pipe" "table row must start with |"
 reset
 
-printf 't25 | spare | `ponytail` | | |\n' >> "${TMP}/matrix.md"
+printf 't99 | spare | `ponytail` | | |\n' >> "${TMP}/matrix.md"
 expect_fail "lowercase row without leading pipe" "table row must start with |"
 reset
 
-printf '|| T25 | spare | [`memory`](../memory/SKILL.md) | | |\n' >> "${TMP}/matrix.md"
+printf '|| T99 | spare | [`memory`](../memory/SKILL.md) | | |\n' >> "${TMP}/matrix.md"
 expect_fail "extra leading pipe" "row has 6 columns"
 reset
 
-printf '  | T25 | spare | [`memory`](../memory/SKILL.md) | | |\n' >> "${TMP}/matrix.md"
+printf '  | T99 | spare | [`memory`](../memory/SKILL.md) | | |\n' >> "${TMP}/matrix.md"
 expect_pass "indented row"
 reset
 
-printf '| T25 | spare | [`memory`](../memory/SKILL.md) | | x\n' >> "${TMP}/matrix.md"
+printf '| T99 | spare | [`memory`](../memory/SKILL.md) | | x\n' >> "${TMP}/matrix.md"
 expect_fail "missing trailing pipe" "table row must start with |"
 reset
 

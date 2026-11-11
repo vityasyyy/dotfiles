@@ -179,8 +179,12 @@ Never weaken or bypass tests merely to make CI green.
 
 ## Merge
 
-Merge only when the user's current request or standing repository-specific workflow authorizes it. In `invenio-rdm-gitops`, once the full diff has been reviewed and required CI is green, the standing workflow authorizes squash-merging and deleting the branch without asking for per-PR approval. Never merge directly to `main` and never force-push. If merge fails, fix forward or report the blocker.
+Merge when the user's request authorizes it, or when standing authorization
+applies: after the review round and green required CI. Squash and delete the
+branch by default. A repository's `AGENTS.md` may require an explicit ask
+instead; follow it. Never merge directly to `main` and never force-push. If
+merge fails, fix forward or report the blocker.
 
-For changes consumed by deployment or infrastructure pipelines in `invenio-rdm-gitops`, verify the required post-merge production and infrastructure pipelines before reporting completion. A green PR check alone is not completion for those changes.
-
-For other repositories, follow their own merge policy and the user's explicit authorization.
+When a merge triggers deployment or infrastructure pipelines, verify those
+post-merge pipelines before reporting completion. A green PR check alone is not
+completion for deploy-coupled changes.

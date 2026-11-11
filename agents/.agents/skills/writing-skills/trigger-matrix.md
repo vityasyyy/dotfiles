@@ -3,9 +3,9 @@
 Run each prompt in a fresh OpenCode session and record the skill the agent
 announces or loads. The primary skill must fire; supporting skills may fire;
 must-not skills must not fire. Every local skill appears at least once as
-primary; combined scenarios may repeat a primary. Claude and Codex share the
-skills but have their own routing tables; adapt the expected route there. Keep
-this matrix current when a description or routing row changes.
+primary; combined scenarios may repeat a primary. All three harnesses read the
+canonical router (`agents/.agents/AGENTS.md`); only invocation mechanics
+differ. Keep this matrix current when a description or routing row changes.
 
 | ID | Prompt | Primary | Supporting | Must not load |
 |---|---|---|---|---|
@@ -33,3 +33,4 @@ this matrix current when a description or routing row changes.
 | T22 | Review this PR and merge it if CI is green. | [`git-pr-workflow`](../git-pr-workflow/SKILL.md) | [`code-review`](../code-review/SKILL.md), [`verification-before-completion`](../verification-before-completion/SKILL.md) | [`writing-plans`](../writing-plans/SKILL.md) |
 | T23 | Clean up this README and link the file references. | [`documentation`](../documentation/SKILL.md) | [`codebase-explainer`](../codebase-explainer/SKILL.md) | [`feature-workflow`](../feature-workflow/SKILL.md) |
 | T24 | This skill never fires; diagnose the trigger. | [`writing-skills`](../writing-skills/SKILL.md) | [`memory`](../memory/SKILL.md) | [`feature-workflow`](../feature-workflow/SKILL.md) |
+| T25 | Review this diff before I merge it. | [`code-review`](../code-review/SKILL.md) | [`verification-before-completion`](../verification-before-completion/SKILL.md) | [`feature-workflow`](../feature-workflow/SKILL.md) |

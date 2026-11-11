@@ -17,7 +17,7 @@ minimum gates for each lane. Do not restate a rule another skill owns.
 |---|---|---|
 | Trivial | typo, one-line fix, config/docs; reversible; obvious check | one-line contract → implement → verify → report |
 | Standard | behavior change in maintained code | contract + gate → tests (TDD when testable) → implement → verify → review gate → PR |
-| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → herd if parallel → contract + gate → implement → verify → review gate → PR → post-merge pipelines |
+| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → worker delegation (parallel-worktrees if parallel) → contract + gate → implement → verify → review gate → PR → post-merge pipelines |
 
 When unsure, take the higher lane. If a trivial change grows, move to the
 standard lane immediately; do not retrofit a plan after the fact.
@@ -59,12 +59,13 @@ Evidence:
   task state (`memory`) when the work crosses a session, a worker, or a context
   rollover. A user-requested `docs/plans/` copy is gitignored and never
   committed. Plan format and task granularity: `writing-plans`.
-- Lead: non-trivial implementation goes to `herd`; add `parallel-worktrees`
-  only when work is parallel or isolated. The worker brief carries the
-  contract and evidence commands. Inline only for trivial docs/config/one-line
-  fixes; state why herd was skipped. Workers never spawn herd.
-- Before the first edit, record the delegation decision. A lead editing
-  non-trivial code is a process failure, not a shortcut.
+- Lead: where the harness supports workers (`herd`), non-trivial
+  implementation goes to one; add `parallel-worktrees` only when work is
+  parallel or isolated. Otherwise implement inline with native subagents for
+  research and review, and state why. The worker brief carries the contract
+  and evidence commands. Workers never spawn workers.
+- Before the first edit, record the delegation decision. Inline non-trivial
+  work is a process failure only when a worker runtime is available.
 
 ## 4. Implement
 
@@ -103,7 +104,8 @@ Evidence:
 ## Checkpoints
 
 Write or refresh the handoff at these points, using the `memory` skill. Use the
-`handoff` skill for an OpenCode context rollover:
+`handoff` skill at a context rollover: OpenCode starts the successor session;
+for other harnesses, tell the user to start a fresh session from the handoff.
 
 1. After the contract or plan: write the handoff; for multi-session or
    delegated work, update task state first.

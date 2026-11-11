@@ -37,7 +37,7 @@ and the session stops.
    Aim for under 80 lines; the successor can search the transcript for detail.
    A handoff is operational, not a planning/summary document; do not create
    additional Markdown.
-3. **Roll over:**
+3. **Roll over.** In OpenCode:
 
    ```sh
    ~/.agents/skills/handoff/scripts/session-handoff start --handoff <path>
@@ -45,9 +45,18 @@ and the session stops.
 
    The script exports the full transcript, appends session pointers to the
    handoff, creates a successor session with the same agent and model, and
-   seeds it. It prints the new session id and title.
-4. **Report and stop.** Tell the user the successor session id and title, and
-   that they should switch to it. Do not start new work in the old session.
+   seeds it. It prints the new session id and title. In Claude Code or Codex,
+   tell the user to start a fresh session from the handoff; do not call the
+   script.
+4. **Report and stop.** OpenCode reports the successor session id and title;
+   Claude Code and Codex report the handoff path and tell the user to start a
+   fresh session from it. Do not start new work in the old session.
+
+## Harness
+
+`session-handoff start` is OpenCode-only. Every harness writes the handoff with
+`mem handoff`; only OpenCode creates the successor session automatically. Stop
+work in the old session once the handoff is written.
 
 ## Template
 

@@ -8,9 +8,11 @@ You are a herd worker. The lead owns the plan and integration; you own the
 bounded implementation in your worktree.
 
 - Follow the brief and the repository `AGENTS.md`.
-- Load skills in order: `feature-workflow`, `ponytail`,
-  `test-driven-development` (or state the skip), `git-pr-workflow`, and
-  `verification-before-completion`. Announce: "Using [skill] to [purpose]."
+- Load the skill for the current phase, not all of them at once:
+  `feature-workflow` then `ponytail`; add `test-driven-development` when its
+  triage gate says yes, `git-pr-workflow` at commit/PR time, and
+  `verification-before-completion` before a completion claim. Announce:
+  "Using [skill] to [purpose]."
 - Use `explore` for read-only research and `review` for an independent
   standard/high-impact review. Do not delegate writes to subagents.
 - Never spawn herdr workers, manage other panes, or edit outside your scope.

@@ -14,7 +14,7 @@ handoff template. Commands use `MEM=~/.agents/skills/memory/scripts/mem`.
 
 | Tier | Where | Budget | Holds |
 |---|---|---|---|
-| 0 | OpenCode: `~/.config/opencode/AGENTS.md` · Claude: `~/.claude/CLAUDE.md` · Codex: `~/.codex/AGENTS.md` | ≤110 lines | invariants loaded every session |
+| 0 | [`agents/.agents/AGENTS.md`](../../AGENTS.md), linked into every harness | ≤110 lines | invariants loaded every session |
 | 1 | `<repo>/AGENTS.md` + `.opencode/memory/` | ≤80 lines | commands, conventions, gotchas |
 | 2 | `~/.local/share/agent-memory/{tasks,handoffs}/` | structured | plan, handoff, decisions |
 | 3 | `~/.local/share/agent-memory/` | unbounded | session index + digests |
@@ -33,9 +33,8 @@ Never store secrets or credentials in any tier.
 
 ## Tier 0 rules
 
-- Canonical sources are `~/dotfiles/opencode/.config/opencode/AGENTS.md`,
-  `~/dotfiles/claude/.claude/CLAUDE.md`, and `~/dotfiles/codex/.codex/AGENTS.md`;
-  edit the source for your harness, not the `~` symlink.
+- The canonical source is `~/dotfiles/agents/.agents/AGENTS.md`; every harness
+  entrypoint links to it. Edit the canonical file, never the `~` symlinks.
 - Match `## <Topic> (<date> — standing)`.
 - Adding a rule requires deleting or merging one. The cap is the point.
 - Do not commit Tier 0 edits without the user's approval; the user reviews
@@ -95,8 +94,8 @@ when the snippet is insufficient. Codex transcripts are not indexed yet.
 
 1. Start: read Tier 0, the repo `AGENTS.md`, and the active plan.
 2. Checkpoint: update the plan and handoff with decisions, files, and next.
-3. Rollover: refresh the handoff before `session-handoff start`; re-read it in
-   the new session.
+3. Rollover: refresh the handoff first; OpenCode runs `session-handoff start`,
+   other harnesses start a fresh session from it. Re-read it in the new session.
 4. End: write a digest (goal, outcome, decisions, files, open questions) and
    index it. Start a new session for the next task.
 5. Never let a session hit its context limit without a handoff.

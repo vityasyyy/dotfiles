@@ -1,6 +1,11 @@
 ---
 name: code-review
-description: Rigorous universal code review for correctness, security, reliability, maintainability, observability, performance, testing, database safety, and production failure modes. Use when reviewing diffs, PRs, existing code, or proposed architecture.
+description: >-
+  Use when running a fresh-context review: the rubric and dimensions for
+  correctness, security, reliability, maintainability, observability,
+  performance, testing, database safety, and production failure modes. Defines
+  the gate, severity, and rounds for diffs, PRs, and architecture; it never
+  replaces the review round itself.
 metadata:
   audience: ai-coding-agent
   workflow: review
@@ -12,14 +17,15 @@ Review the system, not just the changed lines.
 
 ## Before Requesting Review
 
-Before handing your own work to review (or asking a herd worker to review):
+Before handing your own work to review (or asking a worker to review):
 
 1. Run the verification suite yourself (`verification-before-completion`) — a review request is never a status report.
 2. Re-read your own diff first: stray debug code, leftover plan artifacts ("per step N"), unrelated churn.
 3. Confirm every requirement is demonstrably implemented; state any known gaps explicitly rather than hoping the reviewer misses them.
 4. Run single-session reviews in a fresh context: OpenCode `/review`, Claude the
    `review` subagent, Codex a fresh session. Parallel or worker output still
-   goes through herd (herdr panes). Never self-approve.
+   goes through the harness's worker orchestration when it has one. Never
+   self-approve.
 
 ## Review Gate
 
@@ -30,7 +36,7 @@ finish a round.
 ```yaml
 gate:
   block: [critical, high]          # severities that fail the gate
-  require: [acceptance, evidence, scope, secrets]
+  require: [acceptance, evidence, scope]
   thresholds: {}                   # e.g. coverage_pct: 80
 stop:
   stall_rounds: 2                  # same blocking set twice -> escalate
@@ -41,13 +47,24 @@ stop:
   advisory review; state that acceptance is unverified.
 - `evidence`: claimed commands were re-run or spot-checked.
 - `scope`: no files outside the declared scope.
-- `secrets`: no credentials, keys, or tokens.
 - `thresholds`: measurable, repo-specific checks. If a threshold cannot be
   measured, the verdict is `BLOCKED`, not `PASS`.
+
+Secrets are reported, never gated on absence: any credential, key, or token in
+the diff is `CRITICAL`. Record a scanner result as evidence when one is
+available; absence cannot be proven by inspection.
 
 The gate decides blocking, not reporting: report every finding. Never downgrade
 severity to pass. A numeric score is not a gate unless it is derived
 mechanically from binary criteria.
+
+## Evidence Discipline
+
+Combine every available source before reporting: the diff, the contract, the
+ledger, the full files around each hunk, their callers, tests, CI config, and
+the command output that proves each claim. Every finding cites the exact line
+and a reproducible check. Mark inference `unverified` instead of reporting it
+as fact; a diff-only reading is the main source of false positives.
 
 ## Fresh-Context Rounds
 

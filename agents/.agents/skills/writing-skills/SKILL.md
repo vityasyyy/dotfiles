@@ -31,6 +31,8 @@ or mechanically enforceable constraints (automate those).
 - One excellent example beats five mediocre ones.
 - The model sees only name + description at startup; full instructions load
   on demand. Optimize the description for routing.
+- Every absolute names its scope. An unscoped rule fires outside its lane,
+  gets ignored, and teaches the agent that the rest are advisory.
 
 ## Test before deploying
 
@@ -49,8 +51,8 @@ elements get a required field in the template. See the guide.
 
 Representative prompts and expected routes live in
 [`trigger-matrix.md`](trigger-matrix.md). Run the matrix in a fresh OpenCode
-session when changing a description or routing row; adapt the expected route
-for Claude and Codex.
+session when changing a description or routing row; all harnesses share the
+canonical router, so only the invocation mechanics differ.
 
 ## Deploy checklist
 

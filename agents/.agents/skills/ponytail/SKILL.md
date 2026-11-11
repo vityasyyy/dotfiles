@@ -1,11 +1,11 @@
 ---
 name: ponytail
 description: >
-  Use for ANY coding task: writing, adding, refactoring, fixing, reviewing,
-  or designing code, and choosing libraries or dependencies. Also use when
-  the user says "ponytail", "be lazy", "lazy mode", "simplest solution",
-  "minimal solution", "yagni", "do less", or "shortest path", or complains
-  about over-engineering, bloat, boilerplate, or unnecessary dependencies.
+  Use when writing, changing, fixing, refactoring, or designing code, or
+  choosing libraries or dependencies. Also use when the user says "ponytail",
+  "be lazy", "lazy mode", "simplest solution", "minimal solution", "yagni",
+  "do less", or "shortest path", or complains about over-engineering, bloat,
+  boilerplate, or unnecessary dependencies.
   Not for non-coding requests (general knowledge, prose, translation,
   summaries, recipes).
 argument-hint: "[lite|full|ultra]"
@@ -60,12 +60,10 @@ every sibling caller still broken. Fix it once, where all callers route through.
 
 ## Output
 
-Code first. Then at most three short lines: what was skipped, when to add it.
-No essays, no feature tours, no design notes. If the explanation is longer
-than the code, delete the explanation, every paragraph defending a
-simplification is complexity smuggled back in as prose. Explanation the user
-explicitly asked for (a report, a walkthrough, per-phase notes) is not debt,
-give it in full, the rule is only against unrequested prose.
+Code first, then the shortest explanation the task allows. This governs
+unrequested prose: no feature tours, no design notes, no paragraph defending
+a simplification. Reports, evidence, and walkthroughs the user or a skill
+requires are not debt; give them in full.
 
 Pattern: `[code] → skipped: [X], add when [Y].`
 

@@ -26,7 +26,7 @@ State the disposition before starting — TDD or an explicit skip, never silence
 
 **Explicit skip, stated in one line — no silent rationalization:**
 - Throwaway scripts, spikes, and prototypes that will not be kept
-- Infra/config as code: YAML, compose files, GitOps manifests, docs
+- Infra/config as code: YAML, compose files, deployment manifests, docs
 - Trivial fixes where the test costs more than the change (typos, copy, pure formatting)
 
 The gate question: *will this code still exist in a month, and could it silently break?* If yes → TDD. If no → skip, say so, move on.
@@ -117,7 +117,8 @@ Vague name, tests mock not code
 
 ### Verify RED - Watch It Fail
 
-**MANDATORY. Never skip.**
+**MANDATORY once RED is the chosen lane. The triage skips above are the only
+exits; state the skip in one line.**
 
 ```bash
 npm test path/to/test.test.ts

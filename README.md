@@ -227,9 +227,8 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | --- | --- |
 | [`git/.gitconfig`](git/.gitconfig) | `[user]` name/email; `[includeIf]` paths if your work repos don't live in `~/work/` |
 | [`agents/.agents/skills/`](agents/.agents/skills/) | Shared workflow conventions and skills used by OpenCode, Codex, and Claude Code |
-| [`codex/.codex/AGENTS.md`](codex/.codex/AGENTS.md) | Codex-specific routing into shared skills and Codex document tools |
-| [`claude/.claude/`](claude/.claude/) | Claude Code instructions, permissions, and subagents (`explore`, `review`, `document`, `general`) |
-| [`opencode/.config/opencode/AGENTS.md`](opencode/.config/opencode/AGENTS.md) | Global workflow, review gate, skill routing, memory tiers, and standing rules |
+| [`agents/.agents/AGENTS.md`](agents/.agents/AGENTS.md) | Global workflow, review gate, skill routing, memory tiers, and standing rules — one file linked into every harness |
+| [`claude/.claude/`](claude/.claude/) | Claude Code permissions and subagents (`explore`, `review`, `document`, `general`) |
 | [`install.sh`](install.sh) (`NVIM_REPO`) | your own nvim-config fork, or skip cloning (`DOTFILES_SKIP_NVIM=1`) |
 | [`install.sh`](install.sh) (`DOTFILES_SKIP_JUPYTEXT=1`) | skip the `pipx install jupytext` step used for `.ipynb` rendering |
 | [Brewfile](Brewfile) | add your own tools; keep `trusted: true` scoped to formulae you actually use |
@@ -261,9 +260,9 @@ Skip knobs: `DOTFILES_SKIP_BREW=1`, `DOTFILES_SKIP_OHMYZSH=1`,
 | [`git/.gitconfig`](git/.gitconfig), [`git/.config/git/config-work`](git/.config/git/config-work) | `~/.gitconfig`, `~/.config/git/config-work` (work identity auto-includes for the `[includeIf]` paths you define — e.g. an org subfolder under `$HOME`) |
 | [`tmux/.tmux.conf`](tmux/.tmux.conf) | `~/.tmux.conf` |
 | [`opencode/.config/opencode/**`](opencode/.config/opencode/) | `~/.config/opencode/**` (config, agents, OpenCode-only skills, plugins) |
-| [`agents/.agents/skills/**`](agents/.agents/skills/) | `~/.agents/skills/**` |
-| [`codex/.codex/AGENTS.md`](codex/.codex/AGENTS.md) | `~/.codex/AGENTS.md` (global Codex instructions only; auth/runtime state stays local) |
-| [`claude/.claude/**`](claude/.claude/) | `~/.claude/` `CLAUDE.md`, `settings.json`, `agents/*.md`; `~/.claude/skills` links to [`agents/.agents/skills`](agents/.agents/skills/) |
+| [`agents/.agents/AGENTS.md`](agents/.agents/AGENTS.md) | `~/.agents/AGENTS.md`, linked as `~/.config/opencode/AGENTS.md`, `~/.claude/CLAUDE.md`, and `~/.codex/AGENTS.md` |
+| [`agents/.agents/skills/**`](agents/.agents/skills/) | `~/.agents/skills/**`, `~/.claude/skills`, and `~/.codex/skills/<name>` |
+| [`claude/.claude/**`](claude/.claude/) | `~/.claude/settings.json` and `~/.claude/agents/*.md` |
 | [`ghostty/Library/…/com.mitchellh.ghostty/config`](<ghostty/Library/Application Support/com.mitchellh.ghostty/config>) | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 
 Meta files (not linked): [`README.md`](README.md), [Brewfile](Brewfile),

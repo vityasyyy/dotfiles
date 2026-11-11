@@ -33,21 +33,18 @@ agent_denies() {
   ' "${file}"
 }
 
-# Tier 0 stays small.
-tier0_lines="$(wc -l < opencode/.config/opencode/AGENTS.md | tr -d ' ')"
+# Tier 0 is one canonical file; every harness entrypoint links to it.
+tier0="agents/.agents/AGENTS.md"
+tier0_lines="$(wc -l < "${tier0}" | tr -d ' ')"
 if [ "${tier0_lines}" -gt 110 ]; then
-  err "opencode/.config/opencode/AGENTS.md is ${tier0_lines} lines (cap 110)"
+  err "${tier0} is ${tier0_lines} lines (cap 110)"
 fi
-
-claude_lines="$(wc -l < claude/.claude/CLAUDE.md | tr -d ' ')"
-if [ "${claude_lines}" -gt 110 ]; then
-  err "claude/.claude/CLAUDE.md is ${claude_lines} lines (cap 110)"
-fi
-
-codex_lines="$(wc -l < codex/.codex/AGENTS.md | tr -d ' ')"
-if [ "${codex_lines}" -gt 110 ]; then
-  err "codex/.codex/AGENTS.md is ${codex_lines} lines (cap 110)"
-fi
+for projection in opencode/.config/opencode/AGENTS.md \
+  claude/.claude/CLAUDE.md codex/.codex/AGENTS.md; do
+  if [ -e "${projection}" ] || [ -L "${projection}" ]; then
+    err "${projection} must not exist; link to ${tier0}"
+  fi
+done
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
   claude/.claude/settings.json; then
   err "claude/.claude/settings.json is not valid JSON"
@@ -130,7 +127,7 @@ else
     || err "review command must set subtask: true"
 fi
 
-# The config parses, and MCP stays project-local.
+# The config parses, and global MCP is allowlisted.
 if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' \
   opencode/.config/opencode/opencode.json; then
   err "opencode/.config/opencode/opencode.json is not valid JSON"
@@ -139,11 +136,11 @@ if ! python3 - <<'PY'
 import json
 
 config = json.load(open("opencode/.config/opencode/opencode.json"))
-servers = config.get("mcp", {}).get("servers", {})
-raise SystemExit(0 if not servers else 1)
+servers = set(config.get("mcp", {}).get("servers", {}))
+raise SystemExit(0 if servers <= {"atlassian"} else 1)
 PY
 then
-  err "global mcp.servers must be empty; enable MCP per project"
+  err "global mcp.servers must be allowlisted (atlassian)"
 fi
 if ! python3 - <<'PY'
 import json
@@ -168,10 +165,8 @@ then
   err "global destructive-command ask rules are missing"
 fi
 
-for file in opencode/.config/opencode/AGENTS.md claude/.claude/CLAUDE.md codex/.codex/AGENTS.md; do
-  grep -q 'Ask before destructive commands' "${file}" \
-    || err "${file} is missing the destructive-command approval rule"
-done
+grep -q 'Ask before destructive commands' "${tier0}" \
+  || err "${tier0} is missing the destructive-command approval rule"
 
 # Scaffolded templates carry the review contract and stay idempotent.
 check_dir="$(mktemp -d)"
@@ -234,10 +229,7 @@ done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL
 # Every skill is referenced in at least one harness routing instruction.
 while IFS= read -r -d '' skill; do
   skill_name="$(basename "$(dirname "${skill}")")"
-  if ! grep -Fq -- "\`${skill_name}\`" \
-    opencode/.config/opencode/AGENTS.md \
-    claude/.claude/CLAUDE.md \
-    codex/.codex/AGENTS.md; then
+  if ! grep -Fq -- "\`${skill_name}\`" "${tier0}"; then
     err "skill is not routed: ${skill_name}"
   fi
 done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -print0)
