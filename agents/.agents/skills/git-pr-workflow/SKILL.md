@@ -1,6 +1,6 @@
 ---
 name: git-pr-workflow
-description: Git and pull-request discipline for AI coding agents. Enforces clean diffs, Conventional Commits, safe branch handling, descriptive PRs with TL;DR, context, and change diagrams, and waiting for required CI checks before completion.
+description: Git and pull-request discipline for AI coding agents. Enforces clean diffs, Conventional Commits, safe branch handling, descriptive PRs with TL;DR, context, and change diagrams, native stacked pull requests, and waiting for required CI checks before completion.
 metadata:
   audience: ai-coding-agent
   workflow: git
@@ -160,6 +160,36 @@ Scale the body to the change. Do not restate the diff, paste raw logs, or
 repeat the commit body. A reviewer should get what, why, context, evidence,
 and risk in under a minute. Agents use the same structure: exact paths,
 commands, and known gaps, not prose.
+
+## Stacked PRs
+
+A stack is two or more PRs in the same repository: the bottom targets the
+trunk (`master`/`main`), and each higher PR targets the branch below it.
+
+When a PR depends on another unmerged PR, use GitHub's native stack feature.
+Never emulate a stack by only setting a child PR's base to a feature branch;
+GitHub records that as an ordinary PR (`stack: null`).
+
+- New chain: `gh stack init [--base <trunk>] <bottom> <next> ...`, then
+  `gh stack submit`.
+- Existing branches or PRs: `gh stack link <bottom> <next> ...`, bottom first.
+- Verify before review: `gh stack view` or
+  `gh api repos/{owner}/{repo}/pulls/<n> --jq '.stack'`. `null` is a defect.
+
+Native stacks evaluate branch protection, required checks, CODEOWNERS, code
+scanning, and required deployments against the stack trunk for every layer.
+They cascade rebases, preserve approvals for unchanged layer diffs, retarget
+upper PRs when the bottom merges, and merge bottom-up (whole or partial,
+merge-queue aware). Do not close
+and recreate upper PRs after the bottom merges; sync or rebase the stack.
+
+A manual chain is stranded when its base branch is deleted: the child keeps a
+missing base, reports `mergeable: false`, and needs a manual retarget and
+rebase. A squash-merged bottom also leaves its original commits in the child,
+so reopening the child against the trunk shows both layers until rebased.
+
+Limitations: all branches must be in the same repository; cross-fork stacks and
+GitHub Desktop are unsupported.
 
 ## CI
 
