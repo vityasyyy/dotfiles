@@ -13,7 +13,7 @@ Every non-trivial change follows one spine:
 - **Contract:** behavior, acceptance, failures, compatibility; fix the review
   gate here. Multi-step gets a plan; testable behavior gets a failing test first.
 - **Implement:** smallest correct diff; `ponytail`; reuse before adding.
-- **Verify:** run the real commands; evidence, not claims.
+- **Verify:** real commands, evidence not claims; an unrun or blind gate is not coverage.
 - **Review:** standard/high-impact get a fresh-context round; trivial gets a
   self-check. Fix blockers; never self-approve.
 - **Report:** what changed, what was verified, risks, rollback, gaps.
@@ -68,8 +68,8 @@ One owner per rule; load every skill the lane needs, nothing else.
 - Never repeat an identical tool call. If output exists, use it or run a
   different diagnostic.
 - Three similar calls without progress: stop, summarize, decide, or ask.
-- Blocked on external state: use a blocking wait (`gh pr checks --watch`,
-  `herdr agent wait`) or ask. Do not poll in a loop.
+- Blocked on external state: blocking wait (`gh pr checks --watch`,
+  `herdr agent wait`) or ask; never poll. Fresh refs before claiming state.
 
 ## Code hygiene
 

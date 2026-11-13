@@ -193,6 +193,16 @@ GitHub Desktop are unsupported.
 
 ## CI
 
+Before opening the PR:
+
+- run the repository's own validation entrypoint end-to-end — the CI job's
+  commands, `ci/run_validation.sh`, `make check`, or equivalent — not only the
+  tests for the files you changed;
+- changed-file checks miss cross-module regressions: shared fixtures,
+  import-time stubs, plugin/loader paths, global registration;
+- if the full gate is CI-only, reproduce its exact command locally or wait for
+  it before claiming integration.
+
 After PR creation:
 
 - wait for required checks;

@@ -75,11 +75,13 @@ Evidence:
 
 ## 5. Verify
 
-- Run targeted tests first, then the full relevant suite.
+- Run targeted tests first, then the repository's full validation entrypoint
+  (`git-pr-workflow`), not only the files you changed.
 - Run the formatter, linter, typecheck/build, and project-specific checks.
 - Map each Acceptance item to evidence. A green suite that misses an
   acceptance item is not done.
-- If a check cannot run, state why. Do not claim success without evidence.
+- If a gate cannot run, replace it with the smallest equivalent check
+  (`verification-before-completion`); stating why is not coverage.
 - Use `verification-before-completion` for the final gate.
 
 ## 6. Review and report

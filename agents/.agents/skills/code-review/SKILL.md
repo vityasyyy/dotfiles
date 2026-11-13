@@ -66,6 +66,10 @@ the command output that proves each claim. Every finding cites the exact line
 and a reproducible check. Mark inference `unverified` instead of reporting it
 as fact; a diff-only reading is the main source of false positives.
 
+For a new package or module, also scan existing neighbors for conventions
+(import style, module naming, loader semantics) and check the target runtime's
+load path; a diff-only review misses packaging and import failures.
+
 ## Fresh-Context Rounds
 
 Each round is a new reviewer session. Carry state, not context:

@@ -48,6 +48,23 @@ Skip any step = lying, not verifying
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
+| Validator passes | Validator or documented equivalent ran; output read | "Blocked by environment", "CI covers it" |
+
+## Unrun or blind gates
+
+A gate you cannot run is not a gate. If the mandated validator is blocked —
+missing dependency, wrong environment, CI-only — do not record "not run" as
+coverage:
+
+1. Name the failure mode the gate was supposed to catch.
+2. Install the dependency if small and approved; otherwise write the smallest
+   equivalent local check.
+3. Run it and report which check replaced the gate.
+4. Cite CI only for what its jobs actually run; green CI is not evidence of
+   runtime behavior those checks never exercise (plugin loader, import path,
+   packaging).
+
+Cheap direct checks beat an unavailable broad validator.
 
 ## Red Flags - STOP
 
