@@ -122,7 +122,8 @@ the handoff records the absolute plan path. A user-requested `docs/plans/` copy
 is gitignored local scratch and is never committed. Git history and PR
 descriptions are the durable decision record.
 
-MCP servers are project-local. Add only what the repository needs in
+MCP servers are project-local by default; the global config carries only the
+allowlisted Atlassian remote server. Add project-specific servers in
 `.opencode/opencode.json`:
 
 ```json
