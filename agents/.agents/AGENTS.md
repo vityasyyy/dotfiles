@@ -80,7 +80,7 @@ One owner per rule; load every skill the lane needs, nothing else.
 
 ## Documentation discipline
 
-- Repo docs: current state, linked paths/URLs, no planning history; owner `documentation`.
+- Repo docs: current state, linked paths/URLs, no planning history; owner `documentation`. Confluence diagrams: render locally; use approved REST uploads if MCP lacks attachments.
 - Create repo planning/summary Markdown only when asked; prefer raw artifacts.
 - Sensitive data: raw resource first, ask before summarizing; docs stay concise.
 
