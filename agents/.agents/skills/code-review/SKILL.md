@@ -135,8 +135,9 @@ each seam the change touches:
   that omits a consumed field cannot catch its loss; assert the field after
   every transform.
 - **Exact render unit:** UI assertions name the concrete row, pair, label,
-  value, and tone class (`Approved date: 2026-11-09`). A panel-wide substring
-  that another element can satisfy is a change detector, not a test.
+  value, and tone class (for example, `Approved date: <ISO date>`). A
+  panel-wide substring that another element can satisfy is a change detector,
+  not a test.
 - **Status matrix:** every provider or lifecycle state maps to a tested
   user-visible label, tone, icon, and next action. Include non-success states;
   a default branch is behavior and needs a case.
