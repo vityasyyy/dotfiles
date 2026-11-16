@@ -40,6 +40,9 @@ Write the contract before coding:
 Behavior:
 Acceptance:
 Failure cases:
+Composition:      # app/router/middleware/listener order and per-request counts
+Consumer fields:  # every response field downstream reads, through each transform
+Status matrix:    # every provider/lifecycle state -> visible outcome
 Non-goals:
 Compatibility:
 Gate:
@@ -47,6 +50,9 @@ Evidence:
 ```
 
 - If Behavior or Acceptance cannot be filled without guessing, use `grilling`.
+- For a change with a consumer (UI, API client, agent), the seam the consumer
+  sees is part of Acceptance; plan the composition or exact-render test here.
+  Isolated unit tests do not satisfy that seam.
 - Fix the review gate here with the contract: the default lives in
   `code-review`, plus any task-specific thresholds.
 - Multi-step: put the contract at the top of the plan (`writing-plans`).

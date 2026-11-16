@@ -13,7 +13,7 @@ Every non-trivial change follows one spine:
 - **Contract:** behavior, acceptance, failures, compatibility; fix the review
   gate here. Multi-step gets a plan; testable behavior gets a failing test first.
 - **Implement:** smallest correct diff; `ponytail`; reuse before adding.
-- **Verify:** real commands, evidence not claims; an unrun or blind gate is not coverage.
+- **Verify:** real commands, evidence not claims; an unrun or blind gate is not coverage, and an assertion weaker than the claim is not evidence.
 - **Review:** standard/high-impact get a fresh-context round; trivial gets a
   self-check. Fix blockers; never self-approve.
 - **Report:** what changed, what was verified, risks, rollback, gaps.

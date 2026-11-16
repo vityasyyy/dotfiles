@@ -51,6 +51,12 @@ exit codes. Documents that instruct agents are tested by the consuming
 agent's behavior (superpowers:writing-skills); prose for humans earns no
 test at all.
 
+**Assert the concrete output unit.** Test the row, pair, tone, or event a
+consumer receives — not a container-wide substring. If another element can
+satisfy the assertion, the test passes while the output is wrong. Prefer a
+literal whose value differs from its key or label, so a leaked field name
+fails.
+
 **Your code, not the framework.** Test the contract your code makes at
 its boundaries — the route you register, the query you emit, the payload
 you produce. Upstream mechanics are their maintainers' tests to write
@@ -132,6 +138,12 @@ break when the mock changes, switch to an integration test with real
 components. **your human partner's question:** "Do we need to be using a
 mock here?"
 
+**Test the real composition when behavior lives in order.** Middleware,
+limiters, router mounts, event listeners, and schedulers are defined by
+their composition. Exercise the composed app or stack when the behavior is
+a per-request execution count, mount ordering, or listener precedence; an
+isolated unit test mounts one piece and cannot observe the seam.
+
 ### Gate Function
 
 ```
@@ -175,6 +187,8 @@ test as tautological.
 | Write any test | Name the break it catches — a bug, not a decision |
 | Build an expected value | Derive it by hand; never with the code under test |
 | Test a script or document | Run it / pressure-test its consumer; never grep its text |
+| Assert rendered output | Name the exact row, pair, label, and value; never a panel-wide substring |
+| Behavior depends on mount/order | Exercise the composed app or stack, not one unit alone |
 | Reach for a dependency test | Test your boundary contract, not their documented mechanics |
 | Want to assert on a mocked element | Test the real component, or unmock it |
 | Are about to mock a method | Learn its side effects; mock the slow/external level |
@@ -189,6 +203,8 @@ test as tautological.
 - The test can fail only through a panic, crash, or missing selector
 - The test fails on every intentional change, never on accidental breakage
 - Expected values are hidden behind loops, builders, or helpers
+- The UI assertion searches a whole container, and another element can satisfy it
+- The behavior depends on mount order or execution count, but the test mounts one unit alone
 - The test greps source text, or asserts a removed symbol stays removed
 - The test would still matter if only the framework remained
 - The test exists for coverage, checking no side effect or outcome

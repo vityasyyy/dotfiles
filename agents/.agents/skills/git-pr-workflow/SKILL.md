@@ -144,6 +144,9 @@ flowchart TD
 ## Testing
 - Exact commands/checks and results, one line per acceptance criterion:
   `criterion → command → result`
+- Seam evidence when the change has a consumer: exact rendered unit, composed
+  request/limiter count, consumer-field round trip, or provider-status matrix.
+  Coverage percentages and whole-panel text matches are not seam evidence.
 
 ## Risks / Rollback
 - Failure modes, rollout/flag, rollback; non-trivial changes only

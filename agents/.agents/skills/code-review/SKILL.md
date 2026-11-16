@@ -22,7 +22,8 @@ Before handing your own work to review (or asking a worker to review):
 1. Run the verification suite yourself (`verification-before-completion`) — a review request is never a status report.
 2. Re-read your own diff first: stray debug code, leftover plan artifacts ("per step N"), unrelated churn.
 3. Confirm every requirement is demonstrably implemented; state any known gaps explicitly rather than hoping the reviewer misses them.
-4. Run single-session reviews in a fresh context: OpenCode `/review`, Claude the
+4. Exercise the seam the change touches: the composed app/router/middleware stack, the API response → consumer render path, or the provider status matrix. Green tests on isolated pieces are not evidence for those seams.
+5. Run single-session reviews in a fresh context: OpenCode `/review`, Claude the
    `review` subagent, Codex a fresh session. Parallel or worker output still
    goes through the harness's worker orchestration when it has one. Never
    self-approve.
@@ -119,6 +120,29 @@ Verdict: PASS | FAIL | BLOCKED
 9. Performance
 10. Tests
 11. Documentation
+
+## Integration and Render Contract
+
+A diff can pass every isolated test and still fail at the seams below. Check
+each seam the change touches:
+
+- **Composition:** middleware, limiters, routers, listeners, and schedulers are
+  order- and mount-sensitive. Count executions per real request at the
+  production topology; do not infer from a router mounted alone. A request that
+  consumes N limiter slots for one action is a defect.
+- **Field survival:** list every field the downstream consumer reads, then
+  follow each one through unwrap, allowlist, normalize, and render. A fixture
+  that omits a consumed field cannot catch its loss; assert the field after
+  every transform.
+- **Exact render unit:** UI assertions name the concrete row, pair, label,
+  value, and tone class (`Approved date: 2026-11-09`). A panel-wide substring
+  that another element can satisfy is a change detector, not a test.
+- **Status matrix:** every provider or lifecycle state maps to a tested
+  user-visible label, tone, icon, and next action. Include non-success states;
+  a default branch is behavior and needs a case.
+
+Reject a claim of "tested" when the evidence is only a coverage percentage, a
+whole-container text match, or a per-router test for app-level composition.
 
 ## Correctness
 
