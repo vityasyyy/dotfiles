@@ -53,6 +53,9 @@ Every brief must be self-contained — workers cannot see this conversation:
   `verification-before-completion`); use `explore` for research and `review`
   for independent standard/high-impact review; commit feature+tests together;
   never spawn herdr workers.
+- **Stacked delivery:** when the work is several dependent PRs, name the
+  `gh stack` branch chain; the worker reports a non-null `.stack` for every
+  layer (`git-pr-workflow`).
 - **Output contract:** write `WORKER-REPORT.md` at the repo root, untracked; never commit it. Include what changed, what was verified, and what remains.
 - **Escalation:** if a decision is ambiguous or blocked, stop and report the question in `WORKER-REPORT.md` instead of guessing.
 

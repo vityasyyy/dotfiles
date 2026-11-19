@@ -228,6 +228,10 @@ branch by default. A repository's `AGENTS.md` may require an explicit ask
 instead; follow it. Never merge directly to `main` and never force-push. If
 merge fails, fix forward or report the blocker.
 
+Before deleting a merged branch, `gh pr list --base <branch>` must be empty:
+deleting a branch that an open PR targets closes that PR. Merge a stack
+through the native stack, bottom-up, never one layer at a time by hand.
+
 When a merge triggers deployment or infrastructure pipelines, verify those
 post-merge pipelines before reporting completion. A green PR check alone is not
 completion for deploy-coupled changes.

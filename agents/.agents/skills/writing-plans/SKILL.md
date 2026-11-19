@@ -60,6 +60,8 @@ multiple PRs:
   per-target config bundles. Share through an explicit dependency, not
   internal reach-through.
 - Record the stack order and each disposition in the plan.
+- Specify the stack as a native `gh stack` chain of branch names (mechanics
+  in `git-pr-workflow`). Never write a child PR's base as a feature branch.
 
 PR mechanics and diff bases live in `git-pr-workflow`; duplication as a review
 dimension lives in `code-review`.
