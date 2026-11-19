@@ -113,6 +113,9 @@ Do not amend/rewrite history that the user may already have pushed unless explic
 
 PR title: a concise Conventional Commit-style title.
 
+If the PR depends on another unmerged PR, it is a stack layer; follow Stacked
+PRs and open it through the native stack.
+
 Every body starts with a TL;DR: what changed, why, and the impact in at most
 three bullets. A reader who stops there should still understand the change.
 Link changed files, design docs, dashboards, and source references; do not type
@@ -167,29 +170,40 @@ commands, and known gaps, not prose.
 ## Stacked PRs
 
 A stack is two or more PRs in the same repository: the bottom targets the
-trunk (`master`/`main`), and each higher PR targets the branch below it.
+trunk (`main`/`master`), and each higher PR targets the branch below it.
 
 When a PR depends on another unmerged PR, use GitHub's native stack feature.
-Never emulate a stack by only setting a child PR's base to a feature branch;
-GitHub records that as an ordinary PR (`stack: null`).
+Never emulate a stack by setting a child PR's base to a feature branch: GitHub
+records that as an ordinary PR (`stack: null`), and the chain strands when a
+base branch is deleted. A single dependent PR still belongs in a native stack.
 
-- New chain: `gh stack init [--base <trunk>] <bottom> <next> ...`, then
-  `gh stack submit`.
-- Existing branches or PRs: `gh stack link <bottom> <next> ...`, bottom first.
-- Verify before review: `gh stack view` or
-  `gh api repos/{owner}/{repo}/pulls/<n> --jq '.stack'`. `null` is a defect.
+Preflight: `gh stack --help`. If the extension is missing, run
+`gh extension install github/gh-stack`. If stacks are unavailable for the
+repository (for example cross-fork work), stop and report the blocker; do not
+build a manual chain.
+
+- New chain: `gh stack init --base <trunk> <bottom>`, commit the bottom layer,
+  then `gh stack add <next>` and commit each higher layer; finish with
+  `gh stack submit --auto`. Add `--open` when the PRs are ready for review,
+  then replace each placeholder title and body with `gh pr edit <n> --title
+  '<type(scope): summary>' --body-file <file>`.
+- Adopting existing branches: `gh stack init <bottom> <next> ...`, then
+  `gh stack submit --auto`; submit updates existing PRs' bases.
+- Existing correctly chained PRs: `gh stack link <bottom> <next> ...`, bottom
+  first (PR numbers and URLs also accepted). Adopt a manual chain this way
+  instead of extending it.
+- Never create or retarget a stack layer with `gh pr create --base
+  <feature-branch>` or `gh pr edit --base`.
+
+Verify before review: `gh stack view --json`, or
+`gh api repos/{owner}/{repo}/pulls/<n> --jq '.stack'`. `null` on a dependent
+PR is a defect; fix it with `gh stack link` before asking for review.
 
 Native stacks evaluate branch protection, required checks, CODEOWNERS, code
 scanning, and required deployments against the stack trunk for every layer.
-They cascade rebases, preserve approvals for unchanged layer diffs, retarget
-upper PRs when the bottom merges, and merge bottom-up (whole or partial,
-merge-queue aware). Do not close
-and recreate upper PRs after the bottom merges; sync or rebase the stack.
-
-A manual chain is stranded when its base branch is deleted: the child keeps a
-missing base, reports `mergeable: false`, and needs a manual retarget and
-rebase. A squash-merged bottom also leaves its original commits in the child,
-so reopening the child against the trunk shows both layers until rebased.
+They cascade rebases, preserve approvals for unchanged layer diffs, and
+retarget upper PRs when the bottom merges. After a bottom merge run
+`gh stack sync` (or `gh stack rebase`); never close and recreate upper PRs.
 
 Limitations: all branches must be in the same repository; cross-fork stacks and
 GitHub Desktop are unsupported.
@@ -224,13 +238,21 @@ Never weaken or bypass tests merely to make CI green.
 
 Merge when the user's request authorizes it, or when standing authorization
 applies: after the review round and green required CI. Squash and delete the
-branch by default. A repository's `AGENTS.md` may require an explicit ask
-instead; follow it. Never merge directly to `main` and never force-push. If
-merge fails, fix forward or report the blocker.
+branch by default for a standalone PR. A repository's `AGENTS.md` may require
+an explicit ask instead; follow it. Never merge directly to `main` and never
+force-push. If merge fails, fix forward or report the blocker.
+
+Merge a stack as one unit. For the checked-out stack:
+`gh stack merge --yes --squash`. To stop at a layer, pass its PR number, but a
+bare number resolves as a stack number first; confirm the target with
+`gh stack view --json` and `gh api repos/{owner}/{repo}/stacks` before using
+`--yes`. Never `gh pr merge` a stack layer — the legacy merge endpoint cannot
+merge a stack — and never merge layers one at a time by hand. After a bottom
+merge, sync the remaining stack rather than closing and recreating PRs.
 
 Before deleting a merged branch, `gh pr list --base <branch>` must be empty:
-deleting a branch that an open PR targets closes that PR. Merge a stack
-through the native stack, bottom-up, never one layer at a time by hand.
+deleting a branch that an open PR targets closes that PR. Delete layer branches
+only after the whole stack is merged.
 
 When a merge triggers deployment or infrastructure pipelines, verify those
 post-merge pipelines before reporting completion. A green PR check alone is not
