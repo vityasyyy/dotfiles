@@ -184,6 +184,8 @@ each seam the change touches:
 
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
+Report code or tests that exist only to satisfy a coverage threshold as a
+finding ([`test-driven-development`](../test-driven-development/SKILL.md#coverage-is-not-a-goal)).
 
 ## Correctness
 

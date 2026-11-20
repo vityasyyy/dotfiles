@@ -215,6 +215,15 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 - Keep test-only code in test utilities, out of production classes
 - Understand a dependency's side effects before mocking it
 
+## Coverage Is Not a Goal
+
+A coverage threshold measures behavior tests; it never justifies code. When a
+line is unreachable by a behavior test, delete it, or leave it uncovered and
+say why. Never add a seam, branch, export, fake server, test-only package, or
+assertion-free test only to raise the number. If a hard gate (for example
+100%) forces that, report the gate as the defect and propose a lower threshold
+or a reasoned exclusion; do not satisfy it.
+
 ## Common Rationalizations
 
 | Excuse | Reality |
@@ -230,6 +239,7 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 | "TDD will slow me down" | TDD IS the pragmatic path: catches bugs before commit, prevents regressions, lets you refactor without fear. "Pragmatic" shortcuts mean debugging in production — slower, not faster. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
 | "Existing code has no tests" | You're improving it. Add tests for existing code. |
+| "The gate needs 100%, so I'll cover this adapter" | If no behavior test reaches it, the gate is wrong. Code or tests written for the number are defects. |
 
 ## Red Flags - STOP and Start Over
 
