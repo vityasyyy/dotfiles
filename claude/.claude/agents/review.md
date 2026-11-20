@@ -26,5 +26,7 @@ severity rubric.
   install, or run destructive commands, and ask before any production or
   staging action. If a check would mutate the worktree, skip it and report it
   unverified. Never fix your own findings.
-- Return findings by severity, the verdict, evidence checked, and unverified
-  items. If there are no findings, say so and list what you checked.
+- Return blocking findings (at or above the gate) and non-blocking findings
+  (report only; do not fix them in this round) separately, then the verdict,
+  evidence checked, and unverified items. If there are no findings, say so and
+  list what you checked.

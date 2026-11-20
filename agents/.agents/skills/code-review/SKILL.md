@@ -41,8 +41,17 @@ gate:
   thresholds: {}                   # e.g. coverage_pct: 80
 stop:
   stall_rounds: 2                  # same blocking set twice -> escalate
-  max_rounds: 5                    # circuit breaker, not the goal
+  max_rounds: 3                    # circuit breaker, not the goal
 ```
+
+`block` starts at `[critical, high]`. Widening it — adding `medium` or
+`low` — requires the user's explicit approval and a ledger entry. A `MEDIUM`
+blocks only when the contract names a security or data-loss surface; fix it in
+the same batch as the blocking findings, then review the batch once.
+
+Don't widen the gate to `LOW` to chase zero findings: a fresh reviewer always
+finds one. Stop when only `LOW`/`NOTE` remain. Prefer deleting code to adding
+it.
 
 - `acceptance`: every contract item maps to evidence. Omit only for an explicit
   advisory review; state that acceptance is unverified.
@@ -73,11 +82,18 @@ load path; a diff-only review misses packaging and import failures.
 
 ## Fresh-Context Rounds
 
+A round is **one fresh reviewer pass at a fixed head**. A resumed pass counts
+as the same round once; a second resume is a new round. Never relabel passes
+as "second/final pass" to stay inside `max_rounds`.
+
 Each round is a new reviewer session. Carry state, not context:
 
 - contract, gate, and diff range;
 - the ledger: open findings, fixed findings, and pushbacks with reasons;
 - prior evidence claims, for spot-checking.
+
+The implementer writes `.review/ledger.md` before round 1; the reviewer only
+reads it. Create it once per task; never reconstruct it from a transcript.
 
 Do not pass the previous reviewer transcript or the implementation chat.
 
@@ -93,6 +109,20 @@ Then:
    update the ledger, run a fresh round.
 3. `STALL` — the same blocking set twice — escalate.
 4. Budget exhausted, or `BLOCKED` — escalate; do not keep looping.
+
+Round rules:
+
+- **Round 1 is the full review.** Every later round reviews the delta since the
+  last reviewed head, not the whole PR again.
+- **A pass without a verdict is `BLOCKED`, not a retry.** Resume the same
+  session once with "finish the report"; if it fails again, escalate. Do not
+  spawn a new pass to recover a report.
+- **Below-gate findings are batched, not looped.** Fix `LOW`/`NOTE` items at the
+  end of the task or file them; they do not trigger a round on their own.
+- **Stop on convergence.** Two consecutive rounds with no new `HIGH` or
+  `MEDIUM` means the gate is satisfied; record the remaining `LOW`s and finish.
+- **Do not re-review a test-only or LOW-only change in a dedicated round.**
+  Include it in the next batch.
 
 Ledger (untracked; never commit):
 
