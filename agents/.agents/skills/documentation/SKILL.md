@@ -24,6 +24,15 @@ not cover code comments, chat replies, or agent instruction files.
   architecture section, not a separate decisions log.
 - Do not add a dated change log or old-patterns section to a repo doc; the
   platform's history view already holds that.
+- State a decision as its rationale ("X because <reason>"), never its
+  provenance (plans, phases, meetings, tickets, design-card numbers).
+
+## READMEs
+
+A README is the front door, not the manual. Keep it short (aim ≤150 lines):
+overview, architecture diagram, quickstart, configuration, common commands,
+deployment, and repository layout. Move reference material (API fields,
+definitions, runbooks, known limits, security) into `docs/*.md` and link it.
 
 ## Links
 

@@ -73,7 +73,7 @@ One owner per rule; load every skill the lane needs, nothing else.
 
 ## Code hygiene
 
-- No plan artifacts in code, comments, or commits ("step N", "phase N").
+- No plan artifacts or decision provenance ("phase N", "per the plan") in code, comments, docs, or commits; state the reason.
 - Code stays minimal; unnecessary JSDoc, comments, boilerplate are defects.
 - Commits are atomic: behavior + tests together; messages carry Conventional
   subject, what/why/impact body, evidence, risks. Subject-only is a defect.
