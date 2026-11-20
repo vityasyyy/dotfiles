@@ -148,9 +148,9 @@ each seam the change touches:
   their configured maximums. One end-to-end server deadline must bound that
   sum, and every client must wait longer than it; otherwise the client aborts
   before the server answers.
-- **Untrusted-key lookup:** a table indexed by external input cannot resolve
-  inherited keys (JS: `Map` or `Object.hasOwn`). The fallback branch needs a
-  case such as `constructor` or `__proto__`.
+- **Untrusted-key lookup:** a table indexed by external input must not resolve
+  inherited keys (JS: `Map` or `Object.hasOwn`). Test the fallback with
+  `constructor` and `__proto__`.
 
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
