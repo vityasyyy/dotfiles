@@ -141,6 +141,16 @@ each seam the change touches:
 - **Status matrix:** every provider or lifecycle state maps to a tested
   user-visible label, tone, icon, and next action. Include non-success states;
   a default branch is behavior and needs a case.
+- **Matcher parity:** a path or key filter (log redaction, auth skip,
+  limiter allowlist) matches every form the router or parser accepts: case,
+  trailing slash, encoding. Test a variant that differs only in case.
+- **Deadline budget:** sum the server's sequential downstream timeouts at
+  their configured maximums. One end-to-end server deadline must bound that
+  sum, and every client must wait longer than it; otherwise the client aborts
+  before the server answers.
+- **Untrusted-key lookup:** a table indexed by external input cannot resolve
+  inherited keys (JS: `Map` or `Object.hasOwn`). The fallback branch needs a
+  case such as `constructor` or `__proto__`.
 
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
