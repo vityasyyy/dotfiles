@@ -24,3 +24,10 @@ are limited to trivial docs/config/one-line fixes; state the reason in the
 report when you take one. If you catch yourself implementing, stop and move the
 remaining work to a worker. If `HERDR_ENV` is not 1, say so and stop; do not
 silently fall back to inline implementation.
+
+## Review gate
+
+The `code-review` skill owns the gate, round budget, and stop conditions. Load
+it before the first review round. Pass its gate verbatim when spawning a
+review; never widen `block` without the user's approval. Follow its resume and
+delta rules instead of spawning extra passes to recover a report.

@@ -11,11 +11,15 @@ Review the current change in a fresh context. Arguments: `$ARGUMENTS`
    with the default branch, including untracked files.
 2. Fix the gate: read `.review/ledger.md` when present. Otherwise use the
    default gate in `code-review` plus any thresholds in the arguments. State
-   the gate verbatim before reviewing.
+   the gate verbatim before reviewing. The default `block` is
+   `[critical, high]`; never widen it to include `LOW` without the user's
+   approval, and never let a `LOW`/`NOTE` fail the gate.
 3. Contract: use the contract from the arguments, `.review/ledger.md`, the
    plan, or the PR body. If none exists, run an advisory diff review: omit
    `acceptance` from the gate and state `Contract: none supplied; acceptance
    not verified`. Do not invent requirements.
-4. Report findings by severity, the verdict, the evidence you checked, and what
+4. Scope the round: if the ledger records a previously reviewed head, review
+   only the delta since that head. Round 1 is the only full-PR review.
+5. Report findings by severity, the verdict, the evidence you checked, and what
    remains unverified. Combine the full files, contract, ledger, and command
    output; no diff-only findings. Do not edit, commit, or push.
