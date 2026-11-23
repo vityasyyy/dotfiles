@@ -229,14 +229,16 @@ After PR creation:
   ```bash
   # Run from the repository checkout; `timeout` is GNU coreutils.
   sha=$(gh pr view <n> --json headRefOid -q .headRefOid) && [ -n "$sha" ] || exit 1
-  runs=$(gh run list --commit "$sha" --limit 100 --json databaseId -q '.[].databaseId')
+  runs=$(gh run list --commit "$sha" --limit 100 --json databaseId -q '.[].databaseId') || exit 1
   [ -n "$runs" ] || { echo "no workflow run yet for $sha" >&2; exit 1; }
   status=0
   for run in $runs; do
     timeout 1800 gh run watch "$run" --exit-status || status=$?
   done
-  gh api --paginate "repos/{owner}/{repo}/commits/$sha/check-runs?per_page=100" \
-    -q '.check_runs[] | "\(.name) \(.status) \(.conclusion)"'
+  checks=$(gh api --paginate "repos/{owner}/{repo}/commits/$sha/check-runs?per_page=100" \
+    -q '.check_runs[] | "\(.name) \(.status) \(.conclusion)"') || exit 1
+  [ -n "$checks" ] || { echo "no check runs for $sha" >&2; exit 1; }
+  echo "$checks"
   exit "$status"
   ```
 
