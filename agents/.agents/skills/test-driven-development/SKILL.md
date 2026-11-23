@@ -224,6 +224,24 @@ assertion-free test only to raise the number. If a hard gate (for example
 100%) forces that, report the gate as the defect and propose a lower threshold
 or a reasoned exclusion; do not satisfy it.
 
+### Production code reads as if tests did not exist
+
+Calling a hook a "testability boundary" does not make it one. A dependency
+belongs in production code only when production itself uses it: an I/O port
+the logic is written against (a repository or queryer interface), or a
+nondeterministic input (clock, randomness) passed through the constructor
+production already calls. Anything else that exists so a test can reach a
+line is a hook. Fix the design, test the unit above or below, or leave the
+line uncovered.
+
+| Hook shape | Fix |
+|---|---|
+| `main` → `run(deps)` / `runWith(load, getenv, listen)` | Keep `main` a thin script: load config, compose, serve. Test what it calls; the gate excludes `main` |
+| Package-level function variable a test reassigns (`var newClient = …`) | Pass the dependency to the constructor, or test the function it wraps |
+| Exported option or constructor variant only tests call (`WithClientFactory`, `NewServerWith…`) | One constructor; tests build its real inputs in `_test.go` |
+| Fake server or emulator only to cover an SDK constructor | Leave the constructor uncovered; an opt-in integration test covers it |
+| A production comment saying "tests use this" or "seam for tests" | The comment names the hook; remove the hook |
+
 ## Common Rationalizations
 
 | Excuse | Reality |

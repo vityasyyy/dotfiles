@@ -186,6 +186,11 @@ Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
 Report code or tests that exist only to satisfy a coverage threshold as a
 finding ([`test-driven-development`](../test-driven-development/SKILL.md#coverage-is-not-a-goal)).
+Report a test hook in production code as a finding even when the PR calls it
+a testability boundary: `run`/`runWith` wrappers, reassigned package-level
+function variables, options or constructor variants only tests call, and
+"for tests" comments
+([hook shapes](../test-driven-development/SKILL.md#production-code-reads-as-if-tests-did-not-exist)).
 
 ## Correctness
 
