@@ -68,8 +68,8 @@ One owner per rule; load every skill the lane needs, nothing else.
 - Never repeat an identical tool call. If output exists, use it or run a
   different diagnostic.
 - Three similar calls without progress: stop, summarize, decide, or ask.
-- Blocked on external state: blocking wait (`gh pr checks --watch`,
-  `herdr agent wait`) or ask; never poll. Fresh refs before claiming state.
+- Blocked on external state: bounded wait (`timeout N gh run watch`, CI per
+  `git-pr-workflow`) or ask; never poll. Fresh refs before claiming state.
 
 ## Code hygiene
 

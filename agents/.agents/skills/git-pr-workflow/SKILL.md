@@ -222,7 +222,21 @@ Before opening the PR:
 
 After PR creation:
 
-- wait for required checks;
+- wait for required checks with a bounded wait on the workflow runs for the
+  head commit, never an unbounded `gh pr checks --watch` (it waits forever on
+  a check GitHub leaves `in_progress` after its job finished):
+
+  ```bash
+  sha=$(gh pr view <n> --json headRefOid -q .headRefOid)
+  for run in $(gh run list --commit "$sha" --json databaseId -q '.[].databaseId'); do
+    timeout 1800 gh run watch "$run" --exit-status
+  done
+  gh api "repos/{owner}/{repo}/commits/$sha/check-runs" \
+    -q '.check_runs[] | "\(.name) \(.status) \(.conclusion)"'
+  ```
+
+  A check run with a `conclusion` is finished even if its `status` still says
+  `in_progress`. On timeout, report the stuck check instead of waiting again;
 - inspect failures rather than guessing;
 - reproduce locally when practical;
 - fix failures;

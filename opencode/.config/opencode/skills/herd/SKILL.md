@@ -28,7 +28,7 @@ You are the lead agent. The user gives goals; you plan, delegate to worker agent
 7. **Integrate via PR + CI + squash-merge.** Do NOT merge worker branches directly into main:
    - Build a clean feature branch from `origin/main` with well-scoped Conventional Commits (type(scope): description + body with why/what).
    - Push the branch, open a PR following `git-pr-workflow`'s body structure.
-   - Wait for CI with `gh pr checks <n> --watch` (blocking, never sleep-wait).
+   - Wait for CI with the bounded run wait in `git-pr-workflow` (never an unbounded `gh pr checks --watch`, never sleep-wait).
    - Once green: `gh pr merge <n> --squash --delete-branch` (only when the user's workflow authorizes merging).
 
 ## Worker agent
