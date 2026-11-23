@@ -222,7 +222,31 @@ Before opening the PR:
 
 After PR creation:
 
-- wait for required checks;
+- wait for required checks with a bounded wait on the workflow runs for the
+  head commit, never an unbounded `gh pr checks --watch` (it waits forever on
+  a check GitHub leaves `in_progress` after its job finished):
+
+  ```bash
+  # Run from the repository checkout; `timeout` is GNU coreutils.
+  sha=$(gh pr view <n> --json headRefOid -q .headRefOid) && [ -n "$sha" ] || exit 1
+  runs=$(gh run list --commit "$sha" --limit 100 --json databaseId -q '.[].databaseId') || exit 1
+  [ -n "$runs" ] || { echo "no workflow run yet for $sha" >&2; exit 1; }
+  status=0
+  for run in $runs; do
+    timeout 1800 gh run watch "$run" --exit-status || status=$?
+  done
+  checks=$(gh api --paginate "repos/{owner}/{repo}/commits/$sha/check-runs?per_page=100" \
+    -q '.check_runs[] | "\(.name) \(.status) \(.conclusion)"') || exit 1
+  [ -n "$checks" ] || { echo "no check runs for $sha" >&2; exit 1; }
+  echo "$checks"
+  exit "$status"
+  ```
+
+  Green means exit 0 and every listed check concluded `success`, `skipped` or
+  `neutral`. Empty output or a non-zero exit is not green: no run yet means
+  wait briefly and rerun; 124 means a run is still going after 30 minutes, so
+  report it with the check list instead of waiting again. A check run with a
+  `conclusion` is finished even if its `status` still says `in_progress`;
 - inspect failures rather than guessing;
 - reproduce locally when practical;
 - fix failures;
