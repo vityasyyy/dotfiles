@@ -231,15 +231,15 @@ After PR creation:
   sha=$(gh pr view <n> --json headRefOid -q .headRefOid) && [ -n "$sha" ] || exit 1
   runs=$(gh run list --commit "$sha" --limit 100 --json databaseId -q '.[].databaseId') || exit 1
   [ -n "$runs" ] || { echo "no workflow run yet for $sha" >&2; exit 1; }
-  status=0
-  for run in $runs; do
-    timeout 1800 gh run watch "$run" --exit-status || status=$?
-  done
+  rc=0
+  while read -r run; do
+    timeout 1800 gh run watch "$run" --exit-status < /dev/null || rc=$?
+  done <<< "$runs"
   checks=$(gh api --paginate "repos/{owner}/{repo}/commits/$sha/check-runs?per_page=100" \
     -q '.check_runs[] | "\(.name) \(.status) \(.conclusion)"') || exit 1
   [ -n "$checks" ] || { echo "no check runs for $sha" >&2; exit 1; }
   echo "$checks"
-  exit "$status"
+  exit "$rc"
   ```
 
   Green means exit 0 and every listed check concluded `success`, `skipped` or
