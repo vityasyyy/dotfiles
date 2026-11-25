@@ -6,20 +6,26 @@ subtask: true
 
 Review the current change in a fresh context. Arguments: `$ARGUMENTS`
 
-1. Scope: if the arguments name a base ref, review `git diff <base>` plus
+1. Lane: `light` or `full` from the arguments, the contract, or the ledger. If
+   none names a lane, use `light`. Record `Review: skip|light|full` when you
+   own the contract; a light pass blocks only on `CRITICAL`.
+2. Scope: if the arguments name a base ref, review `git diff <base>` plus
    untracked files; otherwise review the working tree against the merge-base
    with the default branch, including untracked files.
-2. Fix the gate: read `.review/ledger.md` when present. Otherwise use the
-   default gate in `code-review` plus any thresholds in the arguments. State
-   the gate verbatim before reviewing. The default `block` is
-   `[critical, high]`; never widen it to include `LOW` without the user's
-   approval, and never let a `LOW`/`NOTE` fail the gate.
-3. Contract: use the contract from the arguments, `.review/ledger.md`, the
-   plan, or the PR body. If none exists, run an advisory diff review: omit
-   `acceptance` from the gate and state `Contract: none supplied; acceptance
-   not verified`. Do not invent requirements.
-4. Scope the round: if the ledger records a previously reviewed head, review
-   only the delta since that head. Round 1 is the only full-PR review.
-5. Report findings by severity, the verdict, the evidence you checked, and what
-   remains unverified. Combine the full files, contract, ledger, and command
-   output; no diff-only findings. Do not edit, commit, or push.
+3. Gate: read `.review/ledger.md` when present. Otherwise use the default gate
+   in `code-review` plus any thresholds in the arguments. State the gate
+   verbatim before reviewing. The default `block` is `[critical, high]`; never
+   widen it to include `LOW` without the user's approval. A light review is
+   advisory: only `CRITICAL` blocks.
+4. Contract: use the contract from the arguments, `.review/ledger.md`, the
+   plan, or the PR body. If none exists, omit `acceptance` from the gate and
+   state `Contract: none supplied; acceptance not verified`. Do not invent
+   requirements.
+5. Budget: light 15 tool calls and no test execution; full 40; delta 10.
+   Targeted checks only, no full suite, coverage, build, or temp worktree.
+6. Scope the round: if the ledger records a previously reviewed head, review
+   only the delta since that head. Round 1 is the only full-PR review; one
+   round covers a stack, not each layer.
+7. Report `SHIP`, `SHIP WITH FOLLOW-UPS`, or `DO NOT SHIP`, then must-fix
+   findings, follow-ups, evidence checked, and unverified items. Do not edit,
+   commit, or push.

@@ -14,8 +14,8 @@ Every non-trivial change follows one spine:
   gate here. Multi-step gets a plan; testable behavior gets a failing test first.
 - **Implement:** smallest correct diff; `ponytail`; reuse before adding.
 - **Verify:** real commands, evidence not claims; an unrun or blind gate is not coverage, and an assertion weaker than the claim is not evidence.
-- **Review:** standard/high-impact get a fresh-context round; trivial gets a
-  self-check. Fix blockers; never self-approve.
+- **Review:** triage at contract time: docs/config skip, standard light advisory,
+  high-impact full. Only must-fix blocks; record follow-ups; never self-approve.
 - **Report:** what changed, what was verified, risks, rollback, gaps.
 
 Load the owning skill for the task; announce "Using [skill] to [purpose]."
@@ -23,7 +23,7 @@ One owner per rule; load every skill the lane needs, nothing else.
 
 | Trigger | Skill |
 |---|---|
-| Ambiguous intent, design interview | `grilling` |
+| Ambiguous intent, 2+ user questions | `grilling` |
 | Multi-step plan | `writing-plans` |
 | Bug or unexpected behavior | `systematic-debugging` |
 | Behavior change needing tests | `test-driven-development` |
@@ -86,9 +86,10 @@ One owner per rule; load every skill the lane needs, nothing else.
 
 ## Response style
 
-- Lead with the artifact. Concise but complete; structure over adjectives.
-- Diagram architecture, data flow, and state changes with Mermaid, render-first;
-  short top-down labels, annotated edges; 1–3 sentences of interpretation.
+- Lead with the artifact; structure over adjectives. Diagram architecture, data
+  flow, and state changes with Mermaid; 1–3 sentences of interpretation.
+- Decisions the user must make go through the native question tool when the
+  harness has one; never a chat list. `grilling` owns the interview format.
 
 ## Memory
 
@@ -101,10 +102,9 @@ One owner per rule; load every skill the lane needs, nothing else.
 
 - Routine non-destructive work is pre-authorized, including read-only
   diagnostics, `/tmp`, `~/.local/bin`, worktrees, and approved tool installs.
-- Standing merge authorization: after the review round and green required CI,
+- Standing merge authorization: after the required review lane and green CI,
   squash-merge and delete the branch without re-asking, unless the repo
   `AGENTS.md` requires an ask. This covers merges that trigger a deploy.
   Never merge to `main` directly or force-push.
-- Ask before destructive commands, secrets/credentials, production or staging
-  changes, deploy commands, migrations, or new worker waves.
-- Large downloads: ask the user to run them; resume after confirmation.
+- Ask before destructive commands, secrets, production/staging, deploy,
+  migrations, or new worker waves; large downloads: ask the user.

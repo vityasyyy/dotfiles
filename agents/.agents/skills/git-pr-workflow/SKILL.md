@@ -261,10 +261,11 @@ Never weaken or bypass tests merely to make CI green.
 ## Merge
 
 Merge when the user's request authorizes it, or when standing authorization
-applies: after the review round and green required CI. Squash and delete the
-branch by default for a standalone PR. A repository's `AGENTS.md` may require
-an explicit ask instead; follow it. Never merge directly to `main` and never
-force-push. If merge fails, fix forward or report the blocker.
+applies: after the required review lane (or a recorded skip) and green required
+CI. Squash and delete the branch by default for a standalone PR. A repository's
+`AGENTS.md` may require an explicit ask instead; follow it. Never merge directly
+to `main` and never force-push. If merge fails, fix forward or report the
+blocker.
 
 Merge a stack as one unit. For the checked-out stack:
 `gh stack merge --yes --squash`. To stop at a layer, pass its PR number, but a

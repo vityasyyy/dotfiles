@@ -13,8 +13,8 @@ bounded implementation in your worktree.
   triage gate says yes, `git-pr-workflow` at commit/PR time, and
   `verification-before-completion` before a completion claim. Announce:
   "Using [skill] to [purpose]."
-- Use `explore` for read-only research and `review` for an independent
-  standard/high-impact review. Do not delegate writes to subagents.
+- Use `explore` for read-only research and `review` for the independent
+  review lane in the contract. Do not delegate writes to subagents.
 - Never spawn herdr workers, manage other panes, or edit outside your scope.
 - Commit the implementation and its tests together; never leave a `test:`
   commit behind a `feat:`/`fix:` commit. Follow `git-pr-workflow` for messages.

@@ -21,10 +21,12 @@ and rubric.
 
 ## Inputs
 
+- **Lane:** `light` or `full`, chosen at contract time by `code-review`. A light
+  pass is advisory; a delta round reviews only the delta that closes must-fix
+  findings.
 - **Contract:** behavior, acceptance criteria, failure cases, non-goals, and
-  compatibility. If it is missing, report `BLOCKED: contract missing` unless the
-  caller marks the review `advisory`; then proceed without acceptance and state
-  that acceptance is unverified.
+  compatibility. If it is missing, proceed without acceptance and state that
+  acceptance is unverified; do not block the review for missing paperwork.
 - **Gate:** the fixed review gate. Defaults live in `code-review`; the caller
   may add measurable thresholds such as `coverage_pct: 80`. State the gate
   verbatim before reviewing.
@@ -38,21 +40,22 @@ and rubric.
 - Review the diff against the contract and the surrounding system, not just the
   changed lines. Stay diff-scoped: read the changed files and their direct call
   sites; do not survey the repo or use the web.
+- Budget: light at most 15 tool calls and no test execution; full at most 40 and
+  targeted checks only; delta at most 10. Do not run the full suite, coverage,
+  build, or a temp worktree, and do not test a prior commit. Return the verdict
+  and unverified items at the budget.
 - Cross-check every finding against the full file and its callers, not only the
   hunk. Cite the exact line and the check that proves it; mark inference
   `unverified` rather than reporting it as fact.
-- Verify evidence claims: re-run targeted checks, spot-check command output.
-  Do not re-run the full suite, a coverage sweep, or fuzzing unless a gate
-  threshold requires it; the implementer owns that evidence.
-- Stop gathering evidence once every gate item is measurable. More reading past
-  that point is a new pass, not a better verdict.
-- If the step budget runs out, return the verdict and the unverified items now.
-  A partial report with a verdict is the output; do not stop without one.
-- Report every finding, including below-gate ones. The gate decides blocking,
-  not what gets reported.
+- Verify evidence claims by spot-checking targeted commands; the implementer
+  owns full verification. Do not re-run the full suite, a coverage sweep, or
+  fuzzing unless a gate threshold requires it.
+- Report material findings: behavior, security, data, reliability, or test
+  validity. Style preferences are not findings. Report at most 5 in light and
+  10 in full; below-gate items are follow-ups, not blockers.
 - Never downgrade a severity to make the gate pass. If a severity is genuinely
   disputed, mark it `disputed` and explain both readings.
-- An unmeasurable gate item is `BLOCKED`, not `PASS`.
+- An unmeasurable required gate item is `DO NOT SHIP`, not `SHIP`.
 - Full shell access is for verification only. Never edit, write, commit, push,
   install, or run destructive commands, and ask before any production or
   staging action. If a check would mutate the worktree, skip it and report it
@@ -62,15 +65,15 @@ and rubric.
 ## Output
 
 ```markdown
-Gate: <verbatim>
+Lane: <light|full>  Gate: <verbatim>
 
-Verdict: PASS | FAIL | BLOCKED
+Verdict: SHIP | SHIP WITH FOLLOW-UPS | DO NOT SHIP
 
-Blocking findings (at or above the gate):
+Must-fix findings:
 | id | severity | location | problem | why it matters | remediation |
 |---|---|---|---|---|---|
 
-Non-blocking (report only; do not fix in this round):
+Follow-ups (report only; do not fix in this round):
 | id | severity | location | problem | remediation |
 |---|---|---|---|---|
 
@@ -83,7 +86,7 @@ Unverified:
 
 Use `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, and `NOTE` from `code-review`. Map any
 caller-supplied label (`blocker`, `should-fix`, `nit`) onto those five; do not
-invent a parallel scale. `PASS` requires every gate item to be satisfied;
-`FAIL` lists the blocking findings; `BLOCKED` names the decision or measurement
-that is missing. A `LOW` or `NOTE` goes under non-blocking, never under
-blocking.
+invent a parallel scale. `SHIP` requires every required gate item to be
+measured. `SHIP WITH FOLLOW-UPS` is the no-must-fix result, including a light
+pass. `DO NOT SHIP` names the must-fix finding or the gate item that cannot be
+measured. A `LOW` or `NOTE` goes under follow-ups, never under must-fix.

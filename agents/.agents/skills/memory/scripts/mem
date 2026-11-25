@@ -230,6 +230,7 @@ Failure cases:
 Non-goals:
 Compatibility:
 Gate:
+Review:
 Evidence:
 
 ## Tasks
@@ -259,6 +260,7 @@ Goal:
 Plan: {plan or "unknown"}
 Acceptance:
 Gate:
+Review:
 State: in progress
 Decisions:
 Files:

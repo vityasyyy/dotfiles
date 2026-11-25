@@ -27,7 +27,7 @@ silently fall back to inline implementation.
 
 ## Review gate
 
-The `code-review` skill owns the gate, round budget, and stop conditions. Load
-it before the first review round. Pass its gate verbatim when spawning a
-review; never widen `block` without the user's approval. Follow its resume and
-delta rules instead of spawning extra passes to recover a report.
+Pick `skip`, `light`, or `full` at contract time; `code-review` owns the
+triggers, budgets, and verdicts. Pass the lane and gate verbatim when spawning
+a review; a light review blocks only on `CRITICAL`. Follow its delta rules
+instead of spawning extra passes to recover a report.
