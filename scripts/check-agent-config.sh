@@ -167,6 +167,10 @@ fi
 
 grep -q 'Ask before destructive commands' "${tier0}" \
   || err "${tier0} is missing the destructive-command approval rule"
+grep -q 'native question tool' "${tier0}" \
+  || err "${tier0} is missing the native-question rule"
+grep -q 'native question tool' agents/.agents/skills/grilling/SKILL.md \
+  || err "grilling skill does not require the native question tool"
 
 # Scaffolded templates carry the review contract and stay idempotent.
 check_dir="$(mktemp -d)"
@@ -176,13 +180,13 @@ plan_path="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" plan --task check)" \
 plan_again="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" plan --task check)" \
   || err "mem plan failed on rerun"
 [ "${plan_path}" = "${plan_again}" ] || err "mem plan is not idempotent"
-for field in Behavior Acceptance Gate Evidence; do
+for field in Behavior Acceptance Gate Review Evidence; do
   grep -q "^${field}:" "${plan_path}" 2>/dev/null \
     || err "mem plan is missing ${field}"
 done
 handoff_path="$(AGENT_MEMORY_DIR="${check_dir}" "${mem_bin}" handoff --task check)" \
   || err "mem handoff failed"
-for field in Plan Acceptance Gate; do
+for field in Plan Acceptance Gate Review; do
   grep -q "^${field}:" "${handoff_path}" 2>/dev/null \
     || err "mem handoff is missing ${field}"
 done
@@ -224,7 +228,7 @@ while IFS= read -r -d '' skill; do
   ' "${skill}" 2>&1)"; then
     err "${skill}: ${message}"
   fi
-done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -print0)
+done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -not -path '*/synced/*' -print0)
 
 # Every skill is referenced in at least one harness routing instruction.
 while IFS= read -r -d '' skill; do
@@ -232,11 +236,11 @@ while IFS= read -r -d '' skill; do
   if ! grep -Fq -- "\`${skill_name}\`" "${tier0}"; then
     err "skill is not routed: ${skill_name}"
   fi
-done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -print0)
+done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -not -path '*/synced/*' -print0)
 
 # Deleted skills must not reappear in active configuration.
 if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring' \
-  --include='*.md' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
+  --include='*.md' --exclude-dir='synced' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
   | grep -Ev 'authoring-guide' >/dev/null; then
   err "active configuration references a deleted skill"
 fi

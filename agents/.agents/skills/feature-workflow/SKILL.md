@@ -13,14 +13,19 @@ minimum gates for each lane. Do not restate a rule another skill owns.
 
 ## Pick the lane
 
-| Lane | Trigger | Minimum gates |
-|---|---|---|
-| Trivial | typo, one-line fix, config/docs; reversible; obvious check | one-line contract → implement → verify → report |
-| Standard | behavior change in maintained code | contract + gate → tests (TDD when testable) → implement → verify → review gate → PR |
-| High-impact | architecture, data model, security, cross-cutting, production infra | grilling/spec → plan → worker delegation (parallel-worktrees if parallel) → contract + gate → implement → verify → review gate → PR → post-merge pipelines |
+| Lane | Trigger | Review | Minimum gates |
+|---|---|---|---|
+| Trivial | typo, one-line fix, config/docs; reversible; obvious check | skip | one-line contract → implement → verify → report |
+| Standard | behavior change in maintained code | light | contract + gate → tests (TDD when testable) → implement → verify → advisory review → PR |
+| High-impact | architecture, data model, money/auth/security, cross-cutting, production infra | full | grilling/spec → plan → worker delegation (parallel-worktrees if parallel) → contract + gate → implement → verify → full review → PR → post-merge pipelines |
 
-When unsure, take the higher lane. If a trivial change grows, move to the
-standard lane immediately; do not retrofit a plan after the fact.
+Review triggers and verdicts are owned by `code-review`. Record
+`Review: skip|light|full` in the contract. When unsure between code lanes, take
+the higher lane; between review lanes, take `light` and promote the change if
+the review finds a full-lane issue.
+
+If a trivial change grows, move to the standard lane immediately; do not
+retrofit a plan after the fact.
 
 ## 1. Inspect
 
@@ -46,6 +51,7 @@ Status matrix:    # every provider/lifecycle state -> visible outcome
 Non-goals:
 Compatibility:
 Gate:
+Review:           # skip | light | full
 Evidence:
 ```
 
@@ -53,8 +59,8 @@ Evidence:
 - For a change with a consumer (UI, API client, agent), the seam the consumer
   sees is part of Acceptance; plan the composition or exact-render test here.
   Isolated unit tests do not satisfy that seam.
-- Fix the review gate here with the contract: the default lives in
-  `code-review`, plus any task-specific thresholds.
+- Pick the review lane here with the contract: `skip`, `light`, or `full`;
+  triggers and the gate live in `code-review`.
 - Multi-step: put the contract at the top of the plan (`writing-plans`).
 - Testable: turn Acceptance into failing tests (`test-driven-development`).
 - Trivial: one line in the response is enough.
@@ -92,13 +98,14 @@ Evidence:
 
 ## 6. Review and report
 
-- Standard/high-impact: run an independent review round against the gate fixed
-  at contract time (OpenCode `/review`, Claude the `review` subagent, Codex a
-  fresh session). The reviewer reports; you fix blocking findings or push back
-  with evidence.
-- Re-review the delta in a fresh round. Stop on `PASS`; escalate on `STALL`
-  (same blocking set twice), `BLOCKED`, or the round budget.
-- Trivial: re-read the diff yourself; fix stray debug code and scope creep.
+- `skip`: re-read the diff yourself; fix stray debug code and scope creep.
+- `light`: one advisory pass (OpenCode `/review light`, Claude the `review`
+  subagent, Codex a fresh session). Fix must-fix findings; record accepted
+  follow-ups. It blocks only on `CRITICAL`.
+- `full`: independent review against the contract gate. Fix must-fix findings
+  or push back with evidence; re-review only the delta that closes them, at
+  most three rounds. Escalate on `DO NOT SHIP` twice or budget exhaustion.
+- Review the stack, not each layer: one full pass covers the aggregate diff.
 - Commit, open the PR, and wait for CI with `git-pr-workflow`. The feature and
   its tests land in one commit; never split `feat`/`fix` from `test`.
 - Report:

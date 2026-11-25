@@ -12,17 +12,24 @@ Interview the user until you reach a shared understanding. Map the work as a
 
 Work the tree in rounds. The **frontier** is every decision whose prerequisites
 are settled — the questions you can ask now without guessing at answers you
-have not heard. Ask the whole frontier in one round, numbered, each with your
-recommended answer. Then wait.
+have not heard. Ask the whole frontier in one round, then wait.
+
+Use the native question tool (OpenCode `question`, Claude Code
+`AskUserQuestion`) for the round. Do not enumerate questions in chat when the
+tool exists. One call carries up to four questions; each has 2–4 options, the
+recommended one first with "(Recommended)", and the context in the question
+body. More than four frontier questions: ask four, then ask the next round.
+
+If the tool is unavailable or the call fails, say `question tool unavailable`
+and use the inline format; never fall back silently.
+
+Inline fallback:
 
 ```
 ❓ **Q1** — **<title>**: <question body and choices>
 
 ➡️ <recommended answer>
 ```
-
-Use the native question modal when the harness exposes one. One decision per
-modal. Otherwise use the inline format.
 
 Each round reshapes the tree: settled answers push the frontier outward.
 Recompute it and ask the next round. A question that depends on another open

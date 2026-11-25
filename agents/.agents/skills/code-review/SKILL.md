@@ -15,6 +15,32 @@ metadata:
 
 Review the system, not just the changed lines.
 
+## Review Triage
+
+Choose the lane at contract time and record `Review: skip|light|full`.
+
+**Skip** when the entire change is docs, comments, formatting, tests only that
+do not weaken a risky assertion, local tooling config, a mechanical dependency
+bump with green CI, a revert of a known-good commit, or a one-line fix with an
+obvious check. Self-check the diff.
+
+**Full** when any change touches money movement, auth/authz, secrets, PII or
+tenant isolation, schema or data migration, a public API or shared contract,
+production infra or deploy, concurrency, idempotency, retries or an external
+provider, or exceeds 400 changed lines or 12 files, or adds behavior without
+tests.
+
+**Light** otherwise. When unsure, use light. A light review that finds a
+full-lane issue promotes the change to full; it does not expand in place.
+
+Budgets are soft. Return the verdict and unverified items at the limit:
+
+- light: 15 tool calls, no test execution, at most 5 findings;
+- full: 40 tool calls, targeted checks only, at most 10 findings;
+- delta: 10 tool calls, closure and regressions only.
+
+Over budget with a verdict is a result; over budget without one is a failure.
+
 ## Before Requesting Review
 
 Before handing your own work to review (or asking a worker to review):
@@ -23,10 +49,10 @@ Before handing your own work to review (or asking a worker to review):
 2. Re-read your own diff first: stray debug code, leftover plan artifacts ("per step N"), unrelated churn.
 3. Confirm every requirement is demonstrably implemented; state any known gaps explicitly rather than hoping the reviewer misses them.
 4. Exercise the seam the change touches: the composed app/router/middleware stack, the API response → consumer render path, or the provider status matrix. Green tests on isolated pieces are not evidence for those seams.
-5. Run single-session reviews in a fresh context: OpenCode `/review`, Claude the
-   `review` subagent, Codex a fresh session. Parallel or worker output still
-   goes through the harness's worker orchestration when it has one. Never
-   self-approve.
+5. Run single-session reviews in a fresh context: OpenCode `/review light|full`,
+   Claude the `review` subagent, Codex a fresh session. Pass the lane and gate.
+   Parallel or worker output still goes through the harness's worker
+   orchestration when it has one. Never self-approve.
 
 ## Review Gate
 
@@ -40,14 +66,18 @@ gate:
   require: [acceptance, evidence, scope]
   thresholds: {}                   # e.g. coverage_pct: 80
 stop:
-  stall_rounds: 2                  # same blocking set twice -> escalate
+  stall_rounds: 2                  # same must-fix set twice -> escalate
   max_rounds: 3                    # circuit breaker, not the goal
 ```
 
 `block` starts at `[critical, high]`. Widening it — adding `medium` or
 `low` — requires the user's explicit approval and a ledger entry. A `MEDIUM`
 blocks only when the contract names a security or data-loss surface; fix it in
-the same batch as the blocking findings, then review the batch once.
+the same batch as the must-fix findings, then review the batch once.
+
+The gate applies to `full`. A `light` review is advisory: `HIGH`/`MEDIUM`
+findings are follow-ups unless the change is promoted to full; only `CRITICAL`
+blocks.
 
 Don't widen the gate to `LOW` to chase zero findings: a fresh reviewer always
 finds one. Stop when only `LOW`/`NOTE` remain. Prefer deleting code to adding
@@ -58,15 +88,27 @@ it.
 - `evidence`: claimed commands were re-run or spot-checked.
 - `scope`: no files outside the declared scope.
 - `thresholds`: measurable, repo-specific checks. If a threshold cannot be
-  measured, the verdict is `BLOCKED`, not `PASS`.
+  measured, the verdict is `DO NOT SHIP`, never `SHIP`.
 
 Secrets are reported, never gated on absence: any credential, key, or token in
 the diff is `CRITICAL`. Record a scanner result as evidence when one is
 available; absence cannot be proven by inspection.
 
-The gate decides blocking, not reporting: report every finding. Never downgrade
-severity to pass. A numeric score is not a gate unless it is derived
-mechanically from binary criteria.
+The gate decides blocking, not reporting. Report material findings: behavior,
+security, data, reliability, or test validity. Style preferences are not
+findings. Never downgrade severity to pass. A numeric score is not a gate
+unless it is derived mechanically from binary criteria.
+
+Verdicts:
+
+- `SHIP` — no must-fix finding and every required gate item is measured.
+- `SHIP WITH FOLLOW-UPS` — no must-fix; advisory findings, or acceptance
+  unverified because no contract was supplied.
+- `DO NOT SHIP` — a must-fix finding, or a required gate item that cannot be
+  measured.
+
+A must-fix finding is `CRITICAL`, a `HIGH` on a full review, or a `MEDIUM` on a
+security or data-loss surface. Everything else is a follow-up.
 
 ## Evidence Discipline
 
@@ -92,8 +134,9 @@ Each round is a new reviewer session. Carry state, not context:
 - the ledger: open findings, fixed findings, and pushbacks with reasons;
 - prior evidence claims, for spot-checking.
 
-The implementer writes `.review/ledger.md` before round 1; the reviewer only
-reads it. Create it once per task; never reconstruct it from a transcript.
+For a `full` review, the implementer writes `.review/ledger.md` before round 1;
+the reviewer only reads it. A `light` pass does not need a ledger. Create it
+once per task; never reconstruct it from a transcript.
 
 Do not pass the previous reviewer transcript or the implementation chat.
 
@@ -104,37 +147,42 @@ you escalate.
 
 Then:
 
-1. `PASS` — every gate item is satisfied.
-2. `FAIL` with progress — fix blocking findings or push back with evidence,
-   update the ledger, run a fresh round.
-3. `STALL` — the same blocking set twice — escalate.
-4. Budget exhausted, or `BLOCKED` — escalate; do not keep looping.
+1. `SHIP` — done.
+2. `SHIP WITH FOLLOW-UPS` — fix or record the follow-ups; do not start a round
+   for them.
+3. `DO NOT SHIP` with progress — fix must-fix findings or push back with
+   evidence, update the ledger, run a delta round.
+4. `STALL` — the same must-fix set twice — escalate.
+5. Budget exhausted — escalate; do not keep looping.
 
 Round rules:
 
+- **A round is for must-fix closure or an explicit user request.** Fixing
+  `LOW`/`NOTE` items never starts one.
 - **Round 1 is the full review.** Every later round reviews the delta since the
   last reviewed head, not the whole PR again.
-- **A pass without a verdict is `BLOCKED`, not a retry.** Resume the same
-  session once with "finish the report"; if it fails again, escalate. Do not
-  spawn a new pass to recover a report.
-- **Below-gate findings are batched, not looped.** Fix `LOW`/`NOTE` items at the
-  end of the task or file them; they do not trigger a round on their own.
-- **Stop on convergence.** Two consecutive rounds with no new `HIGH` or
-  `MEDIUM` means the gate is satisfied; record the remaining `LOW`s and finish.
-- **Do not re-review a test-only or LOW-only change in a dedicated round.**
-  Include it in the next batch.
+- **Review the stack once.** Round 1 covers the aggregate diff; do not review
+  each stacked layer separately.
+- **A pass without a verdict is a failure.** Resume the same session once with
+  "finish the report"; if it fails again, escalate. Do not spawn a new pass to
+  recover a report.
+- **Stop on convergence.** Two consecutive rounds with no new must-fix finding
+  means the gate is satisfied; record the remaining follow-ups and finish.
+- **Do not re-review a test-only or follow-up-only change in a dedicated
+  round.** Include it in the next batch.
 
 Ledger (untracked; never commit):
 
 ```markdown
 # Review ledger — <task>
+Lane: <skip|light|full>
 Gate: <verbatim, fixed>
 Base: <sha>  Head: <sha>
 Round: <n>
 Open: <id> [SEVERITY] <location> — <problem>
 Fixed: <id> ...
 Pushed back: <id> ... — <why>
-Verdict: PASS | FAIL | BLOCKED
+Verdict: SHIP | SHIP WITH FOLLOW-UPS | DO NOT SHIP
 ```
 
 ## Review Order
@@ -368,10 +416,14 @@ Report findings by severity:
 - LOW: minor improvement.
 - NOTE: optional observation.
 
+Report at most 5 findings in `light` and 10 in `full`; beyond that, summarize
+the count and keep the highest-severity items. Do not list style preferences.
+
 Every finding should include:
 - location;
 - problem;
 - why it matters;
 - concrete remediation.
 
-Do not invent problems. If no meaningful issue exists, say so and summarize what was verified.
+End with the verdict, evidence checked, and unverified items. Do not invent
+problems. If no meaningful issue exists, say so and summarize what was verified.
