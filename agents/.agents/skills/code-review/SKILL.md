@@ -53,6 +53,13 @@ Before handing your own work to review (or asking a worker to review):
    Claude the `review` subagent, Codex a fresh session. Pass the lane and gate.
    Parallel or worker output still goes through the harness's worker
    orchestration when it has one. Never self-approve.
+6. A `full` review whose head moved after the last full-state round, or that
+   spans linked PRs (a stack, or an API and its consumer in another
+   repository), ends with a final-state round before human review: the final
+   combined state across all of them, not only the delta. It counts toward
+   `max_rounds`, so the last permitted round is reserved for it; when none is
+   left, escalate instead. The ledger marks it `Round type: final-state`.
+   Delta rounds never see cross-layer seams.
 
 ## Review Gate
 
@@ -159,22 +166,25 @@ Then:
 Round rules:
 
 - **One reviewer per round.** A round is one reviewer session for the whole
-  change. Never run parallel reviewers per layer, per file, or per worker.
+  change, including linked PRs in other repositories. Never run parallel
+  reviewers per layer, per file, per repository, or per worker.
 - **The ledger enforces the cap.** The ledger starts at `Round: 1`. Before
   spawning each later round, increment `Round:`. When it would exceed
   `max_rounds`, do not spawn; escalate to the user with the ledger. A reviewer
   handed a ledger past the cap refuses the review.
-- **A round is for must-fix closure or an explicit user request.** Fixing
-  `LOW`/`NOTE` items never starts one.
+- **A round is for must-fix closure, the final-state round, or an explicit
+  user request.** Fixing `LOW`/`NOTE` items never starts one.
 - **Round 1 is the full review.** Every later round reviews the delta since the
-  last reviewed head, not the whole PR again.
+  last reviewed head, not the whole PR again, except the final-state round in
+  Before Requesting Review step 6.
 - **Review the stack once.** Round 1 covers the aggregate diff; do not review
   each stacked layer separately.
 - **A pass without a verdict is a failure.** Resume the same session once with
   "finish the report"; if it fails again, escalate. Do not spawn a new pass to
   recover a report.
 - **Stop on convergence.** Two consecutive rounds with no new must-fix finding
-  means the gate is satisfied; record the remaining follow-ups and finish.
+  means the gate is satisfied; record the remaining follow-ups and finish,
+  after the final-state round when step 6 requires one.
 - **Do not re-review a test-only or follow-up-only change in a dedicated
   round.** Include it in the next batch.
 
@@ -184,8 +194,9 @@ Ledger (untracked; never commit):
 # Review ledger — <task>
 Lane: <skip|light|full>
 Gate: <verbatim, fixed>
-Base: <sha>  Head: <sha>
+Base: <sha>  Head: <sha>   # one line per repository for linked PRs
 Round: <n>
+Round type: <full|delta|final-state>
 Open: <id> [SEVERITY] <location> — <problem>
 Fixed: <id> ...
 Pushed back: <id> ... — <why>
@@ -236,6 +247,16 @@ each seam the change touches:
 - **Untrusted-key lookup:** a table indexed by external input must not resolve
   inherited keys (JS: `Map` or `Object.hasOwn`). Test the fallback with
   `constructor` and `__proto__`.
+- **Validation parity:** the client accepts exactly what the server accepts.
+  A server rejection of one item must not fail the whole batch or discard the
+  user's edits.
+- **Context across awaits:** every await that can outlive a user context
+  switch (ticket, tab, account) re-checks the context captured at start,
+  including handoffs from one flow into another.
+- **No silent loss:** every item reaches a user-actionable terminal state on
+  every termination path (done, error, dropped stream, timeout, abort). Every
+  cap or truncation is reported with its own reason; never drop or mislabel
+  input silently.
 
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.

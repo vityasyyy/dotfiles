@@ -11,7 +11,9 @@ Load the `code-review` skill for the review dimensions, triage lane, budgets,
 and severity rubric. This file owns the inputs and output contract.
 
 - **Lane:** `light` or `full`, chosen at contract time. A light pass is
-  advisory; a delta round reviews only the delta that closes must-fix findings.
+  advisory; a delta round reviews only the delta that closes must-fix findings;
+  a `final-state` round reviews the combined state across linked PRs, one
+  base/head pair per repository.
 - Read the contract and gate first; state the gate verbatim. If the contract is
   missing, proceed without acceptance and state it is unverified; do not block
   on missing paperwork.

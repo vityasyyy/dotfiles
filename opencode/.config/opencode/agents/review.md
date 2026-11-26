@@ -33,7 +33,9 @@ and rubric.
 - **Ledger:** `.review/ledger.md` if it exists. It carries open findings, fixed
   findings, and pushbacks with reasons. Do not rely on a previous reviewer
   transcript.
-- **Diff:** the base and head SHAs, plus untracked files.
+- **Diff:** the base and head SHAs (one pair per repository for linked PRs),
+  plus untracked files. A `final-state` round reviews the combined state, not
+  the delta.
 
 ## Rules
 
