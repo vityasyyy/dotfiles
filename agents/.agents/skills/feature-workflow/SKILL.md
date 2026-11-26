@@ -17,7 +17,7 @@ minimum gates for each lane. Do not restate a rule another skill owns.
 |---|---|---|---|
 | Trivial | typo, one-line fix, config/docs; reversible; obvious check | skip | one-line contract → implement → verify → report |
 | Standard | behavior change in maintained code | light | contract + gate → tests (TDD when testable) → implement → verify → advisory review → PR |
-| High-impact | architecture, data model, money/auth/security, cross-cutting, production infra | full | grilling/spec → plan → worker delegation (parallel-worktrees if parallel) → contract + gate → implement → verify → full review → PR → post-merge pipelines |
+| High-impact | architecture, data model, money/auth/security, cross-cutting, production infra | full | grilling/spec → plan → worker delegation (worktrees if parallel) → contract + gate → implement → verify → full review → PR → post-merge pipelines |
 
 Review triggers and verdicts are owned by `code-review`. Record
 `Review: skip|light|full` in the contract. When unsure between code lanes, take
@@ -69,11 +69,11 @@ Evidence:
 
 - Multi-step: keep the contract and plan in chat for single-session work; use
   task state (`memory`) when the work crosses a session, a worker, or a context
-  rollover. A user-requested `docs/plans/` copy is gitignored and never
-  committed. Plan format and task granularity: `writing-plans`.
+  rollover; plan location rules live in `memory`. Plan format and task
+  granularity: `writing-plans`.
 - Lead: where the harness supports workers (`herd`), non-trivial
-  implementation goes to one; add `parallel-worktrees` only when work is
-  parallel or isolated. Otherwise implement inline with native subagents for
+  implementation goes to one; add a worktree (`git-pr-workflow`) only when
+  work is parallel or isolated. Otherwise implement inline with native subagents for
   research and review, and state why. The worker brief carries the contract
   and evidence commands. Workers never spawn workers.
 - Before the first edit, record the delegation decision. Inline non-trivial
@@ -107,8 +107,7 @@ Evidence:
   or push back with evidence; re-review only the delta that closes them, at
   most three rounds. Escalate on `DO NOT SHIP` twice or budget exhaustion.
 - Review the stack, not each layer: one full pass covers the aggregate diff.
-- Commit, open the PR, and wait for CI with `git-pr-workflow`. The feature and
-  its tests land in one commit; never split `feat`/`fix` from `test`.
+- Commit, open the PR, and wait for CI with `git-pr-workflow`.
 - Report:
 
   | Requirement | Evidence |

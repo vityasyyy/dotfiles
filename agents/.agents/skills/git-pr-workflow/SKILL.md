@@ -21,6 +21,26 @@ Do not reset, checkout, clean, stash, or otherwise destroy user changes unless e
 
 Prefer creating a feature/fix branch when the repository workflow requires it.
 
+## Worktrees
+
+Sequential work uses a branch, not a worktree. When two agents can write to
+the same repository at once, each gets its own worktree and branch:
+`git worktree add <path> -b agent/<scope> <base>`. Already inside one: work
+there.
+
+- Before dispatch: a clean or deliberately preserved base, passing tests, and
+  tasks split by file ownership. Do not parallelize tightly coupled edits.
+- Each agent works only in its worktree, commits there, and reports its SHA;
+  it never resets, cleans, or edits another agent's worktree or branch.
+- Worktrees isolate files, not resources: serialize or isolate shared
+  databases, generated artifacts, lockfiles, and deploy environments.
+- Integrate in dependency order, resolve conflicts deliberately, and run the
+  full validation after integration. Independent changes may ship as
+  separate PRs.
+- Remove a worktree (`git worktree remove`, then `git worktree prune`) only
+  after its work is merged. A stuck agent's worktree is preserved and
+  inspected before reassignment.
+
 ## Diff Discipline
 
 A commit must contain only related changes.

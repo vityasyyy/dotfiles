@@ -30,10 +30,9 @@ One owner per rule; load every skill the lane needs, nothing else.
 | Explain/onboard codebase | `codebase-explainer` |
 | Implementation | `ponytail` then `feature-workflow` |
 | Diff/PR review | fresh-context reviewer, `code-review` rubric |
-| Commit, PR, CI | `git-pr-workflow` |
+| Commit, PR, CI, worktrees | `git-pr-workflow` |
 | Claiming done | `verification-before-completion` |
 | Worker orchestration (harness supports it) | `herd` + `herdr` |
-| Parallel or isolated in-repo work | `parallel-worktrees` |
 | Ops, infra, reliability | `production-reliability` |
 | Docs, runbooks, PR bodies, Confluence | `documentation` |
 | UI/visual design | `frontend-design` |
