@@ -135,7 +135,8 @@ Each round is a new reviewer session. Carry state, not context:
 - prior evidence claims, for spot-checking.
 
 For a `full` review, the implementer writes `.review/ledger.md` before round 1;
-the reviewer only reads it. A `light` pass does not need a ledger. Create it
+the reviewer only reads it. A `light` pass needs a ledger only when a delta
+round follows it; create it then, with `Round: 2`. Create it
 once per task; never reconstruct it from a transcript.
 
 Do not pass the previous reviewer transcript or the implementation chat.
@@ -156,6 +157,13 @@ Then:
 5. Budget exhausted — escalate; do not keep looping.
 
 Round rules:
+
+- **One reviewer per round.** A round is one reviewer session for the whole
+  change. Never run parallel reviewers per layer, per file, or per worker.
+- **The ledger enforces the cap.** Before spawning a round, increment `Round:`
+  in the ledger. When it would exceed `max_rounds`, do not spawn; escalate to
+  the user with the ledger. A reviewer handed a ledger past the cap refuses
+  the review.
 
 - **A round is for must-fix closure or an explicit user request.** Fixing
   `LOW`/`NOTE` items never starts one.

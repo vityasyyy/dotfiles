@@ -51,7 +51,8 @@ Every brief must be self-contained — workers cannot see this conversation:
 - **Worker protocol:** load the phase skills (`feature-workflow`,
   `testing` or a stated skip, `ponytail`, `git-pr-workflow`,
   `verification-before-completion`); use `explore` for research and `review`
-  for independent standard/high-impact review; commit feature+tests together;
+  for independent standard/high-impact review, one reviewer per round for the
+  whole stack; commit feature+tests together;
   never spawn herdr workers.
 - **Stacked delivery:** when the work is several dependent PRs, name the
   `gh stack` branch chain; the worker reports a non-null `.stack` for every

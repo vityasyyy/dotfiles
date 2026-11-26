@@ -88,6 +88,9 @@ else
     || err "review agent must be a subagent"
   grep -q '^model: opencode-go/deepseek-v4.1-flash#max' "${review_agent}" \
     || err "review agent must pin DS V4.1 Flash max"
+  review_steps="$(sed -n 's/^steps: *//p' "${review_agent}")"
+  [[ "${review_steps}" =~ ^[0-9]+$ ]] && [ "${review_steps}" -le 50 ] \
+    || err "review agent must cap steps at 50 or fewer"
   agent_denies "${review_agent}" edit task \
     || err "review agent must deny edit and task"
 fi
