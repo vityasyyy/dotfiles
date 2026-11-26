@@ -161,10 +161,9 @@ Round rules:
 - **One reviewer per round.** A round is one reviewer session for the whole
   change. Never run parallel reviewers per layer, per file, or per worker.
 - **The ledger enforces the cap.** The ledger starts at `Round: 1`. Before
-  spawning each later round, increment `Round:`. When it would exceed `max_rounds`, do not spawn; escalate to
-  the user with the ledger. A reviewer handed a ledger past the cap refuses
-  the review.
-
+  spawning each later round, increment `Round:`. When it would exceed
+  `max_rounds`, do not spawn; escalate to the user with the ledger. A reviewer
+  handed a ledger past the cap refuses the review.
 - **A round is for must-fix closure or an explicit user request.** Fixing
   `LOW`/`NOTE` items never starts one.
 - **Round 1 is the full review.** Every later round reviews the delta since the

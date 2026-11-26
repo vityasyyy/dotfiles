@@ -97,13 +97,15 @@ edits.
    mock assertion, container-wide substring, test of the framework, and test
    hooks in production code.
 3. **Mutation.** For each changed production function with a branch, loop, or
-   side effect, apply the [mutation operators](smells.md#mutation-operators)
-   to the production code, never to tests. Before each mutation, copy the
-   file: `cp <file> /tmp/mutation.orig`. Break the behavior, run the scope, and
-   confirm a test fails with a message that names the behavior. Restore with
-   `cp /tmp/mutation.orig <file>` and prove it with `cmp`; a mismatch stops the
-   audit until the file is restored. Every new or changed test must be the one
-   that catches at least one mutation. Record each mutation as caught by a
+   side effect, and for the production code each new or changed test
+   exercises, apply the [mutation operators](smells.md#mutation-operators) to
+   production code, never to tests. Before each mutation, copy the file to a
+   unique path: `orig="$(mktemp)" && cp <file> "$orig"`. Break the behavior,
+   run the scope, and confirm a test fails with a message that names the
+   behavior. Restore with `cp "$orig" <file>`, prove it with
+   `cmp "$orig" <file>`, then remove the copy; a mismatch stops the audit
+   until the file is restored. Every new or changed test catches at least one
+   mutation. Record each mutation as caught by a
    named test or survived. When the repository already has a mutation tool (gremlins,
    go-mutesting, Stryker, mutmut, PIT), run it on the changed files instead;
    never install one without asking.
