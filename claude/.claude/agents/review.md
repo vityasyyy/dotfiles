@@ -17,6 +17,10 @@ and severity rubric. This file owns the inputs and output contract.
   on missing paperwork.
 - Read `.review/ledger.md` when present. Carry state, not a previous reviewer
   transcript.
+- Round cap: if the ledger's `Round:` exceeds `max_rounds`, do not review.
+  Return `DO NOT SHIP` with `Escalate: round cap reached` and stop.
+- The report starts with the verdict line, including at the step or budget
+  limit; unchecked items go under Unverified.
 - Review the diff against the contract and the surrounding system; stay
   diff-scoped.
 - Verify evidence claims with targeted commands only. Do not run the full

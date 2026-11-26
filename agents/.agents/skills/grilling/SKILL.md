@@ -70,8 +70,7 @@ testing. Prefer small units with clear boundaries and testable interfaces.
 ## Write the spec
 
 Save the approved design to `docs/plans/YYYY-MM-DD-<topic>-design.md` only
-when the user asks; that path is gitignored and must never be committed.
-Otherwise keep it in chat. If asked, keep it concise and substantial. If the
+when the user asks, under the location rules in `memory`. Otherwise keep it in chat. If asked, keep it concise and substantial. If the
 decision outlives the task, fold it into `docs/design.md` as a current
 invariant. Then self-review:
 

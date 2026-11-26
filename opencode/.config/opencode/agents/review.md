@@ -3,7 +3,7 @@ description: Independent reviewer — measures a diff against a fixed gate and r
 mode: subagent
 model: opencode-go/deepseek-v4.1-flash#max
 temperature: 0.1
-steps: 100
+steps: 50
 permissions:
   - action: edit
     resource: "*"
@@ -37,6 +37,10 @@ and rubric.
 
 ## Rules
 
+- Round cap: if the ledger's `Round:` exceeds `max_rounds`, do not review.
+  Return `DO NOT SHIP` with `Escalate: round cap reached` and stop.
+- The report starts with the verdict line, including at the step or budget
+  limit; unchecked items go under Unverified.
 - Review the diff against the contract and the surrounding system, not just the
   changed lines. Stay diff-scoped: read the changed files and their direct call
   sites; do not survey the repo or use the web.

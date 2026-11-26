@@ -21,6 +21,30 @@ Do not reset, checkout, clean, stash, or otherwise destroy user changes unless e
 
 Prefer creating a feature/fix branch when the repository workflow requires it.
 
+## Worktrees
+
+Sequential work uses a branch, not a worktree. When two agents can write to
+the same repository at once, each gets its own worktree and branch:
+`git worktree add <path> -b agent/<scope> <base>`. Already inside one: work
+there.
+
+- Before dispatch: a clean or deliberately preserved base, passing tests, and
+  tasks split by file ownership with their dependencies named. Do not
+  parallelize tightly coupled edits. Give each agent its worktree path,
+  branch, and the files it owns.
+- Each agent works only in its worktree, commits there, and reports its SHA;
+  it never resets, cleans, or edits another agent's worktree or branch.
+- Worktrees isolate files, not resources: serialize or isolate shared
+  databases, generated artifacts, lockfiles, deploy environments, and cloud
+  resources.
+- Before integrating, review each branch and run its tests. Integrate in
+  dependency order, resolve conflicts deliberately (never blind
+  cherry-picks), and run the full validation after integration. Independent
+  changes may ship as separate PRs.
+- Remove a worktree (`git worktree remove`, then `git worktree prune`) only
+  after its work is merged. A stuck agent's worktree is preserved and
+  inspected before reassignment.
+
 ## Diff Discipline
 
 A commit must contain only related changes.
@@ -100,7 +124,7 @@ Before `git commit`:
 
 - `git status` — stage the implementation and its test changes together.
 - `git diff --cached --stat` — a behavior commit with no test change is a
-  defect unless the change is docs/config or the TDD skip was stated.
+  defect unless the change is docs/config or the `testing` skip was stated.
 - `git diff --cached` — confirm the tests exercise the committed behavior.
 - A `test:`-only commit is valid only for pre-existing behavior or test debt,
   never for a feature in the same change.
@@ -150,6 +174,8 @@ flowchart TD
 - Seam evidence when the change has a consumer: exact rendered unit, composed
   request/limiter count, consumer-field round trip, or provider-status matrix.
   Coverage percentages and whole-panel text matches are not seam evidence.
+- The `testing` finalize audit evidence block, including the report-only
+  findings outside the diff.
 
 ## Risks / Rollback
 - Failure modes, rollout/flag, rollback; non-trivial changes only

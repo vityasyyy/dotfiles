@@ -9,20 +9,16 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. Test-first. One commit per task, at green.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
-
-**Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
-
-**Context:** If working in an isolated worktree, it should have been created via the `parallel-worktrees` skill at execution time.
 
 **Save plans to:** task state
 (`~/.agents/skills/memory/scripts/mem plan --task "..."`) when the work crosses
 a session, a worker, or a context rollover; keep single-session plans in chat.
 When the user asks for a repo-local copy, write
-`docs/plans/YYYY-MM-DD-<feature-name>.md`; that path is gitignored and must
-never be committed. User preferences for plan location override this default.
+`docs/plans/YYYY-MM-DD-<feature-name>.md` under the location rules in
+`memory`. User preferences for plan location override this default.
 When a plan is rendered as Markdown, link file references when the target is
 reachable; otherwise use absolute paths.
 
@@ -207,8 +203,8 @@ worktree, where the harness supports it.
 
 ### Inline execution
 
-1. Ensure an isolated workspace with `parallel-worktrees` (or verify the
-   existing one).
+1. Work on a feature branch. Use a worktree (`git-pr-workflow`) only when
+   the work is parallel or must stay isolated.
 2. Read the plan and review it critically. Raise concerns before starting.
 3. Execute tasks in order. Mark each in progress and completed. Follow the
    steps and run the specified verification.

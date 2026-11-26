@@ -139,7 +139,8 @@ Each round is a new reviewer session. Carry state, not context:
 - prior evidence claims, for spot-checking.
 
 For a `full` review, the implementer writes `.review/ledger.md` before round 1;
-the reviewer only reads it. A `light` pass does not need a ledger. Create it
+the reviewer only reads it. A `light` pass needs a ledger only when a delta
+round follows it; create it then, with `Round: 2`. Create it
 once per task; never reconstruct it from a transcript.
 
 Do not pass the previous reviewer transcript or the implementation chat.
@@ -161,6 +162,12 @@ Then:
 
 Round rules:
 
+- **One reviewer per round.** A round is one reviewer session for the whole
+  change. Never run parallel reviewers per layer, per file, or per worker.
+- **The ledger enforces the cap.** The ledger starts at `Round: 1`. Before
+  spawning each later round, increment `Round:`. When it would exceed
+  `max_rounds`, do not spawn; escalate to the user with the ledger. A reviewer
+  handed a ledger past the cap refuses the review.
 - **A round is for must-fix closure or an explicit user request.** Fixing
   `LOW`/`NOTE` items never starts one.
 - **Round 1 is the full review.** Every later round reviews the delta since the
@@ -247,12 +254,12 @@ each seam the change touches:
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
 Report code or tests that exist only to satisfy a coverage threshold as a
-finding ([`test-driven-development`](../test-driven-development/SKILL.md#coverage-is-not-a-goal)).
+finding ([`testing`](../testing/SKILL.md#coverage)).
 Report a test hook in production code as a finding even when the PR calls it
 a testability boundary: `run`/`runWith` wrappers, reassigned package-level
 function variables, options or constructor variants only tests call, and
 "for tests" comments
-([hook shapes](../test-driven-development/SKILL.md#production-code-reads-as-if-tests-did-not-exist)).
+([hook shapes](../testing/SKILL.md#production-code-reads-as-if-tests-did-not-exist)).
 
 ## Correctness
 
@@ -397,6 +404,11 @@ Require tests for:
 
 Reject tests that merely assert implementation details without protecting behavior.
 
+Check the `testing` finalize audit evidence block; do not repeat the audit.
+Its absence on a code change is a finding. Spot-check one recorded mutation by
+reading the test that claims to catch it; never mutate the tree to confirm it.
+A low-signal, redundant, or flaky test in the diff is a finding.
+
 ## Receiving Feedback
 
 When the feedback is about your own work:
@@ -439,5 +451,5 @@ Every finding should include:
 - why it matters;
 - concrete remediation.
 
-End with the verdict, evidence checked, and unverified items. Do not invent
+Lead with the verdict; end with evidence checked and unverified items. Do not invent
 problems. If no meaningful issue exists, say so and summarize what was verified.
