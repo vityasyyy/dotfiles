@@ -167,6 +167,10 @@ repeat the commit body. A reviewer should get what, why, context, evidence,
 and risk in under a minute. Agents use the same structure: exact paths,
 commands, and known gaps, not prose.
 
+The body describes the head, not the first push. Re-sync it on every push that
+changes behavior, limits, scope, or a contract; a stale body is a review
+finding.
+
 ## Stacked PRs
 
 A stack is two or more PRs in the same repository: the bottom targets the

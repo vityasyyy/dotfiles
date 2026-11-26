@@ -53,6 +53,10 @@ Before handing your own work to review (or asking a worker to review):
    Claude the `review` subagent, Codex a fresh session. Pass the lane and gate.
    Parallel or worker output still goes through the harness's worker
    orchestration when it has one. Never self-approve.
+6. Before a human review of work that was reviewed only in deltas, or that
+   spans linked PRs (a stack, or an API and its consumer), run one full
+   fresh-context review of the final combined state across all of them. Delta
+   rounds never see cross-layer seams.
 
 ## Review Gate
 
@@ -229,6 +233,16 @@ each seam the change touches:
 - **Untrusted-key lookup:** a table indexed by external input must not resolve
   inherited keys (JS: `Map` or `Object.hasOwn`). Test the fallback with
   `constructor` and `__proto__`.
+- **Validation parity:** the client accepts exactly what the server accepts.
+  A server rejection of one item must not fail the whole batch or discard the
+  user's edits.
+- **Context across awaits:** every await that can outlive a user context
+  switch (ticket, tab, account) re-checks the context captured at start,
+  including handoffs from one flow into another.
+- **No silent loss:** every item reaches a user-actionable terminal state on
+  every termination path (done, error, dropped stream, timeout, abort). Every
+  cap or truncation is reported with its own reason; never drop or mislabel
+  input silently.
 
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
