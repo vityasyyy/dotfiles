@@ -194,8 +194,8 @@ and risk in under a minute. Agents use the same structure: exact paths,
 commands, and known gaps, not prose.
 
 The body describes the head, not the first push. Re-sync it on every push that
-changes behavior, limits, scope, or a contract; a stale body is a review
-finding.
+changes behavior, limits, scope, or a contract. A body that misstates any of
+those is a review finding.
 
 ## Stacked PRs
 
