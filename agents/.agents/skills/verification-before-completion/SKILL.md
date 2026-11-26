@@ -66,6 +66,12 @@ coverage:
 
 Cheap direct checks beat an unavailable broad validator.
 
+## Finalize audit
+
+A completion claim on a code change includes the `testing` finalize audit: run
+it before the claim and include its evidence block. A change that touches no
+code states the skip in one line.
+
 ## Red Flags - STOP
 
 - Using "should", "probably", "seems to"
@@ -98,7 +104,7 @@ Cheap direct checks beat an unavailable broad validator.
 ❌ "Should pass now" / "Looks correct"
 ```
 
-**Regression tests (TDD Red-Green):**
+**Regression tests (red-green proof after the fix):**
 ```
 ✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
 ❌ "I've written a regression test" (without red-green verification)

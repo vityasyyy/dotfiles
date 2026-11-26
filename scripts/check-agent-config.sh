@@ -88,6 +88,9 @@ else
     || err "review agent must be a subagent"
   grep -q '^model: opencode-go/deepseek-v4.1-flash#max' "${review_agent}" \
     || err "review agent must pin DS V4.1 Flash max"
+  review_steps="$(sed -n 's/^steps: *//p' "${review_agent}")"
+  [[ "${review_steps}" =~ ^[0-9]+$ ]] && [ "${review_steps}" -ge 1 ] && [ "${review_steps}" -le 50 ] \
+    || err "review agent must cap steps between 1 and 50"
   agent_denies "${review_agent}" edit task \
     || err "review agent must deny edit and task"
 fi
@@ -239,9 +242,9 @@ while IFS= read -r -d '' skill; do
 done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -not -path '*/synced/*' -print0)
 
 # Deleted skills must not reappear in active configuration.
-if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring' \
+if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring|test-driven-development|parallel-worktrees' \
   --include='*.md' --exclude-dir='synced' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
-  | grep -Ev 'authoring-guide' >/dev/null; then
+  | grep -q .; then
   err "active configuration references a deleted skill"
 fi
 
