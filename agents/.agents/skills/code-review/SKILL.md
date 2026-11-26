@@ -54,9 +54,10 @@ Before handing your own work to review (or asking a worker to review):
    Parallel or worker output still goes through the harness's worker
    orchestration when it has one. Never self-approve.
 6. Before a human review of work that was reviewed only in deltas, or that
-   spans linked PRs (a stack, or an API and its consumer), run one full
-   fresh-context review of the final combined state across all of them. Delta
-   rounds never see cross-layer seams.
+   spans linked PRs (a stack, or an API and its consumer in another
+   repository), the closing round reviews the final combined state across all
+   of them, not only the delta. It counts toward `max_rounds`; when no round
+   is left, escalate instead. Delta rounds never see cross-layer seams.
 
 ## Review Gate
 
@@ -163,7 +164,8 @@ Then:
 Round rules:
 
 - **One reviewer per round.** A round is one reviewer session for the whole
-  change. Never run parallel reviewers per layer, per file, or per worker.
+  change, including linked PRs in other repositories. Never run parallel
+  reviewers per layer, per file, per repository, or per worker.
 - **The ledger enforces the cap.** The ledger starts at `Round: 1`. Before
   spawning each later round, increment `Round:`. When it would exceed
   `max_rounds`, do not spawn; escalate to the user with the ledger. A reviewer
@@ -171,7 +173,8 @@ Round rules:
 - **A round is for must-fix closure or an explicit user request.** Fixing
   `LOW`/`NOTE` items never starts one.
 - **Round 1 is the full review.** Every later round reviews the delta since the
-  last reviewed head, not the whole PR again.
+  last reviewed head, not the whole PR again, except the closing final-state
+  round in Before Requesting Review step 6.
 - **Review the stack once.** Round 1 covers the aggregate diff; do not review
   each stacked layer separately.
 - **A pass without a verdict is a failure.** Resume the same session once with
