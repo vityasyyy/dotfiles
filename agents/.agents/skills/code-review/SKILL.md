@@ -233,12 +233,12 @@ each seam the change touches:
 Reject a claim of "tested" when the evidence is only a coverage percentage, a
 whole-container text match, or a per-router test for app-level composition.
 Report code or tests that exist only to satisfy a coverage threshold as a
-finding ([`test-driven-development`](../test-driven-development/SKILL.md#coverage-is-not-a-goal)).
+finding ([`testing`](../testing/SKILL.md#coverage)).
 Report a test hook in production code as a finding even when the PR calls it
 a testability boundary: `run`/`runWith` wrappers, reassigned package-level
 function variables, options or constructor variants only tests call, and
 "for tests" comments
-([hook shapes](../test-driven-development/SKILL.md#production-code-reads-as-if-tests-did-not-exist)).
+([hook shapes](../testing/SKILL.md#production-code-reads-as-if-tests-did-not-exist)).
 
 ## Correctness
 
@@ -382,6 +382,11 @@ Require tests for:
 - concurrency-sensitive behavior where applicable.
 
 Reject tests that merely assert implementation details without protecting behavior.
+
+Check the `testing` finalize audit evidence block; do not repeat the audit.
+Its absence on a code change is a finding. Spot-check one recorded mutation by
+reading the test that claims to catch it; never mutate the tree to confirm it.
+A low-signal, redundant, or flaky test in the diff is a finding.
 
 ## Receiving Feedback
 

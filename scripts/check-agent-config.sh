@@ -239,7 +239,7 @@ while IFS= read -r -d '' skill; do
 done < <(find agents/.agents/skills opencode/.config/opencode/skills -name SKILL.md -not -path '*/synced/*' -print0)
 
 # Deleted skills must not reappear in active configuration.
-if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring' \
+if grep -rn -E 'engineering-core|find-skills|brainstorming|executing-plans|receiving-code-review|confluence-authoring|test-driven-development' \
   --include='*.md' --exclude-dir='synced' opencode agents codex claude docs/agent-memory.md 2>/dev/null \
   | grep -Ev 'authoring-guide' >/dev/null; then
   err "active configuration references a deleted skill"

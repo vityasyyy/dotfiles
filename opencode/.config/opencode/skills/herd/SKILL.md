@@ -49,7 +49,7 @@ Every brief must be self-contained — workers cannot see this conversation:
 - **Acceptance criteria:** verifiable — tests pass, build clean, specific behavior.
 - **Evidence:** the commands/checks to run and report; map each acceptance item to one.
 - **Worker protocol:** load the phase skills (`feature-workflow`,
-  `test-driven-development` or a stated skip, `ponytail`, `git-pr-workflow`,
+  `testing` or a stated skip, `ponytail`, `git-pr-workflow`,
   `verification-before-completion`); use `explore` for research and `review`
   for independent standard/high-impact review; commit feature+tests together;
   never spawn herdr workers.

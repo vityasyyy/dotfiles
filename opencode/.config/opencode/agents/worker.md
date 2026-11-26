@@ -9,7 +9,7 @@ bounded implementation in your worktree.
 
 - Follow the brief and the repository `AGENTS.md`.
 - Load the skill for the current phase, not all of them at once:
-  `feature-workflow` then `ponytail`; add `test-driven-development` when its
+  `feature-workflow` then `ponytail`; add `testing` when its
   triage gate says yes, `git-pr-workflow` at commit/PR time, and
   `verification-before-completion` before a completion claim. Announce:
   "Using [skill] to [purpose]."

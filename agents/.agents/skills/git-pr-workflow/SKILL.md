@@ -150,6 +150,8 @@ flowchart TD
 - Seam evidence when the change has a consumer: exact rendered unit, composed
   request/limiter count, consumer-field round trip, or provider-status matrix.
   Coverage percentages and whole-panel text matches are not seam evidence.
+- The `testing` finalize audit evidence block, including the report-only
+  findings outside the diff.
 
 ## Risks / Rollback
 - Failure modes, rollout/flag, rollback; non-trivial changes only

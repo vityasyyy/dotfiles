@@ -66,6 +66,12 @@ coverage:
 
 Cheap direct checks beat an unavailable broad validator.
 
+## Finalize audit
+
+A completion claim on a code change includes the `testing` finalize audit: run
+it before the claim and include its evidence block. A change that touches no
+code states the skip in one line.
+
 ## Red Flags - STOP
 
 - Using "should", "probably", "seems to"

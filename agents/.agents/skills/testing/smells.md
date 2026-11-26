@@ -1,7 +1,8 @@
-# Writing Good Tests
+# Test Smells
 
-**Load this reference when:** writing or changing tests, adding mocks, or
-adding cleanup/helper methods for tests.
+Reference for [`testing`](SKILL.md): the rules behind writing a test, and the
+catalogue the finalize audit scans for. Load it when writing or changing
+tests, adding mocks or test helpers, or running the audit.
 
 ## Overview
 
@@ -48,7 +49,7 @@ retried 5 times and the 6th attempt never happens."
 contains an exact line proves only that the source is the source. Run
 scripts against controlled inputs and assert outputs, side effects, or
 exit codes. Documents that instruct agents are tested by the consuming
-agent's behavior (superpowers:writing-skills); prose for humans earns no
+agent's behavior (`writing-skills`); prose for humans earns no
 test at all.
 
 **Assert the concrete output unit.** Test the row, pair, tone, or event a
@@ -166,19 +167,20 @@ The TDD cycle — failing test, minimal implementation, refactor — is what
 trivial code and human prose earn none, and a test written to satisfy
 process costs maintenance forever.
 
-## The Mutation Check
+## Mutation Operators
 
-Before finishing, mentally mutate the production code; at least one test
-should fail for each realistic mutation:
+The finalize audit applies these to changed production code. Each one should
+make at least one test fail with a message that names the behavior:
 
-- Wrong constant or argument
-- Wrong branch handler
-- Missing state change or side effect
-- Empty or default return
-- Missing validation for zero, empty, nil, unauthorized, or malformed input
+- Flip a condition or comparison boundary (`<` → `<=`, `&&` → `||`)
+- Swap a constant or argument
+- Route to the wrong branch handler
+- Drop a state change, side effect, emitted event, or error return
+- Return empty, zero, nil, or the default
+- Skip validation for zero, empty, nil, unauthorized, or malformed input
 
-A mutation nothing catches marks the behavior as unprotected — or the
-test as tautological.
+A mutation nothing catches marks the behavior as unprotected, or the test as
+tautological.
 
 ## Quick Reference
 
@@ -195,7 +197,7 @@ test as tautological.
 | Build a mock response | Mirror the real structure completely |
 | Need cleanup only tests use | Put it in test utilities |
 | Watch mock setup balloon | Switch to an integration test with real components |
-| Finish a test file | Run the mutation check |
+| Finish a change | Run the finalize audit in [`SKILL.md`](SKILL.md#finalize-audit) |
 
 ## Warning Signs
 
@@ -212,3 +214,42 @@ test as tautological.
 - A method is called only from test files
 - Mock setup is more than half the test, or you can't explain why the mock is needed
 - Mocking "just to be safe"
+
+## Flaky Tests
+
+A flaky test fails without a code change. Each source has a deterministic
+replacement; a retry, a longer sleep, or a skip hides the defect instead.
+
+| Source | Sign | Replace with |
+|---|---|---|
+| Real time | `sleep`, `time.Now()`, `Date.now()`, `setTimeout` waits | Injected clock; await the event or condition |
+| Randomness | Unseeded `rand`, `Math.random`, UUIDs in assertions | Seeded source; assert the shape, not the value |
+| Order | Passes alone, fails in the suite or shuffled | Per-test setup and teardown; no shared mutable state |
+| Concurrency | Fails under `-race` or load | Synchronize on the real signal; assert after it |
+| Network and I/O | Real hosts, ports, home directories, shared temp paths | Local fake at the boundary; per-test temp dir; port 0 |
+| Environment | Locale, timezone, env vars, CPU count | Pin them in the test |
+
+Static scan, adjusted to the repo's languages:
+
+```sh
+# Arbitrary waits and real clocks
+git grep -nE 'time\.Sleep|sleep\(|setTimeout\(|waitForTimeout|time\.Now\(\)|Date\.now\(\)' -- '*_test.go' '*.test.*' '*.spec.*' 'test_*.py' '*_test.py'
+# Unseeded randomness
+git grep -nE 'rand\.(Int|Float|Intn)|Math\.random|random\.(random|randint|choice)' -- '*_test.go' '*.test.*' '*.spec.*' 'test_*.py' '*_test.py'
+# Skipped, focused, or retried tests
+git grep -nE '\.(skip|only)\(|t\.Skip\(|@pytest\.mark\.(skip|flaky)|retries?:|retry\(' -- '*_test.go' '*.test.*' '*.spec.*' 'test_*.py' '*_test.py'
+```
+
+## Redundant Tests
+
+A test is redundant when removing it lets no realistic mutation survive: every
+break it catches, another test at the same or a lower level also catches, and
+it documents no behavior the others leave implicit. Common shapes:
+
+- The same edge case asserted at unit, integration, and end-to-end level.
+- Near-identical tests that differ only in input; merge into one table.
+- A test whose assertions are a strict subset of a neighbor's.
+- A constant, getter, or framework mechanic pinned on its own.
+
+Redundancy is a claim about mutations, not about similar-looking code. Prove it
+with the mutation list before proposing a removal.

@@ -26,7 +26,7 @@ One owner per rule; load every skill the lane needs, nothing else.
 | Ambiguous intent, 2+ user questions | `grilling` |
 | Multi-step plan | `writing-plans` |
 | Bug or unexpected behavior | `systematic-debugging` |
-| Behavior change needing tests | `test-driven-development` |
+| Tests: writing, auditing, finalizing | `testing` |
 | Explain/onboard codebase | `codebase-explainer` |
 | Implementation | `ponytail` then `feature-workflow` |
 | Diff/PR review | fresh-context reviewer, `code-review` rubric |

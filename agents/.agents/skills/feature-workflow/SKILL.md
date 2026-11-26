@@ -62,7 +62,7 @@ Evidence:
 - Pick the review lane here with the contract: `skip`, `light`, or `full`;
   triggers and the gate live in `code-review`.
 - Multi-step: put the contract at the top of the plan (`writing-plans`).
-- Testable: turn Acceptance into failing tests (`test-driven-development`).
+- Testable: turn Acceptance into failing tests (`testing`).
 - Trivial: one line in the response is enough.
 
 ## 3. Plan and delegate
@@ -94,6 +94,7 @@ Evidence:
   acceptance item is not done.
 - If a gate cannot run, replace it with the smallest equivalent check
   (`verification-before-completion`); stating why is not coverage.
+- Run the `testing` finalize audit; its evidence block goes in the report.
 - Use `verification-before-completion` for the final gate.
 
 ## 6. Review and report
