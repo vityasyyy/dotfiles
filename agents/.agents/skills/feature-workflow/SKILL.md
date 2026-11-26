@@ -16,7 +16,7 @@ minimum gates for each lane. Do not restate a rule another skill owns.
 | Lane | Trigger | Review | Minimum gates |
 |---|---|---|---|
 | Trivial | typo, one-line fix, config/docs; reversible; obvious check | skip | one-line contract → implement → verify → report |
-| Standard | behavior change in maintained code | light | contract + gate → tests (TDD when testable) → implement → verify → advisory review → PR |
+| Standard | behavior change in maintained code | light | contract + gate → tests (`testing` when testable) → implement → verify → advisory review → PR |
 | High-impact | architecture, data model, money/auth/security, cross-cutting, production infra | full | grilling/spec → plan → worker delegation (worktrees if parallel) → contract + gate → implement → verify → full review → PR → post-merge pipelines |
 
 Review triggers and verdicts are owned by `code-review`. Record

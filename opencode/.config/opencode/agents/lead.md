@@ -31,4 +31,5 @@ Pick `skip`, `light`, or `full` at contract time; `code-review` owns the
 triggers, budgets, and verdicts. Pass the lane and gate verbatim when spawning
 a review; a light review blocks only on `CRITICAL`. Follow its delta rules
 instead of spawning extra passes to recover a report. Run one reviewer per
-round for the whole change or stack, never one per worker or layer.
+round for the whole change or stack, never one per worker or layer. Before each later round, increment the ledger's
+`Round:`; at `max_rounds`, escalate to the user instead of spawning.

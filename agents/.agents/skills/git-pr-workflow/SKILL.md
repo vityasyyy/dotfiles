@@ -29,14 +29,18 @@ the same repository at once, each gets its own worktree and branch:
 there.
 
 - Before dispatch: a clean or deliberately preserved base, passing tests, and
-  tasks split by file ownership. Do not parallelize tightly coupled edits.
+  tasks split by file ownership with their dependencies named. Do not
+  parallelize tightly coupled edits. Give each agent its worktree path,
+  branch, and the files it owns.
 - Each agent works only in its worktree, commits there, and reports its SHA;
   it never resets, cleans, or edits another agent's worktree or branch.
 - Worktrees isolate files, not resources: serialize or isolate shared
-  databases, generated artifacts, lockfiles, and deploy environments.
-- Integrate in dependency order, resolve conflicts deliberately, and run the
-  full validation after integration. Independent changes may ship as
-  separate PRs.
+  databases, generated artifacts, lockfiles, deploy environments, and cloud
+  resources.
+- Before integrating, review each branch and run its tests. Integrate in
+  dependency order, resolve conflicts deliberately (never blind
+  cherry-picks), and run the full validation after integration. Independent
+  changes may ship as separate PRs.
 - Remove a worktree (`git worktree remove`, then `git worktree prune`) only
   after its work is merged. A stuck agent's worktree is preserved and
   inspected before reassignment.
@@ -120,7 +124,7 @@ Before `git commit`:
 
 - `git status` — stage the implementation and its test changes together.
 - `git diff --cached --stat` — a behavior commit with no test change is a
-  defect unless the change is docs/config or the TDD skip was stated.
+  defect unless the change is docs/config or the `testing` skip was stated.
 - `git diff --cached` — confirm the tests exercise the committed behavior.
 - A `test:`-only commit is valid only for pre-existing behavior or test debt,
   never for a feature in the same change.

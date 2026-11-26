@@ -21,7 +21,8 @@ Review the current change in a fresh context. Arguments: `$ARGUMENTS`
    plan, or the PR body. If none exists, omit `acceptance` from the gate and
    state `Contract: none supplied; acceptance not verified`. Do not invent
    requirements.
-5. Budget and round cap: per `code-review` and the review agent. A ledger past
+5. Budget and round cap: per `code-review` and the review agent. The caller
+   increments the ledger's `Round:` before each later round; a ledger past
    `max_rounds` gets no review; escalate to the user.
 6. Scope the round: if the ledger records a previously reviewed head, review
    only the delta since that head. Round 1 is the only full-PR review; one

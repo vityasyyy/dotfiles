@@ -160,8 +160,8 @@ Round rules:
 
 - **One reviewer per round.** A round is one reviewer session for the whole
   change. Never run parallel reviewers per layer, per file, or per worker.
-- **The ledger enforces the cap.** Before spawning a round, increment `Round:`
-  in the ledger. When it would exceed `max_rounds`, do not spawn; escalate to
+- **The ledger enforces the cap.** The ledger starts at `Round: 1`. Before
+  spawning each later round, increment `Round:`. When it would exceed `max_rounds`, do not spawn; escalate to
   the user with the ledger. A reviewer handed a ledger past the cap refuses
   the review.
 
@@ -438,5 +438,5 @@ Every finding should include:
 - why it matters;
 - concrete remediation.
 
-End with the verdict, evidence checked, and unverified items. Do not invent
+Lead with the verdict; end with evidence checked and unverified items. Do not invent
 problems. If no meaningful issue exists, say so and summarize what was verified.

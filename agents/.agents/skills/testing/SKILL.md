@@ -28,7 +28,8 @@ Yes means test-first. A skip that is not stated is a defect.
    test that passes at once tests existing behavior; fix the test.
 2. **Green.** Write the least code that passes. Run the test and its package;
    the output is clean.
-3. **Refactor.** Only at green. No new behavior.
+3. **Refactor.** Only at green. No new behavior. Rerun the scope; it stays
+   green.
 
 Code written before its test is deleted and rewritten from the test; do not
 keep it as reference. Exploration is fine; discard it before red. A bug fix
@@ -96,12 +97,14 @@ edits.
    mock assertion, container-wide substring, test of the framework, and test
    hooks in production code.
 3. **Mutation.** For each changed production function with a branch, loop, or
-   side effect, and each new or changed test, apply the
-   [mutation operators](smells.md#mutation-operators) by hand: break the
-   behavior, run the scope, and confirm a test fails with a message that names
-   the behavior. Restore the file and confirm `git status --short` matches its
-   state before the mutation. Record each mutation as caught by a named test or
-   survived. When the repository already has a mutation tool (gremlins,
+   side effect, apply the [mutation operators](smells.md#mutation-operators)
+   to the production code, never to tests. Before each mutation, copy the
+   file: `cp <file> /tmp/mutation.orig`. Break the behavior, run the scope, and
+   confirm a test fails with a message that names the behavior. Restore with
+   `cp /tmp/mutation.orig <file>` and prove it with `cmp`; a mismatch stops the
+   audit until the file is restored. Every new or changed test must be the one
+   that catches at least one mutation. Record each mutation as caught by a
+   named test or survived. When the repository already has a mutation tool (gremlins,
    go-mutesting, Stryker, mutmut, PIT), run it on the changed files instead;
    never install one without asking.
 4. **Redundancy.** A test is a removal candidate only when the mutation record
@@ -112,10 +115,12 @@ edits.
    [smells.md](smells.md#flaky-tests). When tests in scope touch time,
    concurrency, I/O, network, randomness, or shared state, also rerun them five
    times in shuffled order with race detection where the runner has it:
-   `go test -count=5 -shuffle=on -race`, Playwright `--repeat-each=5`, or a
-   five-run loop with Vitest `--sequence.shuffle`, Jest `--randomize`, or
-   pytest with `pytest-randomly` when installed. A failure is a defect: find
-   the cause with `systematic-debugging`; never add a retry, sleep, or skip.
+   `go test -count=5 -shuffle=on -race`, or a five-run loop with Vitest
+   `--sequence.shuffle`, Jest `--randomize`, or pytest with `pytest-randomly`
+   installed. Playwright `--repeat-each=5` repeats without shuffling, which
+   still exposes timing flakes. A failure in the diff is a defect: find the
+   cause with `systematic-debugging`; never add a retry, sleep, or skip. A
+   failure outside the diff is reported, not debugged here.
 6. **Disposition.**
    - A mutation that survived in the diff gets a test, written test-first,
      without asking.
